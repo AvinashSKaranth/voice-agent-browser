@@ -118,10 +118,17 @@ async function onWakeAttempt(audio: Float32Array): Promise<void> {
   }
 }
 
+let lastWakeHint = 0;
+
 function onSpeechEnd(audio: Float32Array): void {
   if (pushToTalkActive) return; // push-to-talk owns its own recording
   if (state === 'wake') {
     if (!wakeUsable) void onWakeAttempt(audio);
+    else if (Date.now() - lastWakeHint > 30000 && audio.length > 16000) {
+      // Speech heard while waiting for the wake word: tell the user why nothing happened (VP-9).
+      lastWakeHint = Date.now();
+      bus.emit({ type: 'toast', level: 'info', text: `Heard you, but no wake word. Say "${wakePhraseWords()}" first, or hold Push to talk.` });
+    }
     return; // ML path: VAD is ignored, wake.worker decides via wake.feed frames instead
   }
   if (state !== 'listening') return;

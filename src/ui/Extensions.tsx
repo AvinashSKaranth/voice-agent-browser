@@ -185,8 +185,8 @@ function McpTab() {
       <ul class="doc-list">
         {settings.tinyfishKey && (
           <li>
-            <span>TinyFish (implicit, from your TinyFish key)</span>
-            <span class="badge">connected</span>
+            <span>TinyFish search and fetch (REST API, from your TinyFish key). Its MCP endpoint is not browser-reachable, so browser automation needs the bridge.</span>
+            <span class="badge">web_search, web_fetch</span>
           </li>
         )}
         {settings.mcp.map((m) => (

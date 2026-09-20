@@ -353,3 +353,8 @@ export const orchestrator = {
 };
 
 pipeline.onBargeIn(() => orchestrator.abort());
+// Spoken utterances (VAD + STT, or push-to-talk) drive turns exactly like typed input.
+pipeline.onUtterance((text) => {
+  if (orchestrator.busy()) orchestrator.abort();
+  orchestrator.runTurn(text).catch((e: unknown) => bus.emit({ type: 'toast', level: 'error', text: (e as Error).message }));
+});

@@ -5,6 +5,7 @@ import type { WakeIn, WakeOut } from '../workers/wake.worker';
 
 let worker: Worker | null = null;
 let isReady = false;
+let lastScore = 0;
 const detectHandlers: Array<(score: number) => void> = [];
 const emitProgress = createProgressAggregator('wake');
 
@@ -16,6 +17,9 @@ function ensureWorker(): Worker {
     if (msg.type === 'progress') {
       isReady = msg.status === 'ready';
       emitProgress(msg);
+    } else if (msg.type === 'score') {
+      lastScore = msg.score;
+      if (import.meta.env.DEV) console.debug('[wake] peak score last 1s', msg.score.toFixed(3));
     } else if (msg.type === 'detect') {
       bus.emit({ type: 'wake:detected', score: msg.score });
       detectHandlers.forEach((h) => h(msg.score));
@@ -55,6 +59,7 @@ function setThreshold(t: number): void {
 }
 
 export const wake = {
+  lastScore: (): number => lastScore,
   load,
   feed,
   onDetect,

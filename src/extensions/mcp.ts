@@ -116,16 +116,19 @@ async function disconnect(id: string): Promise<void> {
 async function connectAll(): Promise<void> {
   const settings = getSettings();
   const configs: McpServerConfig[] = [...settings.mcp];
-  if (settings.tinyfishKey && !configs.some((c) => c.id === 'tinyfish')) {
-    configs.push({ id: 'tinyfish', label: 'TinyFish', url: 'https://agent.tinyfish.ai/mcp', token: settings.tinyfishKey, enabled: true });
-  }
+  // TinyFish search/fetch use its REST API (src/tools/builtin/web.ts); its MCP endpoint is not
+  // usable from browsers because Mcp-Session-Id is not exposed via CORS (checked 2026-09-20).
   for (const cfg of configs) {
     if (!cfg.enabled) continue;
     try {
       await connect(cfg);
     } catch (e) {
       statuses.set(cfg.id, 'error');
-      bus.emit({ type: 'toast', level: 'error', text: `MCP server "${cfg.label}" failed to connect: ${e instanceof Error ? e.message : String(e)}` });
+      let msg = e instanceof Error ? e.message : String(e);
+      // Browsers can only read the Mcp-Session-Id header when the server lists it in
+      // Access-Control-Expose-Headers; TinyFish does not (checked 2026-09-20), so the SDK cannot resume the session.
+      if (/Mcp-Session-Id/i.test(msg)) msg = 'this server does not expose Mcp-Session-Id to browsers (CORS). It needs the bridge proxy or a server-side fix.';
+      bus.emit({ type: 'toast', level: 'error', text: `MCP server "${cfg.label}" failed to connect: ${msg}` });
     }
   }
 }

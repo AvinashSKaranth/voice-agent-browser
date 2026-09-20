@@ -90,6 +90,11 @@ function buildHeaders(cfg: ProviderConfig): Record<string, string> {
 
 function buildBody(cfg: ProviderConfig, opts: GenerateOptions): Record<string, unknown> {
   const body: Record<string, unknown> = { model: cfg.model, messages: toWireMessages(opts.messages), stream: true };
+  // OpenRouter free models often hit upstream capacity limits; `models` makes OpenRouter fall back
+  // to the next id in the list instead of returning an error. Verified free, tool + image capable 2026-09-20.
+  if (/openrouter\.ai/.test(cfg.baseUrl) && cfg.model.endsWith(':free')) {
+    body.models = [...new Set([cfg.model, 'google/gemma-4-26b-a4b-it:free', 'qwen/qwen3.8-27b:free'])].slice(0, 3); // OpenRouter caps this at 3
+  }
   if (cfg.supportsTools && opts.tools.length) {
     body.tools = toWireTools(opts.tools);
     body.tool_choice = 'auto';
@@ -100,7 +105,11 @@ function buildBody(cfg: ProviderConfig, opts: GenerateOptions): Record<string, u
 }
 
 function httpErrorMessage(status: number, bodyText: string): string {
-  if (status === 429) return 'Rate limited, wait a minute.';
+  if (status === 429) {
+    let detail = '';
+    try { detail = String((JSON.parse(bodyText) as { error?: { message?: string } }).error?.message ?? ''); } catch { /* not json */ }
+    return `Rate limited${detail ? `: ${detail.slice(0, 200)}` : ', wait a minute.'}`;
+  }
   if (status === 401) return 'Invalid API key.';
   return `Provider request failed (${status}): ${bodyText.slice(0, 300)}`;
 }

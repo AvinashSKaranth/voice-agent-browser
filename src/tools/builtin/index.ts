@@ -14,6 +14,7 @@ import { session_new, session_resume, transcript_export } from './session';
 import { tts_set_voice, tts_set_rate } from './tts_settings';
 import settings_set from './settings_set';
 import http_request from './http_request';
+import { web_search, web_fetch } from './web';
 import { skills_search, skills_install, use_skill } from './skills';
 import alert from './alert';
 import schedule_tool from './schedule_tool';
@@ -41,6 +42,8 @@ const ALWAYS_ON = [
   tts_set_rate,
   settings_set,
   http_request,
+  web_search,
+  web_fetch,
   skills_search,
   skills_install,
   use_skill,

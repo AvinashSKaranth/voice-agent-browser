@@ -11,7 +11,7 @@ export type WakeIn =
   | { type: 'load'; phrase: string; baseHref: string }
   | { type: 'frame'; frame: Float32Array }
   | { type: 'threshold'; value: number };
-export type WakeOut = WorkerProgress | { type: 'detect'; score: number };
+export type WakeOut = WorkerProgress | { type: 'detect'; score: number } | { type: 'score'; score: number };
 
 const MEL_FRAME_LEN = 1280;
 const MEL_WINDOW = 76;
@@ -97,6 +97,12 @@ async function processFrame(frame: Float32Array): Promise<void> {
       const phraseOut = await phraseSession.run({ [phraseInputName]: new ort.Tensor('float32', phraseInput, [1, EMB_WINDOW, 96]) });
       const score = (phraseOut[phraseSession.outputNames[0]].data as Float32Array)[0];
       const now = Date.now();
+      peakScore = Math.max(peakScore, score);
+      if (now - lastScoreTs > 1000) {
+        post({ type: 'score', score: peakScore });
+        peakScore = 0;
+        lastScoreTs = now;
+      }
       if (score >= threshold && now - lastDetectTs > DEBOUNCE_MS) {
         lastDetectTs = now;
         post({ type: 'detect', score });
@@ -109,6 +115,9 @@ async function processFrame(frame: Float32Array): Promise<void> {
 // frames must never be processed concurrently. Frames beyond a 2-deep queue are dropped.
 // ponytail: drops frames under load rather than back-pressuring the mic; fine for a debounced
 // wake trigger, revisit if frame drops start hurting detection recall.
+let peakScore = 0;
+let lastScoreTs = 0;
+
 async function handleFrame(frame: Float32Array): Promise<void> {
   if (frameBusy) {
     if (frameQueue.length < 2) frameQueue.push(frame);
