@@ -1,0 +1,1 @@
+{ "name": "Voice Agent", "short_name": "VoiceAgent", "start_url": "./", "display": "standalone", "background_color": "#111", "theme_color": "#5b5bd6", "icons": [{ "src": "favicon.svg", "sizes": "any", "type": "image/svg+xml" }] }
