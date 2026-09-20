@@ -20,7 +20,8 @@ async function boot() {
   let reason = '';
   // The SAH pool is exclusive: a second tab of the app cannot open it until the first closes.
   // Retry a few times (the other tab may be closing) before falling back to memory.
-  for (let attempt = 0; attempt < 5; attempt++) {
+  // A just-unloaded page can hold the handles for tens of seconds; wait up to ~45 s before giving up.
+  for (let attempt = 0; attempt < 30; attempt++) {
     try {
       const pool = await sqlite3.installOpfsSAHPoolVfs({ name: 'va-pool', directory: '.va-sqlite' });
       poolRef = pool;
@@ -30,7 +31,7 @@ async function boot() {
     } catch (e) {
       reason = e instanceof Error ? e.message : String(e);
       console.error('opfs-sahpool attempt failed', attempt + 1, reason);
-      await new Promise((r) => setTimeout(r, 2000));
+      await new Promise((r) => setTimeout(r, 1500));
     }
   }
   if (!db) {
