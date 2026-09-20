@@ -29,6 +29,7 @@
     "@modelcontextprotocol/sdk": "^1.30.0",
     "@ricky0123/vad-web": "^0.0.31",
     "@sqlite.org/sqlite-wasm": "^3.53.4-build1",
+    "kitten-tts-js": "^0.1.2",
     "kokoro-js": "^1.2.1",
     "mathjs": "^15.2.0",
     "onnxruntime-web": "^1.30.0",

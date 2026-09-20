@@ -21,7 +21,8 @@ let activeResolve: (() => void) | null = null; // mirrors tts.ts's runSay patter
 
 function keyFor(text: string): string {
   const { id, speed } = getSettings().voice;
-  return `ack://${id}/${speed}/${encodeURIComponent(text)}`;
+  const engine = getSettings().local.ttsEngine;
+  return `ack://${engine}/${id}/${speed}/${encodeURIComponent(text)}`;
 }
 
 // Cache.put()/match() only accept http(s) request URLs, so the ack:// key (used as the in-memory
@@ -74,10 +75,10 @@ async function invalidateAll(): Promise<void> {
   }
 }
 
-// Re-synthesise everything when the voice or speed changes - cached PCM for the old voice is wrong audio.
-let lastVoiceKey = `${getSettings().voice.id}/${getSettings().voice.speed}`;
+// Re-synthesise everything when the voice, speed, or engine changes - cached PCM for the old voice/engine is wrong audio.
+let lastVoiceKey = `${getSettings().voice.id}/${getSettings().voice.speed}/${getSettings().local.ttsEngine}`;
 bus.on('settings:changed', (e) => {
-  const key = `${e.settings.voice.id}/${e.settings.voice.speed}`;
+  const key = `${e.settings.voice.id}/${e.settings.voice.speed}/${e.settings.local.ttsEngine}`;
   if (key === lastVoiceKey) return;
   lastVoiceKey = key;
   void invalidateAll().then(() => warm());

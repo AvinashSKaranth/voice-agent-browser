@@ -523,6 +523,13 @@ a.btn {
   color: var(--text-muted);
 }
 
+.orb-partial-text {
+  margin-top: 4px;
+  font-style: italic;
+  color: var(--text-muted);
+  opacity: 0.75;
+}
+
 .banner {
   background: var(--bg-elevated);
   border: 1px solid var(--warn);

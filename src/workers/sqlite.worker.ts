@@ -4,7 +4,7 @@
 import sqlite3InitModule from '@sqlite.org/sqlite-wasm';
 
 type InMsg = { id: string; sql: string; params?: unknown[]; mode: 'exec' | 'query' };
-type OutMsg = { id: string; rows?: unknown[] } | { id: string; error: string } | { type: 'ready'; persistent: boolean };
+type OutMsg = { id: string; rows?: unknown[] } | { id: string; error: string } | { type: 'ready'; persistent: boolean; reason?: string };
 
 let db: any;
 
@@ -16,15 +16,26 @@ type InitModuleFn = (opts: { print: typeof console.log; printErr: typeof console
 async function boot() {
   const sqlite3 = await (sqlite3InitModule as unknown as InitModuleFn)({ print: console.log, printErr: console.error });
   let persistent = true;
-  try {
-    const pool = await sqlite3.installOpfsSAHPoolVfs({ name: 'va-pool', directory: '.va-sqlite' });
-    db = new pool.OpfsSAHPoolDb('/va.sqlite3');
-  } catch (e) {
-    console.error('opfs-sahpool unavailable, falling back to :memory:', e);
+  let reason = '';
+  // The SAH pool is exclusive: a second tab of the app cannot open it until the first closes.
+  // Retry a few times (the other tab may be closing) before falling back to memory.
+  for (let attempt = 0; attempt < 5; attempt++) {
+    try {
+      const pool = await sqlite3.installOpfsSAHPoolVfs({ name: 'va-pool', directory: '.va-sqlite' });
+      db = new pool.OpfsSAHPoolDb('/va.sqlite3');
+      reason = '';
+      break;
+    } catch (e) {
+      reason = e instanceof Error ? e.message : String(e);
+      console.error('opfs-sahpool attempt failed', attempt + 1, reason);
+      await new Promise((r) => setTimeout(r, 2000));
+    }
+  }
+  if (!db) {
     db = new sqlite3.oo1.DB(':memory:');
     persistent = false;
   }
-  (self as unknown as { postMessage(m: OutMsg): void }).postMessage({ type: 'ready', persistent });
+  (self as unknown as { postMessage(m: OutMsg): void }).postMessage({ type: 'ready', persistent, reason });
 }
 
 const ready = boot();

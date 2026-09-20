@@ -36,6 +36,7 @@ function contentToText(content: ChatMessage['content']): string {
 
 export function Assistant() {
   const [audioState, setAudioState] = useState<AudioState>('idle');
+  const [partialText, setPartialText] = useState('');
   const [entries, setEntries] = useState<Entry[]>([]);
   const [text, setText] = useState('');
   const [images, setImages] = useState<string[]>([]);
@@ -49,8 +50,15 @@ export function Assistant() {
 
   useEffect(() => {
     const offs = [
-      bus.on('audio:state', (e) => setAudioState(e.state)),
-      bus.on('stt:final', (e) => setEntries((en) => [...en, { kind: 'user', id: `u-${Date.now()}`, text: e.text }])),
+      bus.on('audio:state', (e) => {
+        setAudioState(e.state);
+        if (e.state !== 'listening') setPartialText('');
+      }),
+      bus.on('stt:partial', (e) => setPartialText(e.text)),
+      bus.on('stt:final', (e) => {
+        setPartialText('');
+        setEntries((en) => [...en, { kind: 'user', id: `u-${Date.now()}`, text: e.text }]);
+      }),
       bus.on('turn:token', (e) =>
         setEntries((en) => {
           const idx = en.findIndex((x) => x.kind === 'assistant' && x.id === e.id);
@@ -221,7 +229,7 @@ export function Assistant() {
   const stateLabel: Record<AudioState, string> = {
     idle: 'Mic off',
     wake: `Say ${settings.wake.phrase.replace(/\.onnx$/i, '').replace(/_/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase())}`,
-    listening: 'Listening',
+    listening: 'Listening…',
     thinking: 'Thinking',
     speaking: 'Speaking',
   };
@@ -255,6 +263,7 @@ export function Assistant() {
       <div class="orb-wrap">
         <div class={`orb ${audioState}`} />
         <div class="orb-state-label">{stateLabel[audioState]}</div>
+        {audioState === 'listening' && partialText && <div class="orb-partial-text">{partialText}</div>}
       </div>
 
       <div class="controls-row">

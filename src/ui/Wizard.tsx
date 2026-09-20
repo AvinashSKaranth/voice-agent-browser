@@ -63,7 +63,13 @@ export function Wizard(props: { initialStep?: number }) {
       break;
     case 6:
       body = (
-        <VoiceSettings value={settings.voice} onChange={(v) => update({ voice: v })} onPreview={() => tts.load().then(() => tts.say('Hi, I am your assistant. How can I help?')).catch((e: Error) => bus.emit({ type: 'toast', level: 'error', text: e.message }))} />
+        <VoiceSettings
+          value={settings.voice}
+          engine={settings.local.ttsEngine}
+          onEngineChange={(engine) => update({ local: { ...settings.local, ttsEngine: engine } })}
+          onChange={(v) => update({ voice: v })}
+          onPreview={() => tts.load().then(() => tts.say('Hi, I am your assistant. How can I help?')).catch((e: Error) => bus.emit({ type: 'toast', level: 'error', text: e.message }))}
+        />
       );
       break;
     case 7:

@@ -3,7 +3,8 @@
 import { useEffect, useState } from 'preact/hooks';
 import type { ComponentChildren } from 'preact';
 import { bus } from '../core/bus';
-import type { ProviderConfig } from '../core/types';
+import type { ProviderConfig, TtsEngine } from '../core/types';
+import { TTS_ENGINES, KITTEN_VOICES } from '../audio/tts-engines';
 
 // ---------- useDraft: local echo for text/range inputs, committed on blur/change (not per keystroke/drag tick) ----------
 export function useDraft<T>(value: T): [T, (v: T) => void] {
@@ -317,21 +318,43 @@ export interface VoiceValue {
 }
 export function VoiceSettings(props: {
   value: VoiceValue;
+  engine: TtsEngine;
+  onEngineChange: (e: TtsEngine) => void;
   onChange: (v: VoiceValue) => void;
   onPreview: (voiceId: string) => Promise<void> | void;
 }) {
-  const [voices, setVoices] = useState<string[]>(KOKORO_VOICES);
+  const fallbackVoices = props.engine === 'kokoro' ? KOKORO_VOICES : KITTEN_VOICES.map((v) => `kitten:${v}`);
+  const [voices, setVoices] = useState<string[]>(fallbackVoices);
   const [previewing, setPreviewing] = useState<string | null>(null);
+  const [reloading, setReloading] = useState(false);
   const [speed, setSpeed] = useDraft(props.value.speed);
 
   useEffect(() => {
+    setVoices(fallbackVoices);
     import('../audio/tts')
       .then(({ tts }) => tts.voices())
       .then((v) => {
         if (v && v.length) setVoices(v.includes('af_heart') ? ['af_heart', ...v.filter((x) => x !== 'af_heart')] : v);
       })
       .catch(() => {});
-  }, []);
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- fallbackVoices is derived from props.engine
+  }, [props.engine]);
+
+  async function changeEngine(id: string) {
+    const engine = id as TtsEngine;
+    props.onEngineChange(engine);
+    const stillValid = engine === 'kokoro' ? !props.value.id.startsWith('kitten:') : props.value.id.startsWith('kitten:');
+    if (!stillValid) props.onChange({ ...props.value, id: TTS_ENGINES[engine].defaultVoice });
+    setReloading(true);
+    try {
+      const { tts } = await import('../audio/tts');
+      await tts.reloadWith(undefined, engine);
+    } catch (e) {
+      bus.emit({ type: 'toast', level: 'error', text: `TTS engine switch failed: ${(e as Error).message}` });
+    } finally {
+      setReloading(false);
+    }
+  }
 
   async function preview(id: string) {
     setPreviewing(id);
@@ -344,11 +367,19 @@ export function VoiceSettings(props: {
 
   return (
     <div class="voice-settings">
+      <Field label="TTS engine" hint={TTS_ENGINES[props.engine].note}>
+        <Select
+          value={props.engine}
+          disabled={reloading}
+          onChange={changeEngine}
+          options={Object.values(TTS_ENGINES).map((e) => ({ value: e.id, label: e.label }))}
+        />
+      </Field>
       <div class="voice-list">
         {voices.map((v) => (
           <label class="voice-row" key={v}>
             <input type="radio" name="voice" checked={props.value.id === v} onChange={() => props.onChange({ ...props.value, id: v })} />
-            <span>{v}</span>
+            <span>{v.replace(/^kitten:/, '')}</span>
             <Button variant="ghost" onClick={() => preview(v)} disabled={previewing === v}>
               {previewing === v ? 'Playing…' : 'Preview'}
             </Button>

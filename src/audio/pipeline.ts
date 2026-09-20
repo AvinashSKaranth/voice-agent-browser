@@ -8,6 +8,7 @@ import { stt } from './stt';
 import { tts } from './tts';
 import { wake } from './wake';
 import { ackCache } from './ackcache';
+import { mergePartialAndTail } from './merge';
 
 const GENERIC_ACKS = ['On it', 'One moment', 'Working on it'];
 let genericAckIdx = 0;
@@ -39,6 +40,104 @@ const MIN_PTT_SAMPLES = 16000 * 0.4;
 // frame-tap failure that lets an empty buffer through must not surface these as real utterances.
 const HALLUCINATION_PHRASES = new Set(['you', 'thank you', 'thanks for watching', 'bye', '', 'blank audio', 'subtitles by the amara org community']);
 const HALLUCINATION_RMS = 0.005;
+
+// ---- Streaming partial transcription (settings.local.sttStreaming) ----
+// While VAD/push-to-talk reports speech, frames are accumulated and re-transcribed as a growing
+// "partial" every 1.2 s; at speech end, only the tail since the last partial is re-transcribed and
+// stitched onto it (mergePartialAndTail) instead of re-running the whole utterance.
+const RING_FRAMES = 4; // ~320ms of 80ms frame-tap frames (see mic.ts): pre-roll kept before speech
+const PARTIAL_INTERVAL_SAMPLES = 16000 * 1.2;
+const TAIL_GAP_MAX_SAMPLES = 16000 * 0.5; // last partial must be within 500ms of the end to reuse
+const TAIL_LOOKBACK_SAMPLES = 16000 * 0.6; // re-transcribe from 600ms before the last partial's end
+
+let ring: Float32Array[] = []; // rolling pre-speech buffer, maintained whenever the mic is live
+let streaming = false;
+let streamFrames: Float32Array[] = [];
+let streamSamples = 0;
+let samplesSinceLastPartial = 0;
+let partialInFlight = false;
+let partialSeq = 0;
+let lastPartial: { text: string; endSample: number } | null = null;
+
+function streamingEnabled(): boolean {
+  return getSettings().local.sttStreaming;
+}
+
+function pushRing(frame: Float32Array): void {
+  ring.push(frame);
+  if (ring.length > RING_FRAMES) ring.shift();
+}
+
+function concatFrames(frames: Float32Array[]): Float32Array {
+  const total = frames.reduce((n, f) => n + f.length, 0);
+  const out = new Float32Array(total);
+  let offset = 0;
+  for (const f of frames) {
+    out.set(f, offset);
+    offset += f.length;
+  }
+  return out;
+}
+
+function startStreaming(withRingPreroll: boolean): void {
+  streaming = true;
+  streamFrames = withRingPreroll ? ring.slice() : [];
+  streamSamples = streamFrames.reduce((n, f) => n + f.length, 0);
+  samplesSinceLastPartial = 0;
+  partialInFlight = false;
+  lastPartial = null;
+  partialSeq++;
+}
+
+function stopStreaming(): void {
+  streaming = false;
+}
+
+async function maybePartial(mySeq: number): Promise<void> {
+  partialInFlight = true;
+  const snapshot = concatFrames(streamFrames);
+  const endSample = streamSamples;
+  const end = metrics.start('stt.partial');
+  try {
+    const text = await stt.transcribe(snapshot, { partial: true });
+    end(text);
+    if (mySeq === partialSeq) {
+      lastPartial = { text, endSample };
+      bus.emit({ type: 'stt:partial', text });
+    }
+  } catch {
+    end('error');
+  } finally {
+    partialInFlight = false;
+  }
+}
+
+/** Finishes a streamed utterance: tail+merge when the last partial is recent enough, else falls
+ * back to a full transcription of `vadAudio` (the ordinary, non-streaming path). */
+async function finishStreamingUtterance(vadAudio: Float32Array): Promise<void> {
+  stopStreaming();
+  // ponytail: skips the hallucination filter transcribeAndEmit applies below - VAD already gated
+  // this utterance, and a merged tail rarely matches the canned hallucination phrases; add the
+  // check here too if false positives from the streamed path show up.
+  if (lastPartial && streamSamples - lastPartial.endSample <= TAIL_GAP_MAX_SAMPLES) {
+    const full = concatFrames(streamFrames);
+    const tailStart = Math.max(0, lastPartial.endSample - TAIL_LOOKBACK_SAMPLES);
+    const tail = full.slice(tailStart);
+    const end = metrics.start('stt.tail');
+    try {
+      const tailText = await stt.transcribe(tail);
+      end(tailText);
+      const merged = mergePartialAndTail(lastPartial.text, tailText);
+      bus.emit({ type: 'stt:final', text: merged });
+      if (merged.trim()) utteranceHandlers.forEach((h) => h(merged));
+      return;
+    } catch {
+      end('error');
+      // fall through to the full-utterance path below
+    }
+  }
+  void transcribeAndEmit(vadAudio);
+}
 
 function rms(audio: Float32Array): number {
   if (audio.length === 0) return 0;
@@ -113,11 +212,16 @@ async function transcribeAndEmit(audio: Float32Array): Promise<void> {
   }
 }
 
+let speechStartedAt = 0;
+let wakeDetectedAt = 0;
+
 function onSpeechStart(): void {
+  speechStartedAt = performance.now();
   if (tts.speaking()) {
     tts.stop();
     bargeInHandlers.forEach((h) => h());
   }
+  if (state === 'listening' && streamingEnabled()) startStreaming(true);
 }
 
 async function onWakeAttempt(audio: Float32Array): Promise<void> {
@@ -159,21 +263,47 @@ function onSpeechEnd(audio: Float32Array): void {
     return; // ML path: VAD is ignored, wake.worker decides via wake.feed frames instead
   }
   if (state !== 'listening') return;
+  // The VAD segment that contains the wake phrase itself ends just after detection; it is not a
+  // command ("Hey Jarvis" would otherwise be transcribed and answered with "Hello!").
+  if (wakeDetectedAt && speechStartedAt < wakeDetectedAt) {
+    // Keep only what was said after the wake phrase ("Hey Jarvis, what time is it" in one breath).
+    const cut = Math.max(0, Math.floor(((wakeDetectedAt - speechStartedAt) / 1000 - 0.1) * 16000));
+    wakeDetectedAt = 0;
+    stopStreaming();
+    const rest = audio.slice(Math.min(cut, audio.length));
+    if (rest.length < 16000 * 0.4) return; // just the wake phrase
+    clearFollowup();
+    if (passesAckGate(rest)) playEarlyAck(performance.now());
+    void transcribeAndEmit(rest);
+    return;
+  }
   clearFollowup();
   if (passesAckGate(audio)) playEarlyAck(performance.now());
-  void transcribeAndEmit(audio);
+  if (streaming) void finishStreamingUtterance(audio);
+  else void transcribeAndEmit(audio);
 }
 
 function onFrame(frame: Float32Array): void {
   if (pushToTalkActive) {
     ptFrames.push(frame);
-    return;
+  } else {
+    pushRing(frame);
+    if (state === 'wake' && wakeUsable) wake.feed(frame);
   }
-  if (state === 'wake' && wakeUsable) wake.feed(frame);
+  if (streaming) {
+    streamFrames.push(frame);
+    streamSamples += frame.length;
+    samplesSinceLastPartial += frame.length;
+    if (samplesSinceLastPartial >= PARTIAL_INTERVAL_SAMPLES && !partialInFlight) {
+      samplesSinceLastPartial = 0;
+      void maybePartial(partialSeq);
+    }
+  }
 }
 
 function onWakeDetect(score: number): void {
   if (state !== 'wake') return;
+  wakeDetectedAt = performance.now();
   metrics.event('wake.detect', score);
   beep();
   setState('listening');
@@ -240,6 +370,9 @@ export const pipeline = {
     started = false;
     pushToTalkActive = false;
     ptFrames = [];
+    stopStreaming();
+    ring = [];
+    streamFrames = [];
     clearFollowup();
     mic.stop();
     tts.stop();
@@ -258,6 +391,7 @@ export const pipeline = {
     clearFollowup();
     onSpeechStart();
     setState('listening');
+    if (streamingEnabled()) startStreaming(false); // button press is the start; no VAD pre-roll
   },
 
   pushToTalkStop(): void {
@@ -267,6 +401,7 @@ export const pipeline = {
     ptFrames = [];
     const total = frames.reduce((n, f) => n + f.length, 0);
     if (total < MIN_PTT_SAMPLES) {
+      stopStreaming();
       bus.emit({ type: 'toast', level: 'warn', text: 'Too short, hold the button while you speak' });
       return;
     }
@@ -277,7 +412,8 @@ export const pipeline = {
       offset += f.length;
     }
     if (passesAckGate(audio)) playEarlyAck(performance.now());
-    void transcribeAndEmit(audio);
+    if (streaming) void finishStreamingUtterance(audio);
+    else void transcribeAndEmit(audio);
   },
 
   onUtterance(cb: (text: string) => void): void {

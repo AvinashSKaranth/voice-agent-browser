@@ -97,6 +97,12 @@ export interface DbApi {
   query<T = Record<string, SqlValue>>(sql: string, params?: SqlValue[]): Promise<T[]>;
 }
 
+// ---------- STT models (src/audio/stt-models.ts holds the registry) ----------
+export type SttModelId = 'whisper-tiny' | 'whisper-base' | 'distil-small.en' | 'moonshine-tiny' | 'moonshine-base';
+
+// ---------- TTS engines (src/audio/tts-engines.ts holds the registry) ----------
+export type TtsEngine = 'kokoro' | 'kitten-nano' | 'kitten-mini';
+
 // ---------- Settings (localStorage, key 'va.settings') ----------
 export interface ProviderConfig {
   id: string; // 'openrouter' | 'nim' | 'openai' | ... | 'ollama' | 'custom-<uuid>'
@@ -129,6 +135,10 @@ export interface Settings {
     stt: boolean; // whisper-base
     ttsDevice: 'wasm' | 'webgpu';
     ttsDeviceExplicit?: boolean; // true once the user picked a device in Settings; else tts.ts auto-resolves (webgpu when available)
+    ttsEngine: TtsEngine; // default 'kokoro'; kitten-* always runs on wasm regardless of ttsDevice (see src/audio/tts-engines.ts)
+    sttModel: SttModelId; // default 'whisper-base'; see src/audio/stt-models.ts
+    sttDevice: 'auto' | 'webgpu' | 'wasm' | 'hybrid'; // default 'auto' = webgpu when available; 'hybrid' = encoder on webgpu, decoder on wasm (see src/audio/stt-models.ts)
+    sttStreaming: boolean; // default true; streamed partial transcription while VAD reports speech
   };
   voice: { id: string; speed: number }; // kokoro voice id, default af_heart, 1.0
   wake: { enabled: boolean; phrase: string; threshold: number; pushToTalk: boolean }; // default 'hey_jarvis', 0.5
@@ -145,7 +155,7 @@ export const DEFAULT_SETTINGS: Settings = {
   mode: 'local',
   activeProviderId: 'openrouter',
   providers: [],
-  local: { llm: true, stt: true, ttsDevice: 'wasm' },
+  local: { llm: true, stt: true, ttsDevice: 'wasm', ttsEngine: 'kokoro', sttModel: 'moonshine-base', sttDevice: 'auto', sttStreaming: true },
   voice: { id: 'af_heart', speed: 1.0 },
   wake: { enabled: true, phrase: 'hey_jarvis', threshold: 0.5, pushToTalk: false },
   feedback: { heartbeatSec: 60, maxRetries: 3, quiet: false },
@@ -194,8 +204,13 @@ export interface LogRow {
 export type WorkerProgress = { type: 'progress'; file?: string; loaded: number; total: number; status: LoadStatus; error?: string };
 
 // STT worker
-export type SttIn = { type: 'load'; device?: 'wasm' | 'webgpu' } | { type: 'transcribe'; id: string; audio: Float32Array };
-export type SttOut = WorkerProgress | { type: 'result'; id: string; text: string } | { type: 'error'; id?: string; error: string };
+export type SttIn =
+  | { type: 'load'; device?: 'wasm' | 'webgpu' | 'hybrid'; model?: SttModelId }
+  | { type: 'transcribe'; id: string; audio: Float32Array; partial?: boolean };
+export type SttOut =
+  | WorkerProgress
+  | { type: 'result'; id: string; text: string; partial?: boolean }
+  | { type: 'error'; id?: string; error: string; partial?: boolean };
 
 // LLM worker (local LFM2.5-VL-3B)
 export type LlmIn =
@@ -208,9 +223,9 @@ export type LlmOut =
   | { type: 'done'; id: string; text: string; finishReason: 'stop' | 'length' | 'aborted' }
   | { type: 'error'; id?: string; error: string };
 
-// TTS worker (kokoro)
+// TTS worker (kokoro, or kitten-nano/kitten-mini via kitten-tts-js)
 export type TtsIn =
-  | { type: 'load'; device: 'wasm' | 'webgpu' }
+  | { type: 'load'; device: 'wasm' | 'webgpu'; engine?: TtsEngine }
   | { type: 'speak'; id: string; text: string; voice: string; speed: number }
   | { type: 'abort'; id: string }
   | { type: 'voices' };

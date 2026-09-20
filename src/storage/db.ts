@@ -53,7 +53,11 @@ export async function initDb(): Promise<void> {
   worker.onmessage = (ev: MessageEvent<any>) => {
     const msg = ev.data;
     if (msg.type === 'ready') {
-      if (!msg.persistent) bus.emit({ type: 'toast', level: 'warn', text: 'Storage is not persistent in this browser' });
+      if (!msg.persistent) {
+        const why = String(msg.reason ?? '');
+        const hint = /in use|lock|already|busy|access/i.test(why) ? 'Another tab of this app is probably open; close it and reload.' : why;
+        bus.emit({ type: 'toast', level: 'warn', text: `Storage is not persistent in this tab. ${hint}`.trim() });
+      }
       readyResolve();
       return;
     }

@@ -6,21 +6,32 @@ import { tts } from '../audio/tts';
 import { stt } from '../audio/stt';
 import { wake } from '../audio/wake';
 import { localProvider, localLlmReady } from '../providers/local';
-import { Button, Card } from './components';
+import { Button, Card, Toggle } from './components';
+import { STT_MODELS } from '../audio/stt-models';
+import { TTS_ENGINES } from '../audio/tts-engines';
+import type { SttModelId, TtsEngine } from '../core/types';
+
+const STT_MODEL_IDS = Object.keys(STT_MODELS) as SttModelId[];
+const TTS_ENGINE_IDS = Object.keys(TTS_ENGINES) as TtsEngine[];
 
 const SENTENCE = 'The quick brown fox jumps over the lazy dog near the riverbank this morning.';
 const HAS_GPU = typeof navigator !== 'undefined' && 'gpu' in navigator;
 
 interface TtsRun {
+  engine: TtsEngine;
   device: string;
   loadMs: number;
   runs: Array<{ synthMs: number; firstAudioMs: number; audioSec: number; realtime: number }>;
 }
+type SttDevice = 'webgpu' | 'hybrid' | 'wasm';
+const STT_DEVICE_IDS: SttDevice[] = ['webgpu', 'hybrid', 'wasm'];
 interface SttRun {
-  device: string;
-  loadMs: number;
-  transcribeMs: number;
-  text: string;
+  model: SttModelId;
+  device: SttDevice;
+  loadMs: number | null; // null when the load itself failed
+  run1Ms: number | null;
+  run2Ms: number | null;
+  transcript: string; // transcript text, or "Error: ..." when a run failed
 }
 interface LlmRun {
   firstTokenMs: number;
@@ -49,9 +60,16 @@ export function Bench() {
   const [gpuAdapter, setGpuAdapter] = useState<string>('checking…');
   const [ttsResults, setTtsResults] = useState<TtsRun[] | null>(null);
   const [ttsRunning, setTtsRunning] = useState(false);
+  const [ttsEngineChecks, setTtsEngineChecks] = useState<Record<TtsEngine, boolean>>(
+    () => Object.fromEntries(TTS_ENGINE_IDS.map((id) => [id, true])) as Record<TtsEngine, boolean>,
+  );
   const [lastAudio, setLastAudio] = useState<{ audio: Float32Array; sampleRate: number } | null>(null);
   const [sttResults, setSttResults] = useState<SttRun[] | null>(null);
   const [sttRunning, setSttRunning] = useState(false);
+  const [sttModelChecks, setSttModelChecks] = useState<Record<SttModelId, boolean>>(
+    () => Object.fromEntries(STT_MODEL_IDS.map((id) => [id, true])) as Record<SttModelId, boolean>,
+  );
+  const [sttDeviceChecks, setSttDeviceChecks] = useState<Record<SttDevice, boolean>>({ webgpu: true, hybrid: true, wasm: false });
   const [llmResult, setLlmResult] = useState<LlmRun | null>(null);
   const [llmRunning, setLlmRunning] = useState(false);
   const [wakeResult, setWakeResult] = useState<WakeRun | null>(null);
@@ -68,37 +86,63 @@ export function Bench() {
       .catch((e) => setGpuAdapter(`error: ${(e as Error).message}`));
   }, []);
 
-  async function runTtsBench() {
+  function withTimeout<T>(p: Promise<T>, ms: number, what: string): Promise<T> {
+  return new Promise<T>((resolve, reject) => {
+    const t = setTimeout(() => reject(new Error(`${what} timed out after ${ms / 1000} s`)), ms);
+    p.then((v) => { clearTimeout(t); resolve(v); }, (e) => { clearTimeout(t); reject(e); });
+  });
+}
+
+async function runTtsBench() {
+    tts.setBenchMode(true);
+    const engines = TTS_ENGINE_IDS.filter((id) => ttsEngineChecks[id]);
+    if (engines.length === 0) {
+      bus.emit({ type: 'toast', level: 'warn', text: 'Tick at least one TTS engine to benchmark.' });
+      return;
+    }
     setTtsRunning(true);
     setTtsResults(null);
     try {
-      const { id: voice, speed } = getSettings().voice;
-      const devices: Array<'wasm' | 'webgpu'> = HAS_GPU ? ['wasm', 'webgpu'] : ['wasm'];
+      const { speed } = getSettings().voice;
       const out: TtsRun[] = [];
-      for (const device of devices) {
-        const l0 = performance.now();
-        await tts.reloadWith(device);
-        const loadMs = performance.now() - l0;
-        const runs: TtsRun['runs'] = [];
-        for (let i = 0; i < 3; i++) {
-          let firstAudioMs = 0;
-          const s0 = performance.now();
-          const result = await tts.synthToPCM(SENTENCE, voice, speed, (ms) => (firstAudioMs = ms));
-          const synthMs = performance.now() - s0;
-          const audioSec = result.audio.length / result.sampleRate;
-          runs.push({ synthMs, firstAudioMs, audioSec, realtime: audioSec / (synthMs / 1000) });
-          setLastAudio(result);
+      for (const engine of engines) {
+        const def = TTS_ENGINES[engine];
+        const voice = def.defaultVoice;
+        const devices: Array<'wasm' | 'webgpu'> = HAS_GPU && def.webgpu ? ['wasm', 'webgpu'] : ['wasm'];
+        for (const device of devices) {
+          const l0 = performance.now();
+          const runs: TtsRun['runs'] = [];
+          try {
+            // A hung engine (network, wasm init) must not block the whole bench: 120 s per step.
+            await withTimeout(tts.reloadWith(device, engine), 120000, `${engine} load on ${device}`);
+            const loadMs = performance.now() - l0;
+            for (let i = 0; i < 3; i++) {
+              let firstAudioMs = 0;
+              const s0 = performance.now();
+              const result = await withTimeout(tts.synthToPCM(SENTENCE, voice, speed, (ms) => (firstAudioMs = ms)), 120000, `${engine} synth on ${device}`);
+              const synthMs = performance.now() - s0;
+              const audioSec = result.audio.length / result.sampleRate;
+              runs.push({ synthMs, firstAudioMs, audioSec, realtime: audioSec / (synthMs / 1000) });
+              setLastAudio(result);
+            }
+            out.push({ engine, device, loadMs, runs });
+          } catch (e) {
+            bus.emit({ type: 'toast', level: 'error', text: `TTS bench: ${(e as Error).message}` });
+            out.push({ engine, device, loadMs: performance.now() - l0, runs });
+            setTtsResults([...out]);
+            continue;
+          }
+          setTtsResults([...out]);
+          const avgSynth = runs.reduce((a, r) => a + r.synthMs, 0) / runs.length;
+          metrics.event(`bench.tts.${engine}.${device}`, avgSynth, `load=${out[out.length - 1].loadMs.toFixed(0)}ms`);
         }
-        out.push({ device, loadMs, runs });
-        const avgSynth = runs.reduce((a, r) => a + r.synthMs, 0) / runs.length;
-        metrics.event(`bench.tts.${device}`, avgSynth, `load=${loadMs.toFixed(0)}ms`);
       }
-      setTtsResults(out);
     } catch (e) {
       bus.emit({ type: 'toast', level: 'error', text: `TTS bench failed: ${(e as Error).message}` });
     } finally {
       setTtsRunning(false);
-      void tts.load().catch(() => {}); // restore the normal (settings-resolved) device for real speech
+      tts.setBenchMode(false);
+      void tts.reloadWith().catch(() => {}); // restore the normal (settings-resolved) engine/device for real speech
     }
   }
 
@@ -107,34 +151,61 @@ export function Bench() {
       bus.emit({ type: 'toast', level: 'warn', text: 'Run the TTS benchmark first - STT reuses that audio.' });
       return;
     }
+    const models = STT_MODEL_IDS.filter((id) => sttModelChecks[id]);
+    if (models.length === 0) {
+      bus.emit({ type: 'toast', level: 'warn', text: 'Tick at least one STT model to benchmark.' });
+      return;
+    }
+    const devices = STT_DEVICE_IDS.filter((d) => sttDeviceChecks[d] && (d === 'wasm' || HAS_GPU));
+    if (devices.length === 0) {
+      bus.emit({ type: 'toast', level: 'warn', text: 'Tick at least one STT device to benchmark.' });
+      return;
+    }
     setSttRunning(true);
-    setSttResults(null);
+    setSttResults([]);
     try {
       const audio16k = await resampleTo16k(lastAudio.audio, lastAudio.sampleRate);
-      const devices: Array<'webgpu' | 'wasm'> = HAS_GPU ? ['webgpu', 'wasm'] : ['wasm'];
       const out: SttRun[] = [];
-      for (const device of devices) {
-        const l0 = performance.now();
-        try {
-          await stt.reloadWith(device);
-        } catch {
-          continue; // device unsupported here; skip it rather than fail the whole run
-        }
-        const loadMs = performance.now() - l0;
-        for (let run = 1; run <= 2; run++) {
-          const s0 = performance.now();
-          const text = await stt.transcribe(audio16k.slice());
-          const transcribeMs = performance.now() - s0;
-          out.push({ device: `${device} run ${run}`, loadMs: run === 1 ? loadMs : 0, transcribeMs, text });
-          metrics.event(`bench.stt.${device}`, transcribeMs, text.slice(0, 80));
+      for (const model of models) {
+        for (const device of devices) {
+          if (device === 'hybrid' && !STT_MODELS[model].hybridDevice) {
+            out.push({ model, device, loadMs: null, run1Ms: null, run2Ms: null, transcript: 'Error: hybrid unsupported for this model' });
+            setSttResults([...out]);
+            continue;
+          }
+          let loadMs: number | null = null;
+          try {
+            const l0 = performance.now();
+            await stt.reloadWith(device, model);
+            loadMs = performance.now() - l0;
+          } catch (e) {
+            out.push({ model, device, loadMs: null, run1Ms: null, run2Ms: null, transcript: `Error: ${(e as Error).message}` });
+            setSttResults([...out]);
+            continue; // this model/device combo failed to load; keep going with the rest
+          }
+          let run1Ms: number | null = null;
+          let run2Ms: number | null = null;
+          let transcript = '';
+          try {
+            const s1 = performance.now();
+            transcript = await stt.transcribe(audio16k.slice());
+            run1Ms = performance.now() - s1;
+            const s2 = performance.now();
+            transcript = await stt.transcribe(audio16k.slice());
+            run2Ms = performance.now() - s2;
+            metrics.event(`bench.stt.${model}.${device}`, run2Ms, transcript.slice(0, 80));
+          } catch (e) {
+            transcript = `Error: ${(e as Error).message}`;
+          }
+          out.push({ model, device, loadMs, run1Ms, run2Ms, transcript });
+          setSttResults([...out]);
         }
       }
-      setSttResults(out);
     } catch (e) {
       bus.emit({ type: 'toast', level: 'error', text: `STT bench failed: ${(e as Error).message}` });
     } finally {
       setSttRunning(false);
-      void stt.load(); // restore auto device selection
+      void stt.load(); // restore auto device + settings-selected model
     }
   }
 
@@ -222,15 +293,27 @@ export function Bench() {
 
       <Card>
         <div class="row" style={{ justifyContent: 'space-between' }}>
-          <h2>TTS (Kokoro)</h2>
+          <h2>TTS</h2>
           <Button onClick={runTtsBench} disabled={ttsRunning}>
             {ttsRunning ? 'Running…' : 'Run TTS benchmark'}
           </Button>
+        </div>
+        <p class="field-hint">Runs each ticked engine on WebGPU (when the engine supports it) and on WASM.</p>
+        <div class="row">
+          {TTS_ENGINE_IDS.map((id) => (
+            <Toggle
+              key={id}
+              checked={ttsEngineChecks[id]}
+              onChange={(v) => setTtsEngineChecks((c) => ({ ...c, [id]: v }))}
+              label={TTS_ENGINES[id].label}
+            />
+          ))}
         </div>
         {ttsResults && (
           <table class="data-table">
             <thead>
               <tr>
+                <th>Engine</th>
                 <th>Device</th>
                 <th>Load ms</th>
                 <th>Run</th>
@@ -243,7 +326,8 @@ export function Bench() {
             <tbody>
               {ttsResults.flatMap((r) =>
                 r.runs.map((run, i) => (
-                  <tr key={`${r.device}-${i}`}>
+                  <tr key={`${r.engine}-${r.device}-${i}`}>
+                    <td>{i === 0 ? TTS_ENGINES[r.engine].label : ''}</td>
                     <td>{i === 0 ? r.device : ''}</td>
                     <td>{i === 0 ? r.loadMs.toFixed(0) : ''}</td>
                     <td>{i + 1}</td>
@@ -261,29 +345,48 @@ export function Bench() {
 
       <Card>
         <div class="row" style={{ justifyContent: 'space-between' }}>
-          <h2>STT (Whisper)</h2>
+          <h2>STT</h2>
           <Button onClick={runSttBench} disabled={sttRunning}>
             {sttRunning ? 'Running…' : 'Run STT benchmark'}
           </Button>
         </div>
-        <p class="field-hint">Reuses the audio synthesised by the TTS benchmark above, resampled to 16 kHz.</p>
-        {sttResults && (
+        <p class="field-hint">Reuses the audio synthesised by the TTS benchmark above, resampled to 16 kHz. Runs each ticked model on each ticked device, two runs each; a combo that fails to load or transcribe still shows a row with the error in the transcript column.</p>
+        <div class="row">
+          {STT_MODEL_IDS.map((id) => (
+            <Toggle
+              key={id}
+              checked={sttModelChecks[id]}
+              onChange={(v) => setSttModelChecks((c) => ({ ...c, [id]: v }))}
+              label={STT_MODELS[id].label}
+            />
+          ))}
+        </div>
+        <div class="row">
+          <Toggle checked={sttDeviceChecks.webgpu} onChange={(v) => setSttDeviceChecks((c) => ({ ...c, webgpu: v }))} label="WebGPU" />
+          <Toggle checked={sttDeviceChecks.hybrid} onChange={(v) => setSttDeviceChecks((c) => ({ ...c, hybrid: v }))} label="Hybrid" />
+          <Toggle checked={sttDeviceChecks.wasm} onChange={(v) => setSttDeviceChecks((c) => ({ ...c, wasm: v }))} label="WASM" />
+        </div>
+        {sttResults && sttResults.length > 0 && (
           <table class="data-table">
             <thead>
               <tr>
+                <th>Model</th>
                 <th>Device</th>
                 <th>Load ms</th>
-                <th>Transcribe ms</th>
+                <th>Run 1 ms</th>
+                <th>Run 2 ms</th>
                 <th>Transcript</th>
               </tr>
             </thead>
             <tbody>
-              {sttResults.map((r) => (
-                <tr key={r.device}>
+              {sttResults.map((r, i) => (
+                <tr key={`${r.model}-${r.device}-${i}`}>
+                  <td>{STT_MODELS[r.model].label}</td>
                   <td>{r.device}</td>
-                  <td>{r.loadMs.toFixed(0)}</td>
-                  <td>{r.transcribeMs.toFixed(0)}</td>
-                  <td>{r.text}</td>
+                  <td>{r.loadMs === null ? '—' : r.loadMs.toFixed(0)}</td>
+                  <td>{r.run1Ms === null ? '—' : r.run1Ms.toFixed(0)}</td>
+                  <td>{r.run2Ms === null ? '—' : r.run2Ms.toFixed(0)}</td>
+                  <td>{r.transcript}</td>
                 </tr>
               ))}
             </tbody>

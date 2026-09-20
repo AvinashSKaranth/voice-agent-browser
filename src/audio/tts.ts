@@ -5,12 +5,24 @@ import { metrics } from '../core/metrics';
 import { player } from './player';
 import { ackCache } from './ackcache';
 import { createProgressAggregator } from './progress';
-import type { TtsIn, TtsOut } from '../core/types';
+import { TTS_ENGINES } from './tts-engines';
+import type { TtsIn, TtsOut, TtsEngine } from '../core/types';
 
 let worker: Worker | null = null;
 let isReady = false;
 let loadPromise: Promise<void> | null = null;
 let loadedDevice: 'wasm' | 'webgpu' | null = null;
+let loadedEngine: TtsEngine | null = null;
+let benchMode = false; // Bench.tsx sets this so background ack warming does not compete with measurements
+
+// A voice id belongs to one engine (Kitten voices are 'kitten:<Name>'); a mismatch falls back to the
+// loaded engine's default so switching engines never fails with "voice not found".
+function resolveVoice(voice: string): string {
+  const engine = loadedEngine ?? getSettings().local.ttsEngine;
+  const isKitten = engine !== 'kokoro';
+  if (isKitten !== voice.startsWith('kitten:')) return TTS_ENGINES[engine].defaultVoice;
+  return voice;
+}
 let seq = 0;
 let isSpeaking = false;
 let currentId: string | null = null;
@@ -98,11 +110,20 @@ function ensureWorker(): Worker {
   return worker;
 }
 
-async function load(explicitDevice?: 'wasm' | 'webgpu'): Promise<void> {
-  const device = explicitDevice ?? resolveDevice();
-  if (isReady && loadedDevice === device) return;
-  if (loadPromise && loadedDevice === device) return loadPromise;
+async function load(explicitDevice?: 'wasm' | 'webgpu', explicitEngine?: TtsEngine): Promise<void> {
+  // Once something is loaded (or loading), a call with no explicit params reuses it as-is instead
+  // of re-resolving from settings every time - runSay()/synthToPCM() call load() with no args on
+  // every utterance, and Bench relies on that call landing on whatever reloadWith() just loaded,
+  // not on getSettings().local.ttsEngine (which Bench never touches).
+  if (!explicitDevice && !explicitEngine && (isReady || loadPromise) && loadedEngine) {
+    return loadPromise ?? Promise.resolve();
+  }
+  const engine = explicitEngine ?? getSettings().local.ttsEngine ?? 'kokoro';
+  const device = engine === 'kokoro' ? (explicitDevice ?? resolveDevice()) : 'wasm'; // kitten-tts-js only supports the wasm execution provider
+  if (isReady && loadedDevice === device && loadedEngine === engine) return;
+  if (loadPromise && loadedDevice === device && loadedEngine === engine) return loadPromise;
   loadedDevice = device;
+  loadedEngine = engine;
   const w = ensureWorker();
   const end = metrics.start('model.load.tts');
   loadPromise = new Promise<void>((resolve, reject) => {
@@ -110,28 +131,29 @@ async function load(explicitDevice?: 'wasm' | 'webgpu'): Promise<void> {
       if (e.model !== 'tts') return;
       if (e.status === 'ready') {
         off();
-        end(device);
+        end(`${engine}/${device}`);
         resolve();
-        void ackCache.warm(); // background: pre-synthesise fixed phrases now that Kokoro is loaded
+        if (!benchMode) void ackCache.warm(); // background: pre-synthesise fixed phrases now that the engine is loaded
       } else if (e.status === 'error') {
         off();
         loadPromise = null;
         reject(new Error(e.error ?? 'TTS load failed'));
       }
     });
-    w.postMessage({ type: 'load', device } satisfies TtsIn);
+    w.postMessage({ type: 'load', device, engine } satisfies TtsIn);
   });
   return loadPromise;
 }
 
-/** Terminates the worker and reloads Kokoro fresh on `device` - used by the Bench page to measure cold load time. */
-async function reloadWith(device: 'wasm' | 'webgpu'): Promise<void> {
+/** Terminates the worker and reloads fresh on `device`/`engine` - used by Settings (engine switch) and Bench (cold load timing). */
+async function reloadWith(device?: 'wasm' | 'webgpu', engine?: TtsEngine): Promise<void> {
   worker?.terminate();
   worker = null;
   isReady = false;
   loadPromise = null;
   loadedDevice = null;
-  await load(device);
+  loadedEngine = null;
+  await load(device, engine);
 }
 
 /** Synthesises `text` and returns the raw PCM without playing it (ackcache.ts warming, Bench.tsx).
@@ -142,7 +164,7 @@ async function synthToPCM(text: string, voice: string, speed: number, onFirstChu
   const id = `synth_${++seq}`;
   return new Promise((resolve, reject) => {
     synthPending.set(id, { chunks: [], resolve, reject, t0: performance.now(), onFirstChunk });
-    w.postMessage({ type: 'speak', id, text, voice, speed } satisfies TtsIn);
+    w.postMessage({ type: 'speak', id, text, voice: resolveVoice(voice), speed } satisfies TtsIn);
   });
 }
 
@@ -161,7 +183,7 @@ async function runSay(text: string): Promise<void> {
   try {
     await new Promise<void>((resolve) => {
       activeResolve = resolve;
-      w.postMessage({ type: 'speak', id, text, voice, speed } satisfies TtsIn);
+      w.postMessage({ type: 'speak', id, text, voice: resolveVoice(voice), speed } satisfies TtsIn);
     });
   } finally {
     if (currentId === id) {
@@ -211,6 +233,7 @@ export const tts = {
   stop,
   voices,
   reloadWith,
+  setBenchMode: (on: boolean): void => { benchMode = on; },
   synthToPCM,
   ready: (): boolean => isReady,
   speaking: (): boolean => isSpeaking || player.playing(),

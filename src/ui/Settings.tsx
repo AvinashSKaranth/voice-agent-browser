@@ -7,6 +7,9 @@ import type { ProviderModel, ProviderTestResult } from './components';
 import { PROVIDER_PRESETS, listModels } from '../providers/roster';
 import { testConnection } from '../providers/registry';
 import { tts } from '../audio/tts';
+import { stt } from '../audio/stt';
+import { STT_MODELS } from '../audio/stt-models';
+import type { SttModelId } from '../core/types';
 import { bridge } from '../core/bridge';
 import { memory } from '../storage/memory';
 
@@ -232,15 +235,74 @@ function ProvidersSection(props: { settings: SettingsType; update: Updater }) {
 
 function LocalModelsSection(props: { settings: SettingsType; update: Updater }) {
   const { settings, update } = props;
+  const [reloadingStt, setReloadingStt] = useState(false);
+
   async function clearCache() {
     const keys = await caches.keys();
     await Promise.all(keys.map((k) => caches.delete(k)));
     bus.emit({ type: 'toast', level: 'info', text: 'Model cache cleared.' });
   }
+
+  async function changeSttModel(v: string) {
+    const modelId = v as SttModelId;
+    update({ local: { ...settings.local, sttModel: modelId } });
+    setReloadingStt(true);
+    try {
+      await stt.reloadWith(undefined, modelId);
+      bus.emit({ type: 'toast', level: 'info', text: `STT model switched to ${STT_MODELS[modelId].label}.` });
+    } catch (err) {
+      bus.emit({ type: 'toast', level: 'error', text: `STT reload failed: ${(err as Error).message}` });
+    } finally {
+      setReloadingStt(false);
+    }
+  }
+
+  async function changeSttDevice(v: string) {
+    const sttDevice = v as SettingsType['local']['sttDevice'];
+    update({ local: { ...settings.local, sttDevice } });
+    setReloadingStt(true);
+    try {
+      await stt.reloadWith(sttDevice === 'auto' ? undefined : sttDevice, settings.local.sttModel);
+      bus.emit({ type: 'toast', level: 'info', text: `STT device switched to ${sttDevice}.` });
+    } catch (err) {
+      bus.emit({ type: 'toast', level: 'error', text: `STT reload failed: ${(err as Error).message}` });
+    } finally {
+      setReloadingStt(false);
+    }
+  }
+
+  const sttDef = STT_MODELS[settings.local.sttModel];
+
   return (
     <Card>
       <h2>Local models</h2>
       <Toggle checked={settings.local.llm} onChange={(v) => update({ local: { ...settings.local, llm: v } })} label="Run local LLM" />
+      <Field label="Speech-to-text model" hint={`${sttDef.sizeMb} MB · ${sttDef.note}`}>
+        <Select
+          value={settings.local.sttModel}
+          disabled={reloadingStt}
+          onChange={changeSttModel}
+          options={Object.values(STT_MODELS).map((m) => ({ value: m.id, label: m.label }))}
+        />
+      </Field>
+      <Field label="STT device" hint="Hybrid runs the encoder on WebGPU and the decoder on WASM - fixes per-token overhead on GPUs where WebGPU decoding is slow.">
+        <Select
+          value={settings.local.sttDevice}
+          disabled={reloadingStt}
+          onChange={changeSttDevice}
+          options={[
+            { value: 'auto', label: 'Auto' },
+            { value: 'webgpu', label: 'WebGPU' },
+            { value: 'hybrid', label: 'Hybrid' },
+            { value: 'wasm', label: 'WASM' },
+          ]}
+        />
+      </Field>
+      <Toggle
+        checked={settings.local.sttStreaming}
+        onChange={(v) => update({ local: { ...settings.local, sttStreaming: v } })}
+        label="Streaming partial transcription"
+      />
       <Field label="TTS device">
         <Select
           value={settings.local.ttsDevice}
@@ -264,6 +326,8 @@ function VoiceSection(props: { settings: SettingsType; update: Updater }) {
       <h2>Voice</h2>
       <VoiceSettings
         value={props.settings.voice}
+        engine={props.settings.local.ttsEngine}
+        onEngineChange={(engine) => props.update({ local: { ...props.settings.local, ttsEngine: engine } })}
         onChange={(v) => props.update({ voice: v })}
         onPreview={() => tts.load().then(() => tts.say('Hi, I am your assistant. How can I help?')).catch((e: Error) => bus.emit({ type: 'toast', level: 'error', text: e.message }))}
       />
