@@ -3,10 +3,11 @@
 // an in-memory db if the pool cannot be installed (e.g. private browsing).
 import sqlite3InitModule from '@sqlite.org/sqlite-wasm';
 
-type InMsg = { id: string; sql: string; params?: unknown[]; mode: 'exec' | 'query' };
+type InMsg = { id: string; sql: string; params?: unknown[]; mode: 'exec' | 'query' } | { type: 'close' };
 type OutMsg = { id: string; rows?: unknown[] } | { id: string; error: string } | { type: 'ready'; persistent: boolean; reason?: string };
 
 let db: any;
+let poolRef: any = null;
 
 // The published types declare sqlite3InitModule() with no params, but the
 // runtime accepts an options object (print/printErr hooks) — cast around the
@@ -22,6 +23,7 @@ async function boot() {
   for (let attempt = 0; attempt < 5; attempt++) {
     try {
       const pool = await sqlite3.installOpfsSAHPoolVfs({ name: 'va-pool', directory: '.va-sqlite' });
+      poolRef = pool;
       db = new pool.OpfsSAHPoolDb('/va.sqlite3');
       reason = '';
       break;
@@ -42,7 +44,18 @@ const ready = boot();
 
 self.onmessage = async (ev: MessageEvent<InMsg>) => {
   await ready;
-  const { id, sql, params, mode } = ev.data;
+  if ('type' in ev.data && ev.data.type === 'close') {
+    // Release the exclusive OPFS handles before the page goes away, so the next page load
+    // (a reload, or another tab) can acquire the pool instead of falling back to memory.
+    try {
+      db?.close();
+      if (poolRef?.pauseVfs) poolRef.pauseVfs();
+    } catch (e) {
+      console.warn('sqlite close failed', e);
+    }
+    return;
+  }
+  const { id, sql, params, mode } = ev.data as Exclude<InMsg, { type: 'close' }>;
   try {
     if (mode === 'query') {
       const rows = db.exec({ sql, bind: params ?? [], rowMode: 'object', returnValue: 'resultRows' });

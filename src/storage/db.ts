@@ -68,6 +68,8 @@ export async function initDb(): Promise<void> {
     else p.resolve(msg.rows ?? []);
   };
 
+  // Hand the OPFS pool back before unload; otherwise a reload finds it still locked (see worker).
+  addEventListener('pagehide', () => worker?.postMessage({ type: 'close' }));
   await readyPromise;
   for (const sql of MIGRATIONS) await rawExec(sql);
   try {
