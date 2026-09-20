@@ -290,13 +290,13 @@ export function Assistant() {
       )}
 
       <div class="transcript" ref={transcriptRef}>
-        {entries.map((e) => {
+        {entries.map((e, i) => {
           if (e.kind === 'user') return <div class="msg msg-user" key={e.id}>{e.text}</div>;
           if (e.kind === 'assistant') return <div class="msg msg-assistant" key={e.id}>{e.text}</div>;
           if (e.kind === 'feedback') return <div class="msg-feedback" key={e.id}>{e.text}</div>;
           if (e.kind === 'error') return <div class="msg-error" key={e.id}>Error: {e.text}</div>;
           return (
-            <div class="tool-chip" key={e.id}>
+            <div class="tool-chip" key={`${e.id}-${i}`}>
               {e.name}({summarizeArgs(e.args)}) — {e.status}
               {e.result ? `: ${e.result.slice(0, 120)}` : ''}
             </div>

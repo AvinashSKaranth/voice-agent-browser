@@ -128,6 +128,7 @@ export interface Settings {
     llm: boolean; // download/run LFM2.5-VL-3B
     stt: boolean; // whisper-base
     ttsDevice: 'wasm' | 'webgpu';
+    ttsDeviceExplicit?: boolean; // true once the user picked a device in Settings; else tts.ts auto-resolves (webgpu when available)
   };
   voice: { id: string; speed: number }; // kokoro voice id, default af_heart, 1.0
   wake: { enabled: boolean; phrase: string; threshold: number; pushToTalk: boolean }; // default 'hey_jarvis', 0.5
@@ -168,19 +169,32 @@ export type AppEvent =
   | { type: 'turn:tool'; id: string; name: string; args: Record<string, unknown>; status: 'start' | 'done' | 'error'; result?: string }
   | { type: 'turn:end'; id: string; text: string; error?: string }
   | { type: 'turn:feedback'; id: string; kind: 'ack' | 'heartbeat' | 'retry' | 'giveup'; text: string }
+  | { type: 'turn:ack'; source: 'voice' } // pipeline played a cached ack before transcription started
   | { type: 'tts:start'; text: string }
   | { type: 'tts:end' }
   | { type: 'toast'; level: 'info' | 'warn' | 'error'; text: string }
   | { type: 'settings:changed'; settings: Settings }
   | { type: 'tools:changed' }
   | { type: 'confirm:request'; id: string; question: string }
-  | { type: 'confirm:answer'; id: string; ok: boolean };
+  | { type: 'confirm:answer'; id: string; ok: boolean }
+  | { type: 'log:entry'; row: LogRow };
+
+// ---------- Metrics (src/core/metrics.ts) ----------
+export interface LogRow {
+  id: number;
+  ts: number; // epoch ms
+  turnId: string | null;
+  name: string;
+  ms: number | null;
+  value: number | null;
+  detail: string | null;
+}
 
 // ---------- Worker protocols ----------
 export type WorkerProgress = { type: 'progress'; file?: string; loaded: number; total: number; status: LoadStatus; error?: string };
 
 // STT worker
-export type SttIn = { type: 'load' } | { type: 'transcribe'; id: string; audio: Float32Array };
+export type SttIn = { type: 'load'; device?: 'wasm' | 'webgpu' } | { type: 'transcribe'; id: string; audio: Float32Array };
 export type SttOut = WorkerProgress | { type: 'result'; id: string; text: string } | { type: 'error'; id?: string; error: string };
 
 // LLM worker (local LFM2.5-VL-3B)

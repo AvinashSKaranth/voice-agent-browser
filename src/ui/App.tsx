@@ -13,6 +13,8 @@ import { Assistant } from './Assistant';
 import { Settings as SettingsPage } from './Settings';
 import { Extensions } from './Extensions';
 import { Documents } from './Documents';
+import { Logs } from './Logs';
+import { Bench } from './Bench';
 import { Button, Modal, ToastHost } from './components';
 
 function parseHash(): { path: string; query: URLSearchParams } {
@@ -87,6 +89,8 @@ export function App() {
   else if (path === '/settings') page = <SettingsPage />;
   else if (path === '/extensions') page = <Extensions />;
   else if (path === '/documents') page = <Documents />;
+  else if (path === '/logs') page = <Logs />;
+  else if (path === '/bench') page = <Bench />;
   else page = settings.setupDone ? <Assistant /> : <Landing />;
 
   return (
@@ -104,6 +108,12 @@ export function App() {
           </a>
           <a href="#/settings" class={route.path === '/settings' ? 'active' : ''}>
             Settings
+          </a>
+          <a href="#/logs" class={route.path === '/logs' ? 'active' : ''}>
+            Logs
+          </a>
+          <a href="#/bench" class={route.path === '/bench' ? 'active' : ''}>
+            Bench
           </a>
         </nav>
       )}

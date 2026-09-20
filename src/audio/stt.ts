@@ -1,5 +1,6 @@
 // Main-thread wrapper around stt.worker.ts (whisper-base).
 import { bus } from '../core/bus';
+import { metrics } from '../core/metrics';
 import { createProgressAggregator } from './progress';
 import type { SttIn, SttOut } from '../core/types';
 
@@ -33,15 +34,17 @@ function ensureWorker(): Worker {
   return worker;
 }
 
-async function load(): Promise<void> {
+async function load(device?: 'wasm' | 'webgpu'): Promise<void> {
   if (isReady) return;
   if (loadPromise) return loadPromise;
   const w = ensureWorker();
+  const end = metrics.start('model.load.stt');
   loadPromise = new Promise<void>((resolve, reject) => {
     const off = bus.on('model:progress', (e) => {
       if (e.model !== 'stt') return;
       if (e.status === 'ready') {
         off();
+        end(device);
         resolve();
       } else if (e.status === 'error') {
         off();
@@ -49,9 +52,18 @@ async function load(): Promise<void> {
         reject(new Error(e.error ?? 'STT load failed'));
       }
     });
-    w.postMessage({ type: 'load' } satisfies SttIn);
+    w.postMessage({ type: 'load', device } satisfies SttIn);
   });
   return loadPromise;
+}
+
+/** Terminates the worker and reloads whisper fresh on `device` - used by the Bench page. */
+async function reloadWith(device: 'wasm' | 'webgpu'): Promise<void> {
+  worker?.terminate();
+  worker = null;
+  isReady = false;
+  loadPromise = null;
+  await load(device);
 }
 
 async function transcribe(audio: Float32Array): Promise<string> {
@@ -67,5 +79,6 @@ async function transcribe(audio: Float32Array): Promise<string> {
 export const stt = {
   load,
   transcribe,
+  reloadWith,
   ready: (): boolean => isReady,
 };

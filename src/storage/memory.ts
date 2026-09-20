@@ -1,7 +1,7 @@
 // remember/recall/forget facts, backed by the `memories` table.
 import { db } from './db';
 
-function scoreText(text: string, words: string[]): number {
+export function scoreText(text: string, words: string[]): number {
   const lower = text.toLowerCase();
   return words.reduce((n, w) => n + (lower.includes(w.toLowerCase()) ? 1 : 0), 0);
 }

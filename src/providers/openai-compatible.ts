@@ -136,7 +136,7 @@ interface StreamState {
   pendingData: string[]; // data: lines accumulated for the current SSE event, until a blank line
 }
 
-function createStreamState(): StreamState {
+export function createStreamState(): StreamState {
   return { text: '', toolCalls: new Map(), finishReason: 'stop', buffer: '', thinkOpen: false, pendingData: [] };
 }
 
@@ -226,7 +226,7 @@ function applySseEvent(state: StreamState, dataLines: string[], onToken: (text: 
 // Feeds one chunk of raw SSE text into `state`, calling onToken for each clean content delta.
 // Exported for the DEV self-check below; not part of the module's public API surface.
 // Per the SSE spec an event's data: lines accumulate (joined by \n) until a blank line terminates it.
-function feedSse(state: StreamState, chunkText: string, onToken: (text: string) => void): void {
+export function feedSse(state: StreamState, chunkText: string, onToken: (text: string) => void): void {
   state.buffer += chunkText;
   const lines = state.buffer.split('\n');
   state.buffer = lines.pop() ?? '';

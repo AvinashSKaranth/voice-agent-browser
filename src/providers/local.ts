@@ -2,11 +2,15 @@
 // Strips <|tool_call_start|>...<|tool_call_end|> markup from streamed tokens (the orchestrator must
 // never see raw markup) and parses the Pythonic call list inside it into ToolCall[].
 import { bus } from '../core/bus';
+import { metrics } from '../core/metrics';
 import { createProgressAggregator } from '../audio/progress';
 import type { ChatMessage, GenerateOptions, GenerateResult, LlmIn, LlmOut, LlmProvider, ToolCall } from '../core/types';
 
 const TOOL_CALL_START = '<|tool_call_start|>';
 const TOOL_CALL_END = '<|tool_call_end|>';
+const escapeRe = (s: string): string => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+const RE_START = escapeRe(TOOL_CALL_START);
+const RE_END = escapeRe(TOOL_CALL_END);
 
 // ---------- streamed markup stripping ----------
 // Buffers text after a tool-call start marker and never forwards it to onToken; handles markers
@@ -218,7 +222,7 @@ export function parseLfmToolCalls(text: string): ToolCall[] {
   return calls;
 }
 
-function stripToolCallMarkup(text: string): string {
+export function stripToolCallMarkup(text: string): string {
   const withoutPairs = text.replace(new RegExp(`${TOOL_CALL_START}[\\s\\S]*?${TOOL_CALL_END}`, 'g'), '');
   // Truncated generation can leave an unmatched start marker with no closing tag; drop it and
   // everything after it rather than let raw markup leak into the visible/spoken text.
@@ -286,11 +290,13 @@ export function loadLocalLlm(): Promise<void> {
   if (isReady) return Promise.resolve();
   if (loadPromise) return loadPromise;
   const w = ensureWorker();
+  const end = metrics.start('model.load.llm');
   loadPromise = new Promise<void>((resolve, reject) => {
     const off = bus.on('model:progress', (e) => {
       if (e.model !== 'llm') return;
       if (e.status === 'ready') {
         off();
+        end();
         resolve();
       } else if (e.status === 'error') {
         off();

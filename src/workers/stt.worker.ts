@@ -21,24 +21,41 @@ function onProgress(p: ProgressInfo): void {
   }
 }
 
-async function load(): Promise<void> {
+async function load(explicitDevice?: 'wasm' | 'webgpu'): Promise<void> {
   if (pipe) return;
   if (loading) return loading;
   loading = (async () => {
     const hasWebGPU = typeof navigator !== 'undefined' && 'gpu' in navigator;
+    const device = explicitDevice ?? (hasWebGPU ? 'webgpu' : 'wasm');
     try {
-      if (!hasWebGPU) throw new Error('WebGPU not available');
-      pipe = await pipeline('automatic-speech-recognition', 'onnx-community/whisper-base', {
-        device: 'webgpu',
-        dtype: { encoder_model: 'fp32', decoder_model_merged: 'q4' },
-        progress_callback: onProgress,
-      });
-    } catch {
+      if (device === 'webgpu') {
+        if (!hasWebGPU) throw new Error('WebGPU not available');
+        pipe = await pipeline('automatic-speech-recognition', 'onnx-community/whisper-base', {
+          device: 'webgpu',
+          dtype: { encoder_model: 'fp32', decoder_model_merged: 'q4' },
+          progress_callback: onProgress,
+        });
+      } else {
+        pipe = await pipeline('automatic-speech-recognition', 'onnx-community/whisper-base', {
+          device: 'wasm',
+          dtype: { encoder_model: 'q8', decoder_model_merged: 'q8' },
+          progress_callback: onProgress,
+        });
+      }
+    } catch (e) {
+      if (explicitDevice) throw e; // bench.tsx asked for a specific device: don't silently swap it
       pipe = await pipeline('automatic-speech-recognition', 'onnx-community/whisper-base', {
         device: 'wasm',
         dtype: { encoder_model: 'q8', decoder_model_merged: 'q8' },
         progress_callback: onProgress,
       });
+    }
+    // Warm-up: the first WebGPU run compiles shaders (seconds); do it on silence, not on the user.
+    try {
+      post({ type: 'progress', loaded: 1, total: 1, status: 'loading' });
+      await pipe!(new Float32Array(16000), { language: 'en', task: 'transcribe' });
+    } catch {
+      /* warm-up failures are harmless */
     }
     post({ type: 'progress', loaded: 1, total: 1, status: 'ready' });
   })();
@@ -55,7 +72,7 @@ self.onmessage = async (ev: MessageEvent<SttIn>) => {
   const msg = ev.data;
   if (msg.type === 'load') {
     try {
-      await load();
+      await load(msg.device);
     } catch {
       /* error already posted by load() */
     }

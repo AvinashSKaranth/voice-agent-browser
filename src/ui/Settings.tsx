@@ -244,7 +244,7 @@ function LocalModelsSection(props: { settings: SettingsType; update: Updater }) 
       <Field label="TTS device">
         <Select
           value={settings.local.ttsDevice}
-          onChange={(v) => update({ local: { ...settings.local, ttsDevice: v as 'wasm' | 'webgpu' } })}
+          onChange={(v) => update({ local: { ...settings.local, ttsDevice: v as 'wasm' | 'webgpu', ttsDeviceExplicit: true } })}
           options={[
             { value: 'wasm', label: 'WASM' },
             { value: 'webgpu', label: 'WebGPU' },
@@ -265,7 +265,7 @@ function VoiceSection(props: { settings: SettingsType; update: Updater }) {
       <VoiceSettings
         value={props.settings.voice}
         onChange={(v) => props.update({ voice: v })}
-        onPreview={() => tts.load().then(() => tts.say('Hi, I am your assistant. How can I help?'))}
+        onPreview={() => tts.load().then(() => tts.say('Hi, I am your assistant. How can I help?')).catch((e: Error) => bus.emit({ type: 'toast', level: 'error', text: e.message }))}
       />
     </Card>
   );

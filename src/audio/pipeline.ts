@@ -1,11 +1,27 @@
 // Voice pipeline state machine: wake -> listening -> thinking -> speaking (BRD VP-1..VP-11).
 import { bus } from '../core/bus';
 import { getSettings } from '../core/settings';
+import { metrics } from '../core/metrics';
 import { mic } from './mic';
 import { player } from './player';
 import { stt } from './stt';
 import { tts } from './tts';
 import { wake } from './wake';
+import { ackCache } from './ackcache';
+
+const GENERIC_ACKS = ['On it', 'One moment', 'Working on it'];
+let genericAckIdx = 0;
+
+/** Plays a cached generic ack immediately (before transcription) and reports it so the orchestrator
+ * skips its own ack for this turn. Returns whether one actually played (cache may not be warm yet). */
+function playEarlyAck(speechEndAt: number): void {
+  const phrase = GENERIC_ACKS[genericAckIdx % GENERIC_ACKS.length];
+  genericAckIdx++;
+  if (ackCache.play(phrase)) {
+    metrics.event('ack.latency', performance.now() - speechEndAt, phrase);
+    bus.emit({ type: 'turn:ack', source: 'voice' });
+  }
+}
 
 type State = 'idle' | 'wake' | 'listening' | 'thinking' | 'speaking';
 
@@ -31,9 +47,15 @@ function rms(audio: Float32Array): number {
   return Math.sqrt(sum / audio.length);
 }
 
-function looksLikeHallucination(text: string, audio: Float32Array): boolean {
+export function looksLikeHallucination(text: string, audio: Float32Array): boolean {
   const normalized = text.toLowerCase().replace(/[^\w\s]/g, '').trim();
   return HALLUCINATION_PHRASES.has(normalized) || rms(audio) < HALLUCINATION_RMS;
+}
+
+// Same length/RMS bar as the post-STT hallucination filter, checked before STT even runs so a
+// spurious VAD trigger doesn't get an "On it" said at it.
+function passesAckGate(audio: Float32Array): boolean {
+  return audio.length >= MIN_PTT_SAMPLES && rms(audio) >= HALLUCINATION_RMS;
 }
 
 const utteranceHandlers: Array<(text: string) => void> = [];
@@ -75,14 +97,18 @@ function wakePhraseWords(): string {
 }
 
 async function transcribeAndEmit(audio: Float32Array): Promise<void> {
+  metrics.event('vad.utterance', (audio.length / 16000) * 1000);
+  const end = metrics.start('stt.transcribe');
   try {
     // stt.transcribe() transfers its argument's buffer to the worker (detaching it here), so hand
     // it a copy and keep `audio` intact for the hallucination RMS check below.
     const text = await stt.transcribe(audio.slice());
+    end(text);
     if (looksLikeHallucination(text, audio)) return; // drop silently, e.g. empty/near-silent audio
     bus.emit({ type: 'stt:final', text });
     if (text.trim()) utteranceHandlers.forEach((h) => h(text));
   } catch (e) {
+    end('error');
     bus.emit({ type: 'toast', level: 'error', text: `STT failed: ${(e as Error).message}` });
   }
 }
@@ -107,6 +133,7 @@ async function onWakeAttempt(audio: Float32Array): Promise<void> {
   const phrase = wakePhraseWords();
   const normalized = text.trim().toLowerCase();
   if (!phrase || !normalized.startsWith(phrase)) return; // not the wake phrase; keep waiting
+  metrics.event('wake.detect', 1);
   bus.emit({ type: 'wake:detected', score: 1 });
   beep();
   setState('listening');
@@ -133,6 +160,7 @@ function onSpeechEnd(audio: Float32Array): void {
   }
   if (state !== 'listening') return;
   clearFollowup();
+  if (passesAckGate(audio)) playEarlyAck(performance.now());
   void transcribeAndEmit(audio);
 }
 
@@ -144,8 +172,9 @@ function onFrame(frame: Float32Array): void {
   if (state === 'wake' && wakeUsable) wake.feed(frame);
 }
 
-function onWakeDetect(): void {
+function onWakeDetect(score: number): void {
   if (state !== 'wake') return;
+  metrics.event('wake.detect', score);
   beep();
   setState('listening');
   armFollowup();
@@ -247,6 +276,7 @@ export const pipeline = {
       audio.set(f, offset);
       offset += f.length;
     }
+    if (passesAckGate(audio)) playEarlyAck(performance.now());
     void transcribeAndEmit(audio);
   },
 

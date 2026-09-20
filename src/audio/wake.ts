@@ -1,5 +1,6 @@
 // Main-thread wrapper around wake.worker.ts (openWakeWord ONNX pipeline).
 import { bus } from '../core/bus';
+import { metrics } from '../core/metrics';
 import { createProgressAggregator } from './progress';
 import type { WakeIn, WakeOut } from '../workers/wake.worker';
 
@@ -33,11 +34,13 @@ function ensureWorker(): Worker {
 function load(phrase: string): Promise<void> {
   const w = ensureWorker();
   isReady = false;
+  const end = metrics.start('model.load.wake');
   return new Promise<void>((resolve) => {
     const off = bus.on('model:progress', (e) => {
       if (e.model !== 'wake') return;
       if (e.status === 'ready' || e.status === 'error') {
         off();
+        end(e.status);
         resolve();
       }
     });

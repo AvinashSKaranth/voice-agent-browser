@@ -1,7 +1,8 @@
 import type { ChatMessage, ContentPart, GenerateResult, ToolContext } from './types';
 import { bus } from './bus';
 import { getSettings } from './settings';
-import { createFeedback } from './feedback';
+import { createFeedback, LOCAL_LOADING_LINE } from './feedback';
+import { metrics } from './metrics';
 import { getActiveProvider } from '../providers/registry';
 import { localLlmReady } from '../providers/local';
 import { tts } from '../audio/tts';
@@ -154,22 +155,40 @@ export function makeToolContext(signal: AbortSignal): ToolContext {
   };
 }
 
+function providerModelDetail(provider: ReturnType<typeof getActiveProvider>): string {
+  if (provider.id === 'local') return 'local:LFM2.5-VL-3B';
+  const cfg = getSettings().providers.find((p) => p.id === provider.id);
+  return `${provider.id}:${cfg?.model ?? '?'}`;
+}
+
 async function generateWithRetry(
   provider: ReturnType<typeof getActiveProvider>,
   messages: ChatMessage[],
   signal: AbortSignal,
   onToken: (text: string) => void,
-  fb: ReturnType<typeof createFeedback>
+  fb: ReturnType<typeof createFeedback>,
+  turnId: string
 ): Promise<GenerateResult> {
   const maxRetries = getSettings().feedback.maxRetries;
+  const t0 = performance.now();
+  let gotFirstToken = false;
+  const wrappedOnToken = (text: string) => {
+    if (!gotFirstToken) {
+      gotFirstToken = true;
+      metrics.event('llm.first_token', performance.now() - t0, undefined, turnId);
+    }
+    onToken(text);
+  };
   for (let attempt = 0; ; attempt++) {
     try {
-      return await provider.generate({
+      const result = await provider.generate({
         messages,
         tools: provider.supportsTools ? tools.specs() : [],
         signal,
-        onToken,
+        onToken: wrappedOnToken,
       });
+      metrics.event('llm.total', performance.now() - t0, providerModelDetail(provider), turnId);
+      return result;
     } catch (e) {
       if (signal.aborted) throw e;
       if (attempt >= maxRetries) {
@@ -182,9 +201,10 @@ async function generateWithRetry(
 }
 
 export const orchestrator = {
-  async runTurn(input: string, opts: { images?: string[]; silent?: boolean } = {}): Promise<string> {
-    const { images, silent } = opts;
+  async runTurn(input: string, opts: { images?: string[]; silent?: boolean; source?: 'voice' | 'text' } = {}): Promise<string> {
+    const { images, silent, source } = opts;
     const id = crypto.randomUUID();
+    const endTurn = metrics.start('turn.total', id);
 
     currentController?.abort();
     const controller = new AbortController();
@@ -194,7 +214,7 @@ export const orchestrator = {
     const fb = createFeedback(id);
     bus.emit({ type: 'turn:start', id, input });
     pipeline.setThinking(true);
-    if (!silent) fb.ack(input);
+    if (!silent) fb.ack(input, { source });
 
     let finalText = '';
     let turnError: string | undefined;
@@ -218,7 +238,7 @@ export const orchestrator = {
         // feedback (and the heartbeat's stage narration) honest about why the first hop is slow.
         if (hop === 0 && provider.id === 'local' && !localLlmReady()) {
           fb.stage('downloading the local model');
-          if (!silent) tts.say('The local model is still loading. I will answer as soon as it is ready.');
+          if (!silent) tts.say(LOCAL_LOADING_LINE);
         } else {
           fb.stage('waiting for the model');
         }
@@ -228,7 +248,9 @@ export const orchestrator = {
           bus.emit({ type: 'turn:token', id, text });
           if (silent) return;
           sentenceBuf += text;
-          const parts = sentenceBuf.split(/(?<=[.!?])[ \n]/);
+          // Split at sentence ends, and at clause breaks once the buffer is long: Kokoro emits audio
+          // per chunk, so a 5 s sentence otherwise waits ~4 s before the first sound (see #/bench).
+          const parts = sentenceBuf.length > 70 ? sentenceBuf.split(/(?<=[.!?,;:])[ \n]/) : sentenceBuf.split(/(?<=[.!?])[ \n]/);
           if (parts.length > 1) {
             for (let i = 0; i < parts.length - 1; i++) {
               const s = parts[i].trim();
@@ -240,7 +262,7 @@ export const orchestrator = {
 
         let result: GenerateResult;
         try {
-          result = await generateWithRetry(provider, messages, controller.signal, onToken, fb);
+          result = await generateWithRetry(provider, messages, controller.signal, onToken, fb, id);
         } catch (e) {
           turnError = e instanceof Error ? e.message : String(e);
           break;
@@ -291,15 +313,18 @@ export const orchestrator = {
           fb.stage(`running ${tool.spec.name.replace(/_/g, ' ')}`);
 
           const ctx = makeToolContext(controller.signal);
+          const endTool = metrics.start(`tool.${call.name}`, id);
           let content: string;
           let images2: string[] | undefined;
           try {
             const res = await withTimeout(tool.run(call.args, ctx), TOOL_TIMEOUT_MS, `Tool ${call.name} timed out`);
             content = res.content.slice(0, RESULT_TRUNCATE);
             images2 = res.images;
+            endTool(res.ok ? 'ok' : 'error');
             bus.emit({ type: 'turn:tool', id, name: call.name, args: call.args, status: res.ok ? 'done' : 'error', result: content });
           } catch (e) {
             content = e instanceof Error ? e.message : String(e);
+            endTool('error');
             bus.emit({ type: 'turn:tool', id, name: call.name, args: call.args, status: 'error', result: content });
           }
 
@@ -322,6 +347,8 @@ export const orchestrator = {
       fb.dispose();
       pipeline.setThinking(false);
       running = false;
+      endTurn(turnError);
+      if (turnError) metrics.event('turn.error', undefined, turnError, id);
       bus.emit({ type: 'turn:end', id, text: finalText, error: turnError });
     }
     return finalText;
@@ -356,5 +383,5 @@ pipeline.onBargeIn(() => orchestrator.abort());
 // Spoken utterances (VAD + STT, or push-to-talk) drive turns exactly like typed input.
 pipeline.onUtterance((text) => {
   if (orchestrator.busy()) orchestrator.abort();
-  orchestrator.runTurn(text).catch((e: unknown) => bus.emit({ type: 'toast', level: 'error', text: (e as Error).message }));
+  orchestrator.runTurn(text, { source: 'voice' }).catch((e: unknown) => bus.emit({ type: 'toast', level: 'error', text: (e as Error).message }));
 });
