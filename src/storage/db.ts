@@ -69,7 +69,11 @@ export async function initDb(): Promise<void> {
   };
 
   // Hand the OPFS pool back before unload; otherwise a reload finds it still locked (see worker).
-  addEventListener('pagehide', () => worker?.postMessage({ type: 'close' }));
+  const release = () => worker?.postMessage({ type: 'close' });
+  addEventListener('pagehide', release);
+  // An 'unload' listener also makes the page ineligible for the back-forward cache, which would
+  // otherwise keep this worker (and its exclusive OPFS lock) alive after navigating away.
+  addEventListener('unload', release);
   await readyPromise;
   for (const sql of MIGRATIONS) await rawExec(sql);
   try {
