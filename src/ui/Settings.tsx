@@ -474,6 +474,7 @@ function DataSection(props: { settings: SettingsType; update: Updater }) {
           Reset app
         </Button>
       </div>
+      <p class="field-hint">Settings are stored per site. Export from localhost and import here after deploying, or run setup again.</p>
     </Card>
   );
 }

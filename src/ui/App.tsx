@@ -63,20 +63,30 @@ export function App() {
     if (route.path === '/' && settings.setupDone) location.hash = '#/assistant';
   }, [route.path, settings.setupDone]);
 
+  // Setup not done: every route except landing and setup itself redirects to landing (deep links
+  // like #/assistant must not mount and start downloading models before setup has run).
+  useEffect(() => {
+    if (!settings.setupDone && route.path !== '/' && route.path !== '/setup') location.hash = '#/';
+  }, [route.path, settings.setupDone]);
+
   function answerConfirm(ok: boolean) {
     if (!confirmReq) return;
     bus.emit({ type: 'confirm:answer', id: confirmReq.id, ok });
     setConfirmReq(null);
   }
 
+  // Guarded path: same as route.path, except any route besides '/' and '/setup' collapses to '/'
+  // until setup is done, so gated pages (Assistant etc.) never mount and kick off model loads.
+  const path = !settings.setupDone && route.path !== '/' && route.path !== '/setup' ? '/' : route.path;
+
   let page;
-  if (route.path === '/setup') {
+  if (path === '/setup') {
     const stepParam = route.query.get('step');
     page = <Wizard initialStep={stepParam ? Number(stepParam) : undefined} />;
-  } else if (route.path === '/assistant') page = <Assistant />;
-  else if (route.path === '/settings') page = <SettingsPage />;
-  else if (route.path === '/extensions') page = <Extensions />;
-  else if (route.path === '/documents') page = <Documents />;
+  } else if (path === '/assistant') page = <Assistant />;
+  else if (path === '/settings') page = <SettingsPage />;
+  else if (path === '/extensions') page = <Extensions />;
+  else if (path === '/documents') page = <Documents />;
   else page = settings.setupDone ? <Assistant /> : <Landing />;
 
   return (

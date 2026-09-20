@@ -3,6 +3,7 @@ import { bus } from './bus';
 import { getSettings } from './settings';
 import { createFeedback } from './feedback';
 import { getActiveProvider } from '../providers/registry';
+import { localLlmReady } from '../providers/local';
 import { tts } from '../audio/tts';
 import { pipeline } from '../audio/pipeline';
 import { db } from '../storage/db';
@@ -213,7 +214,14 @@ export const orchestrator = {
       if (!silent) fb.heartbeatStart();
 
       for (let hop = 0; hop < MAX_HOPS; hop++) {
-        fb.stage('waiting for the model');
+        // Local provider's generate() awaits the model load itself; this just keeps the spoken
+        // feedback (and the heartbeat's stage narration) honest about why the first hop is slow.
+        if (hop === 0 && provider.id === 'local' && !localLlmReady()) {
+          fb.stage('downloading the local model');
+          if (!silent) tts.say('The local model is still loading. I will answer as soon as it is ready.');
+        } else {
+          fb.stage('waiting for the model');
+        }
 
         let sentenceBuf = '';
         const onToken = (text: string) => {

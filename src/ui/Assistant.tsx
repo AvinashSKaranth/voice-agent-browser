@@ -8,6 +8,7 @@ import { player } from '../audio/player';
 import { stt } from '../audio/stt';
 import { tts } from '../audio/tts';
 import { loadLocalLlm, localLlmReady } from '../providers/local';
+import { wake } from '../audio/wake';
 import { transcripts } from '../storage/transcripts';
 import { Button, ProgressBar, Select } from './components';
 
@@ -103,12 +104,41 @@ export function Assistant() {
     if (transcriptRef.current) transcriptRef.current.scrollTop = transcriptRef.current.scrollHeight;
   }, [entries]);
 
-  // Load models on first mount if not ready.
+  // Load models on first mount, sequentially (never in parallel - a 2.5 GB local LLM download
+  // competing with STT/TTS/wake for bandwidth is why the boot used to stall). Cloud mode never
+  // touches the local LLM at all.
   useEffect(() => {
-    if (!stt.ready()) stt.load().catch((err) => bus.emit({ type: 'toast', level: 'error', text: `STT load failed: ${err.message}` }));
-    if (!tts.ready()) tts.load().catch((err) => bus.emit({ type: 'toast', level: 'error', text: `TTS load failed: ${err.message}` }));
-    if (settings.mode === 'local' && !localLlmReady())
-      loadLocalLlm().catch((err: Error) => bus.emit({ type: 'toast', level: 'error', text: `Local model load failed: ${err.message}` }));
+    async function loadModels() {
+      if (!stt.ready()) {
+        try {
+          await stt.load();
+        } catch (err) {
+          bus.emit({ type: 'toast', level: 'error', text: `STT load failed: ${(err as Error).message}` });
+        }
+      }
+      if (!tts.ready()) {
+        try {
+          await tts.load();
+        } catch (err) {
+          bus.emit({ type: 'toast', level: 'error', text: `TTS load failed: ${(err as Error).message}` });
+        }
+      }
+      if (settings.wake.enabled && !wake.ready()) {
+        try {
+          await wake.load(settings.wake.phrase);
+        } catch (err) {
+          bus.emit({ type: 'toast', level: 'error', text: `Wake word load failed: ${(err as Error).message}` });
+        }
+      }
+      if (settings.mode === 'local' && settings.local.llm && !localLlmReady()) {
+        try {
+          await loadLocalLlm();
+        } catch (err) {
+          bus.emit({ type: 'toast', level: 'error', text: `Local model load failed: ${(err as Error).message}` });
+        }
+      }
+    }
+    loadModels();
   }, []);
 
   function refreshSessions() {
@@ -197,6 +227,7 @@ export function Assistant() {
   };
 
   const loadingModels = Object.entries(loadProgress).filter(([, p]) => p && p.status !== 'ready');
+  const localBanner = localModelBanner(settings, loadProgress);
 
   return (
     <div class="assistant">
@@ -248,6 +279,15 @@ export function Assistant() {
           </Button>
         </div>
       </div>
+
+      {localBanner && (
+        <div class="banner">
+          <span>{localBanner.text}</span>
+          <a class="btn btn-ghost" href="#/settings">
+            Use a cloud provider instead
+          </a>
+        </div>
+      )}
 
       <div class="transcript" ref={transcriptRef}>
         {entries.map((e) => {
@@ -304,6 +344,20 @@ export function Assistant() {
       {images.length > 0 && <p class="field-hint">{images.length} image(s) attached</p>}
     </div>
   );
+}
+
+function localModelBanner(
+  settings: Settings,
+  loadProgress: Partial<Record<ModelName, { loaded: number; total: number; status: string; error?: string }>>,
+): { text: string } | null {
+  if (settings.mode !== 'local' || localLlmReady()) return null;
+  if (!(navigator as unknown as { gpu?: unknown }).gpu) {
+    return { text: 'This browser has no WebGPU; local mode cannot run. Use a cloud provider.' };
+  }
+  const p = loadProgress.llm;
+  const mb = (n: number) => Math.round(n / (1024 * 1024));
+  const text = p && p.total ? `Local model loading: ${mb(p.loaded)} / ${mb(p.total)} MB` : 'Local model loading…';
+  return { text };
 }
 
 function fixItBanner(settings: Settings): { text: string; href: string } | null {
