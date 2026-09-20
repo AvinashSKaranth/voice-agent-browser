@@ -2,6 +2,7 @@
 // Strips <|tool_call_start|>...<|tool_call_end|> markup from streamed tokens (the orchestrator must
 // never see raw markup) and parses the Pythonic call list inside it into ToolCall[].
 import { bus } from '../core/bus';
+import { createProgressAggregator } from '../audio/progress';
 import type { ChatMessage, GenerateOptions, GenerateResult, LlmIn, LlmOut, LlmProvider, ToolCall } from '../core/types';
 
 const TOOL_CALL_START = '<|tool_call_start|>';
@@ -230,6 +231,7 @@ let worker: Worker | null = null;
 let isReady = false;
 let loadPromise: Promise<void> | null = null;
 let seq = 0;
+const emitProgress = createProgressAggregator('llm');
 
 interface ActiveGen {
   splitter: ReturnType<typeof makeStreamSplitter>;
@@ -246,7 +248,7 @@ function ensureWorker(): Worker {
     const msg = ev.data;
     if (msg.type === 'progress') {
       if (msg.status === 'ready') isReady = true;
-      bus.emit({ type: 'model:progress', model: 'llm', file: msg.file, loaded: msg.loaded, total: msg.total, status: msg.status, error: msg.error });
+      emitProgress(msg);
       return;
     }
     if (msg.type === 'token') {

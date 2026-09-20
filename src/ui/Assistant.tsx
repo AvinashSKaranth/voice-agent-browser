@@ -39,9 +39,10 @@ export function Assistant() {
   const [text, setText] = useState('');
   const [images, setImages] = useState<string[]>([]);
   const [micOn, setMicOn] = useState(false);
+  const [recording, setRecording] = useState(false);
   const [settings, setSettings] = useState<Settings>(getSettings());
   const [sessions, setSessions] = useState<Array<{ id: string; title: string; updatedAt: string }>>([]);
-  const [loadProgress, setLoadProgress] = useState<Partial<Record<ModelName, { loaded: number; total: number; status: string }>>>({});
+  const [loadProgress, setLoadProgress] = useState<Partial<Record<ModelName, { loaded: number; total: number; status: string; error?: string }>>>({});
   const transcriptRef = useRef<HTMLDivElement>(null);
   const banner = fixItBanner(settings);
 
@@ -78,7 +79,7 @@ export function Assistant() {
       }),
       bus.on('settings:changed', (e) => setSettings(e.settings)),
       bus.on('model:progress', (e) =>
-        setLoadProgress((p) => ({ ...p, [e.model]: { loaded: e.loaded, total: e.total, status: e.status } })),
+        setLoadProgress((p) => ({ ...p, [e.model]: { loaded: e.loaded, total: e.total, status: e.status, error: e.error } })),
       ),
     ];
     return () => offs.forEach((o) => o());
@@ -188,8 +189,8 @@ export function Assistant() {
   const activeProviderValue = settings.mode === 'local' ? 'local' : settings.activeProviderId;
 
   const stateLabel: Record<AudioState, string> = {
-    idle: 'Say Hey Jarvis',
-    wake: 'Woke up',
+    idle: 'Mic off',
+    wake: `Say ${settings.wake.phrase.replace(/\.onnx$/i, '').replace(/_/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase())}`,
     listening: 'Listening',
     thinking: 'Thinking',
     speaking: 'Speaking',
@@ -210,9 +211,13 @@ export function Assistant() {
 
       {loadingModels.length > 0 && (
         <div class="card">
-          {loadingModels.map(([name, p]) => (
-            <ProgressBar key={name} value={p!.loaded} max={p!.total || 1} label={`Loading ${name}…`} />
-          ))}
+          {loadingModels.map(([name, p]) =>
+            p!.status === 'error' ? (
+              <p class="test-error" key={name}>{name}: {p!.error || 'load failed'}</p>
+            ) : (
+              <ProgressBar key={name} value={p!.loaded} max={p!.total || 1} label={`Loading ${name}…`} />
+            ),
+          )}
         </div>
       )}
 
@@ -264,19 +269,35 @@ export function Assistant() {
           class="input"
           placeholder="Type instead of speaking…"
           value={text}
-          onChange={(ev) => setText((ev.target as HTMLInputElement).value)}
+          onInput={(ev) => setText((ev.target as HTMLInputElement).value)}
           onKeyDown={(ev) => {
-            if (ev.key === 'Enter') send();
+            if (ev.key === 'Enter') {
+              ev.preventDefault();
+              send();
+            }
           }}
         />
         <input type="file" accept="image/*" onChange={onImageFile} />
         <button
           class="btn btn-ghost"
-          onMouseDown={() => pipeline.pushToTalkStart()}
-          onMouseUp={() => pipeline.pushToTalkStop()}
-          onMouseLeave={() => pipeline.pushToTalkStop()}
+          onPointerDown={() => {
+            setRecording(true);
+            void pipeline.pushToTalkStart();
+          }}
+          onPointerUp={() => {
+            setRecording(false);
+            pipeline.pushToTalkStop();
+          }}
+          onPointerLeave={() => {
+            setRecording(false);
+            pipeline.pushToTalkStop();
+          }}
+          onPointerCancel={() => {
+            setRecording(false);
+            pipeline.pushToTalkStop();
+          }}
         >
-          Push to talk
+          {recording ? 'Recording…' : 'Push to talk'}
         </button>
         <Button onClick={send}>Send</Button>
       </div>

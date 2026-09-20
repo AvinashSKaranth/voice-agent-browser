@@ -350,13 +350,13 @@ function Step3Provider(props: { settings: Settings; update: (p: Partial<Settings
 // ---------- Step 4: Download models ----------
 function Step4Models(props: { settings: Settings }) {
   const { settings } = props;
-  const [progress, setProgress] = useState<Partial<Record<ModelName, { loaded: number; total: number; status: string }>>>({});
+  const [progress, setProgress] = useState<Partial<Record<ModelName, { loaded: number; total: number; status: string; error?: string }>>>({});
   const [busy, setBusy] = useState<Partial<Record<ModelName, boolean>>>({});
 
   useEffect(
     () =>
       bus.on('model:progress', (e) => {
-        setProgress((p) => ({ ...p, [e.model]: { loaded: e.loaded, total: e.total, status: e.status } }));
+        setProgress((p) => ({ ...p, [e.model]: { loaded: e.loaded, total: e.total, status: e.status, error: e.error } }));
         if (e.status === 'ready' || e.status === 'error') setBusy((b) => ({ ...b, [e.model]: false }));
       }),
     [],
@@ -381,7 +381,7 @@ function Step4Models(props: { settings: Settings }) {
     { model: 'stt', label: 'Speech to text (Whisper)', onDownload: () => run('stt', () => stt.load()), show: true },
     { model: 'tts', label: 'Voice (Kokoro)', onDownload: () => run('tts', () => tts.load()), show: true },
     { model: 'llm', label: 'Local brain (LFM2.5-VL-3B)', onDownload: () => run('llm', () => loadLocalLlm()), show: settings.local.llm },
-    { model: 'wake', label: 'Wake word', onDownload: () => run('wake', () => wake.load(settings.wake.phrase)), show: settings.wake.enabled },
+    { model: 'wake', label: 'Load wake word (3 MB, bundled)', onDownload: () => run('wake', () => wake.load(settings.wake.phrase)), show: settings.wake.enabled },
   ];
 
   return (
@@ -400,8 +400,8 @@ function Step4Models(props: { settings: Settings }) {
                   {p?.status === 'ready' ? 'Ready' : busy[r.model] ? 'Downloading…' : 'Download'}
                 </Button>
               </div>
-              {p && p.total > 0 && <ProgressBar value={p.loaded} max={p.total} label={`${mb(p.loaded)} / ${mb(p.total)} MB`} />}
-              {p?.status === 'error' && <p class="test-error">Download failed.</p>}
+              {p && p.total > 0 && p.status !== 'error' && <ProgressBar value={p.loaded} max={p.total} label={`${mb(p.loaded)} / ${mb(p.total)} MB`} />}
+              {p?.status === 'error' && <p class="test-error">{p.error || 'Download failed.'}</p>}
             </div>
           );
         })}

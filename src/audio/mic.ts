@@ -3,6 +3,7 @@
 // the same MediaStream feeds both, and VAD's pause/resume never stops the tracks, so the worklet
 // (and hence wake-word listening) survives pause/resume and backgrounding (VP-10).
 import { MicVAD } from '@ricky0123/vad-web';
+import { bus } from '../core/bus';
 
 interface MicHandlers {
   onSpeechStart?(): void;
@@ -71,24 +72,41 @@ export const mic = {
   async start(h: MicHandlers): Promise<void> {
     if (started) return;
     started = true;
-    stream = await navigator.mediaDevices.getUserMedia({
-      audio: { channelCount: 1, echoCancellation: true, autoGainControl: true, noiseSuppression: true },
-    });
-    vad = await MicVAD.new({
-      baseAssetPath: './vad/',
-      onnxWASMBasePath: './ort/',
-      model: 'v5',
-      getStream: async () => stream!,
-      pauseStream: async () => {},
-      resumeStream: async () => stream!,
-      positiveSpeechThreshold: 0.6,
-      redemptionMs: 600,
-      minSpeechMs: 250,
-      onSpeechStart: () => h.onSpeechStart?.(),
-      onSpeechEnd: (audio: Float32Array) => h.onSpeechEnd?.(audio),
-    });
-    await vad.start();
+    try {
+      stream = await navigator.mediaDevices.getUserMedia({
+        audio: { channelCount: 1, echoCancellation: true, autoGainControl: true, noiseSuppression: true },
+      });
+    } catch (e) {
+      started = false;
+      throw e;
+    }
+
+    // Frame tap first: push-to-talk depends only on this, so it must survive a VAD init failure
+    // (onnxruntime-web loading is the flaky part here, not getUserMedia).
     if (h.onFrame) await setupFrameTap(stream, h.onFrame);
+
+    // Resolve against the page URL, not onnxruntime's own script URL (which is where the plain
+    // relative './ort/' string used to get resolved, 404-ing in both dev and the base:'./' build).
+    const base = new URL('./', document.baseURI).href;
+    try {
+      vad = await MicVAD.new({
+        baseAssetPath: base + 'vad/',
+        onnxWASMBasePath: base + 'ort/',
+        model: 'v5',
+        getStream: async () => stream!,
+        pauseStream: async () => {},
+        resumeStream: async () => stream!,
+        positiveSpeechThreshold: 0.6,
+        redemptionMs: 600,
+        minSpeechMs: 250,
+        onSpeechStart: () => h.onSpeechStart?.(),
+        onSpeechEnd: (audio: Float32Array) => h.onSpeechEnd?.(audio),
+      });
+      await vad.start();
+    } catch (e) {
+      vad = null;
+      bus.emit({ type: 'toast', level: 'error', text: `Voice activity detection failed: ${(e as Error).message}. Push-to-talk still works.` });
+    }
   },
 
   stop(): void {
@@ -113,5 +131,9 @@ export const mic = {
 
   active(): boolean {
     return started;
+  },
+
+  vadReady(): boolean {
+    return vad !== null;
   },
 };

@@ -2,6 +2,7 @@
 import { bus } from '../core/bus';
 import { getSettings } from '../core/settings';
 import { player } from './player';
+import { createProgressAggregator } from './progress';
 import type { TtsIn, TtsOut } from '../core/types';
 
 let worker: Worker | null = null;
@@ -15,6 +16,7 @@ let activeResolve: (() => void) | null = null;
 let activeChunks: Promise<void>[] = [];
 let voicesResolve: ((v: string[]) => void) | null = null;
 let sayChain: Promise<void> = Promise.resolve();
+const emitProgress = createProgressAggregator('tts');
 
 function ensureWorker(): Worker {
   if (worker) return worker;
@@ -23,7 +25,7 @@ function ensureWorker(): Worker {
     const msg = ev.data;
     if (msg.type === 'progress') {
       if (msg.status === 'ready') isReady = true;
-      bus.emit({ type: 'model:progress', model: 'tts', file: msg.file, loaded: msg.loaded, total: msg.total, status: msg.status, error: msg.error });
+      emitProgress(msg);
     } else if (msg.type === 'chunk') {
       if (msg.id !== currentId) return;
       activeChunks.push(player.enqueue(msg.audio, msg.sampleRate));

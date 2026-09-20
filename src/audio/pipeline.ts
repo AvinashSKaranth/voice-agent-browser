@@ -18,6 +18,24 @@ let followupTimer: ReturnType<typeof setTimeout> | null = null;
 let pushToTalkActive = false;
 let ptFrames: Float32Array[] = [];
 
+const MIN_PTT_SAMPLES = 16000 * 0.4;
+// Whisper hallucinates a handful of stock phrases (and "You") on near-silent/empty audio; a VAD or
+// frame-tap failure that lets an empty buffer through must not surface these as real utterances.
+const HALLUCINATION_PHRASES = new Set(['you', 'thank you', 'thanks for watching', 'bye', '', 'blank audio', 'subtitles by the amara org community']);
+const HALLUCINATION_RMS = 0.005;
+
+function rms(audio: Float32Array): number {
+  if (audio.length === 0) return 0;
+  let sum = 0;
+  for (let i = 0; i < audio.length; i++) sum += audio[i] * audio[i];
+  return Math.sqrt(sum / audio.length);
+}
+
+function looksLikeHallucination(text: string, audio: Float32Array): boolean {
+  const normalized = text.toLowerCase().replace(/[^\w\s]/g, '').trim();
+  return HALLUCINATION_PHRASES.has(normalized) || rms(audio) < HALLUCINATION_RMS;
+}
+
 const utteranceHandlers: Array<(text: string) => void> = [];
 const bargeInHandlers: Array<() => void> = [];
 
@@ -58,7 +76,10 @@ function wakePhraseWords(): string {
 
 async function transcribeAndEmit(audio: Float32Array): Promise<void> {
   try {
-    const text = await stt.transcribe(audio);
+    // stt.transcribe() transfers its argument's buffer to the worker (detaching it here), so hand
+    // it a copy and keep `audio` intact for the hallucination RMS check below.
+    const text = await stt.transcribe(audio.slice());
+    if (looksLikeHallucination(text, audio)) return; // drop silently, e.g. empty/near-silent audio
     bus.emit({ type: 'stt:final', text });
     if (text.trim()) utteranceHandlers.forEach((h) => h(text));
   } catch (e) {
@@ -77,11 +98,12 @@ async function onWakeAttempt(audio: Float32Array): Promise<void> {
   // No usable ML wake model: fall back to requiring the phrase as a spoken prefix (VP-9 fallback).
   let text: string;
   try {
-    text = await stt.transcribe(audio);
+    text = await stt.transcribe(audio.slice());
   } catch (e) {
     bus.emit({ type: 'toast', level: 'error', text: `STT failed: ${(e as Error).message}` });
     return;
   }
+  if (looksLikeHallucination(text, audio)) return; // drop silently, keep waiting for the wake phrase
   const phrase = wakePhraseWords();
   const normalized = text.trim().toLowerCase();
   if (!phrase || !normalized.startsWith(phrase)) return; // not the wake phrase; keep waiting
@@ -141,6 +163,22 @@ function onTtsEnd(): void {
 bus.on('tts:start', onTtsStart);
 bus.on('tts:end', onTtsEnd);
 
+// Shared by start() and pushToTalkStart() so both go through the same handlers. On failure (e.g.
+// permission denied) this toasts and resets pipeline state itself, then rethrows: start()'s callers
+// already surface their own toast on rejection, and pushToTalkStart() is called fire-and-forget by
+// the UI so it must catch this itself rather than leave an unhandled rejection.
+async function ensureMicStarted(): Promise<void> {
+  if (mic.active()) return;
+  try {
+    await mic.start({ onSpeechStart, onSpeechEnd, onFrame });
+  } catch (e) {
+    started = false;
+    setState('idle');
+    bus.emit({ type: 'toast', level: 'error', text: `Could not start microphone: ${(e as Error).message}` });
+    throw e;
+  }
+}
+
 export const pipeline = {
   async start(): Promise<void> {
     if (started) return;
@@ -150,7 +188,7 @@ export const pipeline = {
     wakeModeActive = settings.wake.enabled && !settings.wake.pushToTalk;
     wake.onDetect(onWakeDetect);
 
-    await mic.start({ onSpeechStart, onSpeechEnd, onFrame });
+    await ensureMicStarted();
 
     if (wakeModeActive) {
       wake.setThreshold(settings.wake.threshold);
@@ -172,8 +210,13 @@ export const pipeline = {
     setState('idle');
   },
 
-  pushToTalkStart(): void {
+  async pushToTalkStart(): Promise<void> {
     player.init();
+    try {
+      await ensureMicStarted();
+    } catch {
+      return; // ensureMicStarted already toasted and reset state
+    }
     pushToTalkActive = true;
     ptFrames = [];
     clearFollowup();
@@ -187,6 +230,10 @@ export const pipeline = {
     const frames = ptFrames;
     ptFrames = [];
     const total = frames.reduce((n, f) => n + f.length, 0);
+    if (total < MIN_PTT_SAMPLES) {
+      bus.emit({ type: 'toast', level: 'warn', text: 'Too short, hold the button while you speak' });
+      return;
+    }
     const audio = new Float32Array(total);
     let offset = 0;
     for (const f of frames) {

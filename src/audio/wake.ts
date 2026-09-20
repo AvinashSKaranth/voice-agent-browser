@@ -1,10 +1,12 @@
 // Main-thread wrapper around wake.worker.ts (openWakeWord ONNX pipeline).
 import { bus } from '../core/bus';
+import { createProgressAggregator } from './progress';
 import type { WakeIn, WakeOut } from '../workers/wake.worker';
 
 let worker: Worker | null = null;
 let isReady = false;
 const detectHandlers: Array<(score: number) => void> = [];
+const emitProgress = createProgressAggregator('wake');
 
 function ensureWorker(): Worker {
   if (worker) return worker;
@@ -13,7 +15,7 @@ function ensureWorker(): Worker {
     const msg = ev.data;
     if (msg.type === 'progress') {
       isReady = msg.status === 'ready';
-      bus.emit({ type: 'model:progress', model: 'wake', file: msg.file, loaded: msg.loaded, total: msg.total, status: msg.status, error: msg.error });
+      emitProgress(msg);
     } else if (msg.type === 'detect') {
       bus.emit({ type: 'wake:detected', score: msg.score });
       detectHandlers.forEach((h) => h(msg.score));

@@ -33,6 +33,8 @@ interface WireStreamChoice {
 interface WireStreamChunk {
   choices?: WireStreamChoice[];
   usage?: { prompt_tokens?: number; completion_tokens?: number };
+  // OpenRouter reports upstream failures as HTTP 200 with an error object in the body.
+  error?: { message?: string; code?: number | string; metadata?: { error_type?: string } };
 }
 
 export function createOpenAiProvider(cfg: ProviderConfig): LlmProvider {
@@ -184,6 +186,7 @@ function applySseEvent(state: StreamState, dataLines: string[], onToken: (text: 
   } catch {
     return;
   }
+  if (json.error) throw new Error(`Provider error: ${json.error.message ?? String(json.error.code ?? 'unknown')}`);
   if (json.usage) state.usage = { prompt: json.usage.prompt_tokens ?? 0, completion: json.usage.completion_tokens ?? 0 };
   const choice = json.choices?.[0];
   if (!choice) return;

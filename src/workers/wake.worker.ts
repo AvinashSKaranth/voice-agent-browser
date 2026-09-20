@@ -1,5 +1,9 @@
 // Wake-word worker: openWakeWord ONNX pipeline (melspectrogram -> embedding -> phrase head) via onnxruntime-web.
-import * as ort from 'onnxruntime-web';
+// CPU-only wasm subpath (matches @ricky0123/vad-web's own usage, see vite.config.ts optimizeDeps):
+// the default 'onnxruntime-web' bundle registers the webgpu/webnn EPs too and its wasm-binary
+// selection then reaches for the much bigger .jsep wasm/mjs pair, which vite.config.ts never
+// copies since nothing here uses those EPs.
+import * as ort from 'onnxruntime-web/wasm';
 import type { WorkerProgress } from '../core/types';
 
 // Local protocol (not in core/types.ts: wake-word has no shared contract there).
@@ -40,6 +44,7 @@ async function load(phrase: string, baseHref: string): Promise<void> {
   try {
     ort.env.wasm.wasmPaths = new URL('./ort/', baseHref).href;
     ort.env.wasm.numThreads = 1;
+    ort.env.wasm.proxy = false; // proxy worker would try to re-resolve wasmPaths from its own script URL
     const modelsBase = new URL('./models/oww/', baseHref).href;
     const phraseFile = phrase.endsWith('.onnx') ? phrase : `${phrase}_v0.1.onnx`;
     post({ type: 'progress', loaded: 0, total: 3, status: 'downloading' });

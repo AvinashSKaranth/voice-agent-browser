@@ -1,5 +1,6 @@
 // Main-thread wrapper around stt.worker.ts (whisper-base).
 import { bus } from '../core/bus';
+import { createProgressAggregator } from './progress';
 import type { SttIn, SttOut } from '../core/types';
 
 let worker: Worker | null = null;
@@ -7,6 +8,7 @@ let isReady = false;
 let loadPromise: Promise<void> | null = null;
 let seq = 0;
 const pending = new Map<string, { resolve(text: string): void; reject(e: Error): void }>();
+const emitProgress = createProgressAggregator('stt');
 
 function ensureWorker(): Worker {
   if (worker) return worker;
@@ -15,7 +17,7 @@ function ensureWorker(): Worker {
     const msg = ev.data;
     if (msg.type === 'progress') {
       if (msg.status === 'ready') isReady = true;
-      bus.emit({ type: 'model:progress', model: 'stt', file: msg.file, loaded: msg.loaded, total: msg.total, status: msg.status, error: msg.error });
+      emitProgress(msg);
     } else if (msg.type === 'result') {
       pending.get(msg.id)?.resolve(msg.text);
       pending.delete(msg.id);

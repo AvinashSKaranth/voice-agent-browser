@@ -34,11 +34,11 @@ export const stt: { load(): Promise<void>; transcribe(audio: Float32Array /*16 k
 // src/audio/tts.ts  – queue + Web Audio playback; resolves when that text finished playing
 export const tts: { load(): Promise<void>; say(text: string): Promise<void>; stop(): void; voices(): Promise<string[]>; ready(): boolean; speaking(): boolean };
 // src/audio/mic.ts – @ricky0123/vad-web MicVAD (baseAssetPath './vad/', onnxWASMBasePath './ort/'), also raw 16 kHz frames for wake word
-export const mic: { start(h: { onSpeechStart?(): void; onSpeechEnd?(audio: Float32Array): void; onFrame?(frame: Float32Array): void }): Promise<void>; stop(): void; pause(): void; resume(): void; active(): boolean };
+export const mic: { start(h: { onSpeechStart?(): void; onSpeechEnd?(audio: Float32Array): void; onFrame?(frame: Float32Array): void }): Promise<void>; stop(): void; pause(): void; resume(): void; active(): boolean; vadReady(): boolean };
 // src/audio/wake.ts – openWakeWord ONNX in wake.worker.ts
 export const wake: { load(phrase: string): Promise<void>; feed(frame16k: Float32Array): void; onDetect(cb: (score: number) => void): void; setThreshold(t: number): void; ready(): boolean };
 // src/audio/pipeline.ts – state machine wake→listening→thinking→speaking, emits 'audio:state'
-export const pipeline: { start(): Promise<void>; stop(): void; pushToTalkStart(): void; pushToTalkStop(): void; onUtterance(cb: (text: string) => void): void; onBargeIn(cb: () => void): void; setThinking(on: boolean): void };
+export const pipeline: { start(): Promise<void>; stop(): void; pushToTalkStart(): Promise<void>; pushToTalkStop(): void; onUtterance(cb: (text: string) => void): void; onBargeIn(cb: () => void): void; setThinking(on: boolean): void };
 ```
 
 ### Providers

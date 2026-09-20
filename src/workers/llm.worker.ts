@@ -31,9 +31,10 @@ function onProgress(p: unknown): void {
   if (info.status === 'progress') {
     post({ type: 'progress', file: info.file, loaded: info.loaded ?? 0, total: info.total ?? 0, status: 'downloading' });
   } else if (info.status === 'initiate' || info.status === 'download') {
-    post({ type: 'progress', file: info.file, loaded: 0, total: 0, status: 'downloading' });
+    post({ type: 'progress', file: info.file, loaded: 0, total: info.total ?? 0, status: 'downloading' });
   } else if (info.status === 'done') {
-    post({ type: 'progress', file: info.file, loaded: 1, total: 1, status: 'downloading' });
+    // Carry the real total (not a fake 1/1) so a multi-file aggregator sums bytes correctly.
+    post({ type: 'progress', file: info.file, loaded: info.total ?? 0, total: info.total ?? 0, status: 'downloading' });
   }
 }
 
