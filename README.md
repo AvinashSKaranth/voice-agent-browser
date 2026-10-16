@@ -1,6 +1,6 @@
 # Voice Agent (browser)
 
-Voice assistant that runs entirely in the browser: whisper-base (speech to text), LFM2.5-VL-3B (reasoning, tool calls, images), Kokoro (speech), Silero VAD and openWakeWord ("Hey Jarvis"). Optional cloud providers (OpenRouter, NVIDIA NIM, OpenAI, Anthropic, Gemini, Groq, Mistral, xAI, DeepSeek, Together, Ollama, custom endpoints), MCP servers (TinyFish search, fetch and browser automation), skills, custom tools, schedules and alerts.
+Voice assistant that runs entirely in the browser: Parakeet Redux (speech to text; Whisper and Moonshine selectable), LFM2.5-VL-3B (reasoning, tool calls, images), Kokoro (speech), Silero VAD and openWakeWord ("Hey Jarvis"). Optional cloud providers (OpenRouter, NVIDIA NIM, OpenAI, Anthropic, Gemini, Groq, Mistral, xAI, DeepSeek, Together, Ollama, custom endpoints), MCP servers (TinyFish search, fetch and browser automation), skills, custom tools, schedules and alerts.
 
 Spec: [BRD.md](BRD.md). Module contracts: [ARCHITECTURE.md](ARCHITECTURE.md).
 

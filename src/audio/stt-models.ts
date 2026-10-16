@@ -15,7 +15,7 @@
 // map is honoured out of the box for whisper/distil/moonshine alike; hybridDevice is only left
 // undefined for a model whose session file names diverge from this pair.
 import type { DataType } from '@huggingface/transformers';
-import type { SttModelId } from '../core/types';
+import type { Settings, SttModelId } from '../core/types';
 
 type Dtype = DataType | Record<string, DataType>;
 type DeviceMap = Record<string, 'wasm' | 'webgpu'>;
@@ -27,7 +27,10 @@ export interface SttModelDef {
   sizeMb: number; // approx download size for the webgpu dtype (encoder fp32 + decoder q4)
   note: string;
   englishOnly: boolean; // true => never pass language/task to the pipeline
-  dtype: {
+  engine?: 'parakeet'; // set => not a transformers.js model: stt.worker.ts runs src/audio/parakeet.ts on `files`
+  files?: { preprocessor: string; encoder: string; decoder: string; vocab: string }; // paths in repo at `revision`
+  revision?: string;
+  dtype?: {
     webgpu: Dtype;
     wasm: Dtype;
     hybrid?: Dtype; // per-component dtype used only when hybridDevice is set
@@ -62,7 +65,7 @@ export const STT_MODELS: Record<SttModelId, SttModelDef> = {
     repo: 'onnx-community/whisper-base',
     label: 'Whisper base',
     sizeMb: 197,
-    note: 'Default. Balanced speed/accuracy. Multilingual.',
+    note: 'Balanced speed/accuracy. Multilingual.',
     englishOnly: false,
     dtype: WHISPER_DTYPE,
     hybridDevice: HYBRID_DEVICE,
@@ -97,9 +100,30 @@ export const STT_MODELS: Record<SttModelId, SttModelDef> = {
     dtype: { webgpu: 'fp32', wasm: 'q8', hybrid: HYBRID_DTYPE },
     hybridDevice: HYBRID_DEVICE,
   },
+  // Community ONNX export of Moondream's Parakeet Redux (ternary encoder weights stored as 4-bit MatMulNBits).
+  // bench/asr (2026-10-16): best browser STT measured - 0.47 s per 5-6 s utterance on an RTX 3060, 0.87 s on
+  // Iris Xe, 0% WER on clear speech and 37% on degraded speech (whisper-base 56%). WASM works but takes ~4 s per
+  // utterance single-threaded. No hybrid: its decoder always runs on WASM already.
+  'parakeet-redux': {
+    id: 'parakeet-redux',
+    repo: 'eschmidbauer/parakeet-redux-onnx',
+    revision: '1c285ba78d6f1880803f65355133a5ad3559a407',
+    label: 'Parakeet Redux',
+    sizeMb: 417,
+    note: 'Default. English-only. Most accurate; fast on WebGPU, slow on WASM (~4 s per utterance).',
+    englishOnly: true,
+    engine: 'parakeet',
+    files: { preprocessor: 'preprocessor.onnx', encoder: 'encoder-model.onnx', decoder: 'decoder_joint-model.onnx', vocab: 'vocab.txt' },
+  },
 };
 
-export const DEFAULT_STT_MODEL: SttModelId = 'moonshine-base';
+export const DEFAULT_STT_MODEL: SttModelId = 'parakeet-redux';
+
+/** The model to run: the user's Settings pick once they made one, else the current default (so a default
+ * change reaches installs whose saved settings still carry the old default). */
+export function activeSttModel(local: Settings['local']): SttModelId {
+  return local.sttModelExplicit && STT_MODELS[local.sttModel] ? local.sttModel : DEFAULT_STT_MODEL;
+}
 
 // Measured 2026-09-20 on an integrated GPU (8 s clip): whisper-tiny webgpu 2.3 s, whisper-base
 // webgpu 4.5 s, moonshine-base webgpu 2.0 s / hybrid 1.4 s. Hybrid only helps Moonshine.

@@ -5,6 +5,7 @@ import type { ModelName, ProviderConfig, Settings } from '../core/types';
 import { Button, Card, CopyButton, Field, ProgressBar, ProviderForm, VoiceSettings, WakeWordSettings } from './components';
 import type { ProviderModel, ProviderTestResult } from './components';
 import { stt } from '../audio/stt';
+import { STT_MODELS, activeSttModel } from '../audio/stt-models';
 import { tts } from '../audio/tts';
 import { wake } from '../audio/wake';
 import { pipeline } from '../audio/pipeline';
@@ -384,7 +385,7 @@ function Step4Models(props: { settings: Settings }) {
   }
 
   const rows: Array<{ model: ModelName; label: string; onDownload: () => void; show: boolean }> = [
-    { model: 'stt', label: 'Speech to text (Whisper)', onDownload: () => run('stt', () => stt.load()), show: true },
+    { model: 'stt', label: `Speech to text (${STT_MODELS[activeSttModel(getSettings().local)].label})`, onDownload: () => run('stt', () => stt.load()), show: true },
     { model: 'tts', label: 'Voice (Kokoro)', onDownload: () => run('tts', () => tts.load()), show: true },
     { model: 'llm', label: 'Local brain (LFM2.5-VL-3B)', onDownload: () => run('llm', () => loadLocalLlm()), show: settings.local.llm },
     { model: 'wake', label: 'Load wake word (3 MB, bundled)', onDownload: () => run('wake', () => wake.load(settings.wake.phrase)), show: settings.wake.enabled },

@@ -1,10 +1,10 @@
 // Main-thread wrapper around stt.worker.ts. Model is selectable (src/audio/stt-models.ts),
-// default whisper-base.
+// default DEFAULT_STT_MODEL there.
 import { bus } from '../core/bus';
 import { getSettings } from '../core/settings';
 import { metrics } from '../core/metrics';
 import { createProgressAggregator } from './progress';
-import { autoDevice } from './stt-models';
+import { activeSttModel, autoDevice } from './stt-models';
 import type { SttIn, SttOut, SttModelId } from '../core/types';
 
 let worker: Worker | null = null;
@@ -50,7 +50,7 @@ async function load(device?: 'wasm' | 'webgpu' | 'hybrid', modelId?: SttModelId)
   // Bare load() = "ensure loaded"; it must not replace whatever reloadWith() selected (Bench, Settings).
   if (isReady && !device && !modelId) return;
   if (loadPromise && !device && !modelId) return loadPromise;
-  const model = modelId ?? getSettings().local.sttModel;
+  const model = modelId ?? activeSttModel(getSettings().local);
   const resolvedDevice = device ?? resolveDevice(model);
   if (isReady && loadedModel === model && (!resolvedDevice || resolvedDevice === loadedDevice)) return;
   if (loadPromise) return loadPromise;

@@ -8,7 +8,7 @@ import { PROVIDER_PRESETS, listModels } from '../providers/roster';
 import { testConnection } from '../providers/registry';
 import { tts } from '../audio/tts';
 import { stt } from '../audio/stt';
-import { STT_MODELS } from '../audio/stt-models';
+import { STT_MODELS, activeSttModel } from '../audio/stt-models';
 import type { SttModelId } from '../core/types';
 import { bridge } from '../core/bridge';
 import { memory } from '../storage/memory';
@@ -245,7 +245,7 @@ function LocalModelsSection(props: { settings: SettingsType; update: Updater }) 
 
   async function changeSttModel(v: string) {
     const modelId = v as SttModelId;
-    update({ local: { ...settings.local, sttModel: modelId } });
+    update({ local: { ...settings.local, sttModel: modelId, sttModelExplicit: true } });
     setReloadingStt(true);
     try {
       await stt.reloadWith(undefined, modelId);
@@ -262,7 +262,7 @@ function LocalModelsSection(props: { settings: SettingsType; update: Updater }) 
     update({ local: { ...settings.local, sttDevice } });
     setReloadingStt(true);
     try {
-      await stt.reloadWith(sttDevice === 'auto' ? undefined : sttDevice, settings.local.sttModel);
+      await stt.reloadWith(sttDevice === 'auto' ? undefined : sttDevice, activeSttModel(settings.local));
       bus.emit({ type: 'toast', level: 'info', text: `STT device switched to ${sttDevice}.` });
     } catch (err) {
       bus.emit({ type: 'toast', level: 'error', text: `STT reload failed: ${(err as Error).message}` });
@@ -271,7 +271,7 @@ function LocalModelsSection(props: { settings: SettingsType; update: Updater }) 
     }
   }
 
-  const sttDef = STT_MODELS[settings.local.sttModel];
+  const sttDef = STT_MODELS[activeSttModel(settings.local)];
 
   return (
     <Card>
@@ -279,7 +279,7 @@ function LocalModelsSection(props: { settings: SettingsType; update: Updater }) 
       <Toggle checked={settings.local.llm} onChange={(v) => update({ local: { ...settings.local, llm: v } })} label="Run local LLM" />
       <Field label="Speech-to-text model" hint={`${sttDef.sizeMb} MB · ${sttDef.note}`}>
         <Select
-          value={settings.local.sttModel}
+          value={sttDef.id}
           disabled={reloadingStt}
           onChange={changeSttModel}
           options={Object.values(STT_MODELS).map((m) => ({ value: m.id, label: m.label }))}

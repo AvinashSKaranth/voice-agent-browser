@@ -98,7 +98,7 @@ export interface DbApi {
 }
 
 // ---------- STT models (src/audio/stt-models.ts holds the registry) ----------
-export type SttModelId = 'whisper-tiny' | 'whisper-base' | 'distil-small.en' | 'moonshine-tiny' | 'moonshine-base';
+export type SttModelId = 'whisper-tiny' | 'whisper-base' | 'distil-small.en' | 'moonshine-tiny' | 'moonshine-base' | 'parakeet-redux';
 
 // ---------- TTS engines (src/audio/tts-engines.ts holds the registry) ----------
 export type TtsEngine = 'kokoro' | 'kitten-nano' | 'kitten-mini';
@@ -136,7 +136,8 @@ export interface Settings {
     ttsDevice: 'wasm' | 'webgpu';
     ttsDeviceExplicit?: boolean; // true once the user picked a device in Settings; else tts.ts auto-resolves (webgpu when available)
     ttsEngine: TtsEngine; // default 'kokoro'; kitten-* always runs on wasm regardless of ttsDevice (see src/audio/tts-engines.ts)
-    sttModel: SttModelId; // default 'whisper-base'; see src/audio/stt-models.ts
+    sttModel: SttModelId; // see src/audio/stt-models.ts; only honoured when sttModelExplicit (else DEFAULT_STT_MODEL)
+    sttModelExplicit?: boolean; // true once the user picked a model in Settings; else stt-models.ts activeSttModel() uses the default
     sttDevice: 'auto' | 'webgpu' | 'wasm' | 'hybrid'; // default 'auto' = webgpu when available; 'hybrid' = encoder on webgpu, decoder on wasm (see src/audio/stt-models.ts)
     sttStreaming: boolean; // default true; streamed partial transcription while VAD reports speech
   };
@@ -155,7 +156,7 @@ export const DEFAULT_SETTINGS: Settings = {
   mode: 'local',
   activeProviderId: 'openrouter',
   providers: [],
-  local: { llm: true, stt: true, ttsDevice: 'wasm', ttsEngine: 'kokoro', sttModel: 'moonshine-base', sttDevice: 'auto', sttStreaming: true },
+  local: { llm: true, stt: true, ttsDevice: 'wasm', ttsEngine: 'kokoro', sttModel: 'parakeet-redux', sttDevice: 'auto', sttStreaming: true },
   voice: { id: 'af_heart', speed: 1.0 },
   wake: { enabled: true, phrase: 'hey_jarvis', threshold: 0.5, pushToTalk: false },
   feedback: { heartbeatSec: 60, maxRetries: 3, quiet: false },
