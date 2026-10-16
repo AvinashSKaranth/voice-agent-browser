@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="en">
+<head><meta charset="utf-8" /><base href="/" /><title>App STT check</title></head>
+<body>
+  <pre id="log">Drives the app's own src/audio/stt.ts (real worker) on data/test.wav: window.check(device).</pre>
+  <script type="module">
+    import { stt } from '../../src/audio/stt.ts';
+    import { bus } from '../../src/core/bus.ts';
+    const log = (s) => { document.getElementById('log').textContent += '\n' + s; console.log(s); };
+    bus.on('model:progress', (e) => { if (e.status !== 'downloading') log(`progress ${e.model} ${e.status} ${e.error ?? ''}`); });
+    window.check = async (device) => {
+      const truth = await (await fetch('./bench/asr/data/truth.json')).json();
+      const v = new DataView(await (await fetch('./bench/asr/data/test.wav')).arrayBuffer());
+      let p = 12; while (String.fromCharCode(v.getUint8(p), v.getUint8(p + 1), v.getUint8(p + 2), v.getUint8(p + 3)) !== 'data') p += 8 + v.getUint32(p + 4, true);
+      const n = v.getUint32(p + 4, true) / 2, audio = new Float32Array(n);
+      for (let i = 0; i < n; i++) audio[i] = v.getInt16(p + 8 + i * 2, true) / 32768;
+      let t = performance.now();
+      await stt.reloadWith(device);
+      const load = (performance.now() - t) / 1000;
+      const out = [];
+      for (const s of truth.segments) {
+        const x = audio.slice(Math.round(s.start * 16000), Math.round((s.end + 0.4) * 16000));
+        t = performance.now();
+        const text = await stt.transcribe(x);
+        out.push({ segment: s.id, ms: Math.round(performance.now() - t), text });
+        log(`${s.id}: ${out.at(-1).ms} ms  ${text}`);
+      }
+      return { load_s: load, out };
+    };
+    log('ready');
+  </script>
+</body>
+</html>

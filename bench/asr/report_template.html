@@ -1,0 +1,509 @@
+<title>ASR Streaming Bench</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Schibsted+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: one reading column (~74rem) of stacked bands — waveform header, verdict table, live replay, then speed / accuracy / streaming detail. */
+:root {
+  --bg: #f6f7f8; --surface: #fcfcfb; --sunk: #eceef0; --line: #d9dcdf; --line-soft: #e6e8ea;
+  --fg: #15181b; --fg-2: #4d5257; --fg-3: #7a8086;
+  --s1: #2a78d6; --s2: #eb6834; --s3: #1baf7a; --s4: #eda100;
+  --good: #0ca30c; --warn: #fab219; --bad: #d03b3b; --good-ink: #0a7a0a; --bad-ink: #b02f2f; --warn-ink: #8a5f00;
+  --play: #15181b; --play-ink: #fcfcfb;
+  --f-display: "Schibsted Grotesk", "Segoe UI", system-ui, sans-serif;
+  --f-body: "Schibsted Grotesk", "Segoe UI", system-ui, sans-serif;
+  --f-mono: "JetBrains Mono", ui-monospace, "Cascadia Mono", Consolas, monospace;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg: #141618; --surface: #1b1d1f; --sunk: #232629; --line: #34383c; --line-soft: #2a2d31;
+  --fg: #eef0f2; --fg-2: #b6bbc0; --fg-3: #858b91;
+  --s1: #3987e5; --s2: #d95926; --s3: #199e70; --s4: #c98500;
+  --good-ink: #4cc54c; --bad-ink: #ec7272; --warn-ink: #f2c04f;
+  --play: #eef0f2; --play-ink: #141618; color-scheme: dark;
+} }
+:root[data-theme="dark"] {
+  --bg: #141618; --surface: #1b1d1f; --sunk: #232629; --line: #34383c; --line-soft: #2a2d31;
+  --fg: #eef0f2; --fg-2: #b6bbc0; --fg-3: #858b91;
+  --s1: #3987e5; --s2: #d95926; --s3: #199e70; --s4: #c98500;
+  --good-ink: #4cc54c; --bad-ink: #ec7272; --warn-ink: #f2c04f;
+  --play: #eef0f2; --play-ink: #141618; color-scheme: dark;
+}
+* { box-sizing: border-box; }
+body { background: var(--bg); color: var(--fg); font: 400 15px/1.55 var(--f-body); }
+.wrap { max-width: 74rem; margin: 0 auto; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); padding-block: 28px 64px; display: grid; gap: 44px; }
+h1, h2, h3 { font-family: var(--f-display); text-wrap: balance; margin: 0; }
+h1 { font-size: clamp(1.9rem, 4vw, 2.6rem); font-weight: 700; letter-spacing: -0.02em; line-height: 1.1; }
+h2 { font-size: 1.35rem; font-weight: 650; letter-spacing: -0.01em; }
+h3 { font-size: 1rem; font-weight: 600; }
+p { margin: 0; max-width: 68ch; }
+.lede { color: var(--fg-2); font-size: 1.02rem; }
+.eyebrow { font: 500 0.72rem/1 var(--f-mono); letter-spacing: 0.08em; text-transform: uppercase; color: var(--fg-3); }
+.section { display: grid; gap: 16px; }
+.section > header { display: grid; gap: 6px; }
+.mono { font-family: var(--f-mono); }
+.num { font-variant-numeric: tabular-nums; }
+.muted { color: var(--fg-3); }
+small, .small { font-size: 0.82rem; }
+a { color: var(--s1); }
+:focus-visible { outline: 2px solid var(--s1); outline-offset: 2px; }
+
+/* header + waveform */
+.top { display: grid; gap: 14px; }
+.meta { display: flex; flex-wrap: wrap; gap: 6px 18px; color: var(--fg-2); font-size: 0.85rem; }
+.meta b { font-weight: 600; color: var(--fg); }
+.wave { position: relative; background: var(--surface); border: 1px solid var(--line); border-radius: 6px; padding: 12px 12px 8px; display: grid; gap: 8px; }
+.wave canvas { width: 100%; height: 92px; display: block; }
+.seglegend { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; }
+.seglegend button { all: unset; cursor: pointer; display: grid; gap: 2px; padding: 8px 10px; border-radius: 4px; border: 1px solid var(--line-soft); min-width: 0; }
+.seglegend button:hover { background: var(--sunk); }
+.seglegend button[aria-pressed="true"] { border-color: var(--fg-2); background: var(--sunk); }
+.seglegend .k { font: 500 0.7rem var(--f-mono); color: var(--fg-3); letter-spacing: 0.04em; text-transform: uppercase; }
+.seglegend .t { font-size: 0.82rem; color: var(--fg); overflow-wrap: anywhere; }
+@media (max-width: 760px) { .seglegend { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+
+/* tables */
+.tablebox { overflow-x: auto; border: 1px solid var(--line); border-radius: 6px; background: var(--surface); }
+table { border-collapse: collapse; width: 100%; font-size: 0.86rem; }
+th, td { padding: 9px 12px; text-align: left; border-bottom: 1px solid var(--line-soft); vertical-align: top; }
+th { font: 500 0.7rem var(--f-mono); letter-spacing: 0.06em; text-transform: uppercase; color: var(--fg-3); background: var(--surface); white-space: nowrap; }
+td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
+tr:last-child td { border-bottom: 0; }
+tbody tr.group td { background: var(--sunk); font-weight: 600; font-size: 0.78rem; color: var(--fg-2); letter-spacing: 0.02em; }
+.sw { display: inline-block; width: 10px; height: 10px; border-radius: 2px; margin-right: 8px; vertical-align: -1px; }
+.model { white-space: nowrap; font-weight: 600; }
+.rt { display: block; font-weight: 400; color: var(--fg-3); font-size: 0.76rem; white-space: normal; }
+.chip { display: inline-flex; align-items: center; gap: 5px; font: 500 0.74rem/1 var(--f-body); padding: 4px 7px; border-radius: 99px; border: 1px solid var(--line); white-space: nowrap; }
+.chip::before { content: ""; width: 7px; height: 7px; border-radius: 50%; background: currentColor; }
+.chip.good { color: var(--good-ink); } .chip.warn { color: var(--warn-ink); } .chip.bad { color: var(--bad-ink); }
+.wer { display: inline-block; min-width: 3.4em; text-align: right; padding: 2px 6px; border-radius: 3px; font-variant-numeric: tabular-nums; }
+
+/* verdict */
+.verdict { display: grid; gap: 12px; }
+.callouts { display: grid; grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr)); gap: 12px; }
+.callout { border-left: 3px solid var(--c, var(--line)); padding: 4px 0 4px 12px; display: grid; gap: 4px; min-width: 0; }
+.callout b { font-family: var(--f-display); font-size: 0.98rem; }
+.callout span { color: var(--fg-2); font-size: 0.88rem; }
+
+/* replay */
+.replay { background: var(--surface); border: 1px solid var(--line); border-radius: 6px; display: grid; }
+.rcontrols { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 14px; padding: 12px 14px; border-bottom: 1px solid var(--line-soft); }
+.rcontrols label { font-size: 0.8rem; color: var(--fg-2); display: inline-flex; gap: 6px; align-items: center; }
+select, input[type=range] { font: inherit; font-size: 0.85rem; }
+select { padding: 5px 8px; border-radius: 4px; border: 1px solid var(--line); background: var(--bg); color: var(--fg); }
+.play { all: unset; cursor: pointer; background: var(--play); color: var(--play-ink); font-weight: 600; font-size: 0.85rem; padding: 7px 14px; border-radius: 4px; display: inline-flex; gap: 8px; align-items: center; }
+.play:focus-visible { outline: 2px solid var(--s1); outline-offset: 2px; }
+.clock { font: 500 0.9rem var(--f-mono); font-variant-numeric: tabular-nums; min-width: 6.5em; }
+#scrub { flex: 1 1 14rem; min-width: 10rem; accent-color: var(--fg-2); }
+.rref { padding: 12px 14px; border-bottom: 1px solid var(--line-soft); display: grid; gap: 4px; }
+.words { font-family: var(--f-mono); font-size: 0.86rem; line-height: 1.7; }
+.words span { color: var(--fg-3); transition: color .08s; }
+.words span.on { color: var(--fg); }
+.rrows { display: grid; }
+.rrow { display: grid; grid-template-columns: 13rem minmax(0, 1fr); gap: 14px; padding: 12px 14px; border-bottom: 1px solid var(--line-soft); align-items: start; }
+.rrow:last-child { border-bottom: 0; }
+.rname { display: grid; gap: 2px; min-width: 0; }
+.rname .model { white-space: normal; }
+.rtext { font-family: var(--f-mono); font-size: 0.9rem; line-height: 1.6; min-height: 1.6em; overflow-wrap: anywhere; }
+.rtext .chg { background: color-mix(in srgb, var(--s2) 22%, transparent); border-radius: 2px; }
+.rtext .final { color: var(--good-ink); font: 500 0.72rem var(--f-body); margin-left: 6px; white-space: nowrap; }
+.rtext .wait { color: var(--fg-3); }
+.track { position: relative; height: 14px; margin-top: 6px; }
+.track svg { width: 100%; height: 14px; display: block; overflow: visible; }
+.rstats { font-size: 0.76rem; color: var(--fg-3); margin-top: 4px; font-variant-numeric: tabular-nums; }
+@media (max-width: 640px) { .rrow { grid-template-columns: 1fr; gap: 6px; } }
+
+/* charts */
+.panels { display: grid; grid-template-columns: repeat(auto-fit, minmax(20rem, 1fr)); gap: 14px; }
+.panel { background: var(--surface); border: 1px solid var(--line); border-radius: 6px; padding: 12px 14px 8px; display: grid; gap: 6px; min-width: 0; }
+.panel h3 { font-size: 0.92rem; }
+.panel .sub { font-size: 0.76rem; color: var(--fg-3); }
+.panel svg { width: 100%; display: block; overflow: visible; }
+.axis text, .lbl { fill: var(--fg-3); font: 400 10.5px var(--f-mono); }
+.vlabel { fill: var(--fg); font: 500 11px var(--f-mono); }
+.mlabel { fill: var(--fg-2); font: 500 11.5px var(--f-body); }
+.grid line { stroke: var(--line-soft); stroke-width: 1; }
+.rtline { stroke: var(--fg-2); stroke-width: 1; stroke-dasharray: 3 3; }
+.legend { display: flex; flex-wrap: wrap; gap: 6px 16px; font-size: 0.8rem; color: var(--fg-2); }
+#tip { position: fixed; pointer-events: none; z-index: 5; background: var(--fg); color: var(--bg); font-size: 0.78rem; padding: 6px 8px; border-radius: 4px; max-width: 18rem; line-height: 1.4; }
+
+details { background: var(--surface); border: 1px solid var(--line); border-radius: 6px; }
+summary { cursor: pointer; padding: 10px 14px; font-weight: 600; }
+details > div { padding: 0 14px 14px; display: grid; gap: 10px; }
+.notes { display: grid; gap: 10px; }
+.notes li { max-width: 72ch; color: var(--fg-2); }
+.notes li b { color: var(--fg); }
+ul { margin: 0; padding-left: 1.2em; display: grid; gap: 6px; }
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+</style>
+
+<div class="wrap">
+  <section class="top">
+    <span class="eyebrow">voice-agent-browser · speech-to-text review</span>
+    <h1>ASR Streaming Bench</h1>
+    <p class="lede">Four speech models transcribing the same 29-second clip: two clear speakers, then two deliberately unclear ones. Each was timed as a one-shot transcription and as a live stream fed one word at a time, natively on this laptop and inside Chrome.</p>
+    <div class="meta" id="meta"></div>
+    <div class="wave">
+      <canvas id="wave" aria-label="Waveform of the test clip with the four utterances marked"></canvas>
+      <div class="seglegend" id="seglegend"></div>
+    </div>
+  </section>
+
+  <section class="section verdict">
+    <header><span class="eyebrow">Verdict</span><h2>Who to use for the voice agent</h2></header>
+    <div class="callouts" id="callouts"></div>
+    <div class="tablebox"><table id="summary"></table></div>
+    <p class="small muted">Each model's best configuration per environment. "Per utterance" is the median one-shot time over the four 5–6.5 s utterances. WER uses the Open ASR Leaderboard normalizer (numbers, casing and punctuation ignored). Streaming columns come from the word-by-word replay described below.</p>
+  </section>
+
+  <section class="section">
+    <header><span class="eyebrow">Streaming replay</span><h2>Watch the text arrive</h2>
+      <p class="lede">Every word's audio is released at its real timestamp. The model re-transcribes everything heard so far, and its text appears when that pass finishes. A slow model skips words because new audio arrived while it was busy. Highlighted words changed since the previous partial.</p></header>
+    <div class="replay">
+      <div class="rcontrols">
+        <button class="play" id="play" type="button">▶ Play</button>
+        <span class="clock" id="clock">0.00 s</span>
+        <input id="scrub" type="range" min="0" max="1000" value="0" aria-label="Replay position">
+        <label for="seg">Utterance <select id="seg"></select></label>
+        <label for="env">Environment <select id="env"></select></label>
+      </div>
+      <div class="rref"><span class="eyebrow">Spoken</span><div class="words" id="refwords"></div></div>
+      <div class="rrows" id="rrows"></div>
+    </div>
+    <audio id="audio" preload="auto" src="AUDIO_DATA_URI"></audio>
+  </section>
+
+  <section class="section">
+    <header><span class="eyebrow">Speed</span><h2>Time to transcribe one utterance</h2>
+      <p class="lede">Median one-shot time for a 5–6.5 s utterance, log scale. The dashed line is the utterance length: right of it, the model can't keep up with live speech.</p></header>
+    <div class="legend" id="legend1"></div>
+    <div class="panels" id="speed"></div>
+  </section>
+
+  <section class="section">
+    <header><span class="eyebrow">Accuracy</span><h2>Word error rate per utterance</h2>
+      <p class="lede">From the final, full-utterance pass. Different runtimes of the same weights land within a word of each other, so one row per model is shown (native GPU; Parakeet Redux via Photon).</p></header>
+    <div class="tablebox"><table id="wer"></table></div>
+  </section>
+
+  <section class="section">
+    <header><span class="eyebrow">Streaming detail</span><h2>Can it stream, everywhere it runs?</h2>
+      <p class="lede">Averaged over the four utterances. <b>Keeps up</b> is the share of words that got their own partial; below 100% the model skipped ahead. <b>Word delay</b> is the time from a word ending to it first appearing correctly in the text. <b>Rewrites</b> is the share of shown words later changed. <b>Final</b> is the time after the utterance's audio ends until the final transcript is ready.</p></header>
+    <div class="tablebox"><table id="stream"></table></div>
+  </section>
+
+  <section class="section">
+    <header><span class="eyebrow">Phonon-2 builds</span><h2>Which Phonon-2 quant can run in a browser</h2>
+      <p class="lede">Every quantization listed under FermionResearch/Phonon-2 on Hugging Face. Both browser-capable builds keep Fermion's weights exact, so they transcribe exactly like the native engine. The difference is speed and download size.</p></header>
+    <div class="tablebox"><table>
+      <thead><tr><th>Build</th><th class="n">Download</th><th>Format</th><th>Browser</th><th>Measured here</th></tr></thead>
+      <tbody>
+        <tr><td><span class="model">eschmidbauer/phonon-2-c</span><span class="rt">pure-C engine, five-value weights expanded inside the GEMM</span></td><td class="n">187 MB</td><td>custom, 255 MB unpacked</td><td><span class="chip good">CPU · WASM</span></td><td>Compiled to WASM SIMD for this bench. 4.8 s per utterance on one thread, exact. Smallest option.</td></tr>
+        <tr><td><span class="model">tiyuvta/Phonon-2-ONNX · exact4x2</span><span class="rt">two ternary planes in 4-bit MatMulNBits</span></td><td class="n">735 MB</td><td>ONNX</td><td><span class="chip good">GPU · WebGPU</span></td><td>0.87 s on the RTX 3060, 1.84 s on the Iris Xe, exact. On WASM it took 9–12 s and crashed the tab.</td></tr>
+        <tr><td><span class="model">tiyuvta/Phonon-2-ONNX · int8</span></td><td class="n">687 MB</td><td>ONNX</td><td><span class="chip warn">CPU only</span></td><td>Not run: lossy, larger than phonon-2-c, and int8 MatMulInteger has no WebGPU kernel.</td></tr>
+        <tr><td><span class="model">cstr/phonon2-GGUF · q4_k / q8_0</span></td><td class="n">402 / 674 MB</td><td>GGUF (CrispASR)</td><td><span class="chip warn">CPU only</span></td><td>Not run: CrispASR's WASM build is CPU-only and expects threads (COOP/COEP), and q4_k drifts from the reference.</td></tr>
+        <tr><td><span class="model">Core ML / Core AI / MLX</span><span class="rt">FluidInference, FermionResearch, suryatmodulus, coder543 (Glade), selcukkubur</span></td><td class="n">175–580 MB</td><td>Apple formats</td><td><span class="chip bad">none</span></td><td>Apple Neural Engine and Metal only.</td></tr>
+      </tbody>
+    </table></div>
+    <p class="small muted">Neither browser build keeps up with live speech on the CPU. The engine is already doing about 19 GFLOPS on one WASM thread; going faster needs threads, which need COOP/COEP headers that GitHub Pages can't send (a coi-serviceworker shim can add them). For comparison, Fermion's native CPU engine needs 274 ms on all 20 threads of the i9, using int8 dot-product instructions that WASM lacks.</p>
+  </section>
+
+  <section class="section">
+    <header><span class="eyebrow">Transcripts</span><h2>What each model heard</h2></header>
+    <div id="transcripts" class="notes"></div>
+  </section>
+
+  <section class="section">
+    <header><span class="eyebrow">Method</span><h2>How this was measured</h2></header>
+    <ul class="notes" id="method"></ul>
+  </section>
+</div>
+<div id="tip" hidden></div>
+
+<script>
+const DATA = /*DATA*/null;
+const T = DATA.truth, SEGS = T.segments;
+const MODELS = {
+  'whisper-base': { name: 'Whisper Base', c: '--s1' },
+  'canary-180m-flash': { name: 'Canary 180M Flash', c: '--s2' },
+  'parakeet-redux': { name: 'Parakeet Redux', c: '--s3' },
+  'parakeet-redux-onnx': { name: 'Parakeet Redux', c: '--s3' },
+  'phonon-2': { name: 'Phonon-2', c: '--s4' },
+  'phonon-2-c': { name: 'Phonon-2', c: '--s4' },
+};
+const ENVS = [
+  { id: 'native-gpu', label: 'Native · RTX 3060 (CUDA)', keys: [['native', 'cuda']] },
+  { id: 'native-cpu', label: 'Native · i9-12900H CPU', keys: [['native', 'cpu']] },
+  { id: 'browser-dgpu', label: 'Chrome · WebGPU on RTX 3060', keys: [['browser', 'webgpu-dgpu']] },
+  { id: 'browser-igpu', label: 'Chrome · WebGPU on Intel Iris Xe', keys: [['browser', 'webgpu-igpu']] },
+  { id: 'browser-wasm', label: 'Chrome · WASM, 1 thread', keys: [['browser', 'wasm']] },
+];
+const MODEL_ORDER = ['whisper-base', 'canary-180m-flash', 'parakeet-redux', 'parakeet-redux-onnx', 'phonon-2', 'phonon-2-c'];
+const $ = (s) => document.querySelector(s);
+const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+const mean = (a) => a.reduce((x, y) => x + y, 0) / a.length;
+const median = (a) => { const s = [...a].sort((x, y) => x - y); const m = s.length >> 1; return s.length % 2 ? s[m] : (s[m - 1] + s[m]) / 2; };
+const col = (m) => `var(${MODELS[m].c})`;
+const fmtS = (s) => s == null ? '—' : s < 1 ? `${Math.round(s * 1000)} ms` : `${s.toFixed(s < 10 ? 2 : 1)} s`;
+const pct = (x) => `${Math.round(x * 100)}%`;
+const segShort = { 'clear-1': 'Clear · female', 'clear-2': 'Clear · male', 'unclear-fast-babble': 'Fast + chatter', 'unclear-muffled': 'Muffled + echo' };
+
+// ---------- collect runs ----------
+const RUNS = [];
+for (const env of ENVS) for (const [src, dev] of env.keys) for (const [key, r] of Object.entries(DATA[src] || {})) {
+  const [model, d] = key.split('/');
+  if (d !== dev) continue;
+  RUNS.push({ key: `${src}:${key}`, env: env.id, model, r, ok: !r.error });
+}
+RUNS.sort((a, b) => MODEL_ORDER.indexOf(a.model) - MODEL_ORDER.indexOf(b.model));
+const runtimeLabel = (run) => {
+  if (run.model === 'parakeet-redux' && run.env.startsWith('native')) return 'Photon (official runtime)';
+  if (run.model === 'parakeet-redux-onnx') return 'ONNX export via onnx-asr';
+  return run.r.runtime || '';
+};
+function stats(run) {
+  const r = run.r, st = r.streaming, off = r.offline;
+  const clear = off.filter((o) => o.segment.startsWith('clear')), unclear = off.filter((o) => !o.segment.startsWith('clear'));
+  return {
+    perUtt: median(off.map((o) => o.time_s)),
+    rtfx: median(off.map((o) => o.rtfx)),
+    werClear: mean(clear.map((o) => o.wer)), werUnclear: mean(unclear.map((o) => o.wer)),
+    keep: st.reduce((a, s) => a + s.steps_run, 0) / st.reduce((a, s) => a + s.words, 0),
+    step: mean(st.map((s) => s.step_ms_mean)) / 1000,
+    delay: mean(st.map((s) => s.word_latency_mean_s ?? 0)), delayP90: mean(st.map((s) => s.word_latency_p90_s ?? 0)),
+    rewrite: mean(st.map((s) => s.rewrite_ratio)),
+    final: mean(st.map((s) => s.final_latency_s)),
+    load: r.load_s,
+  };
+}
+for (const run of RUNS) if (run.ok) run.s = stats(run);
+const envLabel = (id) => ENVS.find((e) => e.id === id).label;
+const keepChip = (k) => k >= 0.95 ? '<span class="chip good">keeps up</span>' : k >= 0.7 ? '<span class="chip warn">skips words</span>' : '<span class="chip bad">falls behind</span>';
+const werCell = (w) => {
+  const a = Math.min(1, w / 0.7);
+  return `<span class="wer" style="background:color-mix(in srgb, var(--bad) ${Math.round(a * 45)}%, transparent)">${pct(w)}</span>`;
+};
+
+// ---------- header ----------
+const m = DATA.machine;
+$('#meta').innerHTML = [`<span><b>CPU</b> ${esc(m.cpu)}</span>`, `<span><b>GPU</b> ${esc(m.gpu.split(',')[0])}</span>`, `<span><b>Clip</b> ${T.duration.toFixed(1)} s · 16 kHz · ${SEGS.reduce((a, s) => a + s.words.length, 0)} timed words</span>`, `<span><b>Run</b> ${new Date().toISOString().slice(0, 10)}</span>`].join('');
+
+function drawWave() {
+  const cv = $('#wave'), dpr = devicePixelRatio || 1, w = cv.clientWidth, h = cv.clientHeight;
+  cv.width = w * dpr; cv.height = h * dpr;
+  const g = cv.getContext('2d'); g.scale(dpr, dpr);
+  const css = getComputedStyle(document.documentElement);
+  const peaks = DATA.peaks, n = peaks.length;
+  SEGS.forEach((s, i) => {
+    g.fillStyle = css.getPropertyValue('--sunk');
+    const x0 = (s.start / T.duration) * w, x1 = (s.end / T.duration) * w;
+    g.fillRect(x0, 0, x1 - x0, h);
+    g.fillStyle = css.getPropertyValue('--fg-3'); g.font = `500 10px ${css.getPropertyValue('--f-mono')}`;
+    g.fillText(`${i + 1}`, x0 + 4, 12);
+  });
+  g.fillStyle = css.getPropertyValue('--fg-2');
+  for (let i = 0; i < n; i++) {
+    const x = (i / n) * w, a = peaks[i] * (h / 2 - 6);
+    g.fillRect(x, h / 2 - a, Math.max(1, w / n - 0.6), Math.max(1, a * 2));
+  }
+  if (replay.seg) {
+    const s = replay.seg, t = s.start + replay.t;
+    g.fillStyle = css.getPropertyValue('--s2');
+    g.fillRect((Math.min(t, T.duration) / T.duration) * w, 0, 2, h);
+  }
+}
+$('#seglegend').innerHTML = SEGS.map((s, i) => `<button type="button" data-seg="${s.id}" aria-pressed="false"><span class="k">${i + 1} · ${s.start.toFixed(1)}–${s.end.toFixed(1)} s</span><span class="t">${esc(s.label)}</span></button>`).join('');
+
+// ---------- verdict ----------
+const best = (pred) => RUNS.filter((r) => r.ok && pred(r)).sort((a, b) => a.s.perUtt - b.s.perUtt)[0];
+const browserRuns = RUNS.filter((r) => r.ok && r.env.startsWith('browser'));
+const callouts = [];
+const bestUnclear = RUNS.filter((r) => r.ok && r.env === 'native-gpu').sort((a, b) => a.s.werUnclear - b.s.werUnclear)[0];
+const fastest = best((r) => r.env === 'native-cpu');
+const bestBrowser = browserRuns.filter((r) => r.s.keep >= 0.95 && r.env === 'browser-igpu').sort((a, b) => a.s.werUnclear - b.s.werUnclear || a.s.perUtt - b.s.perUtt)[0]
+  || browserRuns.sort((a, b) => a.s.perUtt - b.s.perUtt)[0];
+if (bestUnclear) callouts.push({ m: bestUnclear.model, h: `Most accurate on unclear speech: ${MODELS[bestUnclear.model].name}`, t: `${pct(bestUnclear.s.werUnclear)} WER on the two degraded utterances vs ${pct(Math.max(...RUNS.filter((r) => r.ok && r.env === 'native-gpu').map((r) => r.s.werUnclear)))} for the worst.` });
+if (fastest) callouts.push({ m: fastest.model, h: `Fastest on CPU: ${MODELS[fastest.model].name}`, t: `${fmtS(fastest.s.perUtt)} per utterance natively on the i9, ${fastest.s.rtfx.toFixed(0)}× real time.` });
+if (bestBrowser) callouts.push({ m: bestBrowser.model, h: `Best in the browser: ${MODELS[bestBrowser.model].name}`, t: `${fmtS(bestBrowser.s.perUtt)} per utterance on ${envLabel(bestBrowser.env).replace('Chrome · ', '')}, ${pct(bestBrowser.s.keep)} of words streamed.` });
+$('#callouts').innerHTML = callouts.map((c) => `<div class="callout" style="--c:${col(c.m)}"><b>${esc(c.h)}</b><span>${esc(c.t)}</span></div>`).join('');
+
+function summaryTable() {
+  const head = `<thead><tr><th>Model</th><th class="n">Per utterance</th><th class="n">WER clear</th><th class="n">WER unclear</th><th>Streaming</th><th class="n">Word delay</th><th class="n">Rewrites</th><th class="n">Final</th></tr></thead>`;
+  let body = '';
+  for (const env of ENVS) {
+    const rows = RUNS.filter((r) => r.env === env.id);
+    if (!rows.length) continue;
+    body += `<tr class="group"><td colspan="8">${esc(env.label)}</td></tr>`;
+    for (const run of rows) {
+      const name = `<span class="model"><span class="sw" style="background:${col(run.model)}"></span>${MODELS[run.model].name}<span class="rt">${esc(runtimeLabel(run))}</span></span>`;
+      if (!run.ok) { body += `<tr><td>${name}</td><td colspan="7" class="muted">Did not run: ${esc(run.r.error.replace(/^RuntimeError\('|'\)$/g, ''))}</td></tr>`; continue; }
+      const s = run.s;
+      body += `<tr><td>${name}</td><td class="n">${fmtS(s.perUtt)}</td><td class="n">${werCell(s.werClear)}</td><td class="n">${werCell(s.werUnclear)}</td><td>${keepChip(s.keep)} <span class="small muted num">${pct(s.keep)}</span></td><td class="n">${fmtS(s.delay)}</td><td class="n">${pct(s.rewrite)}</td><td class="n">${fmtS(s.final)}</td></tr>`;
+    }
+  }
+  const missing = ['phonon-2'].filter((mm) => !RUNS.some((r) => r.model === mm && r.env.startsWith('browser')));
+  if (missing.length) body += `<tr class="group"><td colspan="8">Chrome</td></tr><tr><td><span class="model"><span class="sw" style="background:${col('phonon-2')}"></span>Phonon-2</span></td><td colspan="7" class="muted">No browser build: the weights ship in a custom packed format read only by Fermion's native engines.</td></tr>`;
+  $('#summary').innerHTML = head + `<tbody>${body}</tbody>`;
+}
+summaryTable();
+
+// ---------- speed small multiples ----------
+const tip = $('#tip');
+function showTip(e, html) { tip.innerHTML = html; tip.hidden = false; const x = Math.min(innerWidth - tip.offsetWidth - 8, e.clientX + 12); tip.style.left = `${x}px`; tip.style.top = `${e.clientY + 14}px`; }
+function hideTip() { tip.hidden = true; }
+const legendModels = ['whisper-base', 'canary-180m-flash', 'parakeet-redux', 'phonon-2'];
+$('#legend1').innerHTML = legendModels.map((mm) => `<span><span class="sw" style="background:${col(mm)}"></span>${MODELS[mm].name}</span>`).join('');
+function speedCharts() {
+  const LO = 0.03, HI = 30, ticks = [0.1, 0.3, 1, 3, 10];
+  const uttLen = median(SEGS.map((s) => s.end - s.start + 0.4));
+  let html = '';
+  for (const env of ENVS) {
+    const rows = RUNS.filter((r) => r.env === env.id && r.ok);
+    if (!rows.length) continue;
+    const W = 520, L = 132, R = 56, rowH = 26, top = 6, H = top + rows.length * rowH + 22;
+    const x = (v) => L + (Math.log(v / LO) / Math.log(HI / LO)) * (W - L - R);
+    let svg = `<g class="grid">${ticks.map((t) => `<line x1="${x(t)}" x2="${x(t)}" y1="${top - 2}" y2="${H - 20}"></line>`).join('')}</g>`;
+    svg += `<g class="axis">${ticks.map((t) => `<text x="${x(t)}" y="${H - 6}" text-anchor="middle">${t < 1 ? Math.round(t * 1000) + 'ms' : t + 's'}</text>`).join('')}</g>`;
+    svg += `<line class="rtline" x1="${x(uttLen)}" x2="${x(uttLen)}" y1="${top - 4}" y2="${H - 20}"></line>`;
+    rows.forEach((run, i) => {
+      const y = top + i * rowH, v = run.s.perUtt, bw = Math.max(2, x(v) - L);
+      const label = MODELS[run.model].name + (run.model === 'parakeet-redux-onnx' && env.id.startsWith('native') ? ' · ONNX' : run.model === 'parakeet-redux' && env.id.startsWith('native') ? ' · Photon' : '');
+      svg += `<text class="mlabel" x="${L - 8}" y="${y + 15}" text-anchor="end">${esc(label)}</text>`;
+      svg += `<path d="M${L},${y + 5} h${bw - 4} a4,4 0 0 1 4,4 v6 a4,4 0 0 1 -4,4 h-${bw - 4} z" fill="${col(run.model)}"></path>`;
+      svg += `<text class="vlabel" x="${L + bw + 6}" y="${y + 15}">${fmtS(v)}</text>`;
+      svg += `<rect x="0" y="${y}" width="${W}" height="${rowH}" fill="transparent" data-tip="${esc(`<b>${label}</b><br>${env.label}<br>${fmtS(v)} per utterance · ${run.s.rtfx.toFixed(1)}× real time<br>load ${fmtS(run.s.load)}`)}"></rect>`;
+    });
+    html += `<div class="panel"><h3>${esc(env.label)}</h3><svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Transcription time per utterance, ${esc(env.label)}">${svg}</svg></div>`;
+  }
+  $('#speed').innerHTML = html;
+  $('#speed').querySelectorAll('[data-tip]').forEach((el) => { el.addEventListener('mousemove', (e) => showTip(e, el.dataset.tip)); el.addEventListener('mouseleave', hideTip); });
+}
+speedCharts();
+
+// ---------- WER matrix ----------
+function werTable() {
+  const rows = RUNS.filter((r) => r.ok && r.env === 'native-gpu' && r.model !== 'parakeet-redux-onnx');
+  let h = `<thead><tr><th>Model</th>${SEGS.map((s) => `<th class="n">${esc(segShort[s.id])}</th>`).join('')}<th class="n">All</th></tr></thead><tbody>`;
+  for (const run of rows) {
+    const ws = SEGS.map((s) => run.r.offline.find((o) => o.segment === s.id).wer);
+    h += `<tr><td><span class="model"><span class="sw" style="background:${col(run.model)}"></span>${MODELS[run.model].name}</span></td>${ws.map((w) => `<td class="n">${werCell(w)}</td>`).join('')}<td class="n">${werCell(mean(ws))}</td></tr>`;
+  }
+  $('#wer').innerHTML = h + '</tbody>';
+}
+werTable();
+
+// ---------- streaming detail ----------
+function streamTable() {
+  let h = `<thead><tr><th>Model</th><th>Keeps up</th><th class="n">Pass time</th><th class="n">Word delay</th><th class="n">p90 delay</th><th class="n">Rewrites</th><th class="n">Final</th></tr></thead><tbody>`;
+  for (const env of ENVS) {
+    const rows = RUNS.filter((r) => r.env === env.id && r.ok);
+    if (!rows.length) continue;
+    h += `<tr class="group"><td colspan="7">${esc(env.label)}</td></tr>`;
+    for (const run of rows) {
+      const s = run.s;
+      h += `<tr><td><span class="model"><span class="sw" style="background:${col(run.model)}"></span>${MODELS[run.model].name}<span class="rt">${esc(runtimeLabel(run))}</span></span></td><td>${keepChip(s.keep)} <span class="small muted num">${pct(s.keep)}</span></td><td class="n">${fmtS(s.step)}</td><td class="n">${fmtS(s.delay)}</td><td class="n">${fmtS(s.delayP90)}</td><td class="n">${pct(s.rewrite)}</td><td class="n">${fmtS(s.final)}</td></tr>`;
+    }
+  }
+  $('#stream').innerHTML = h + '</tbody>';
+}
+streamTable();
+
+// ---------- transcripts ----------
+function transcripts() {
+  let h = '';
+  for (const s of SEGS) {
+    const rows = RUNS.filter((r) => r.ok && r.env === 'native-gpu' && r.model !== 'parakeet-redux-onnx');
+    h += `<details><summary>${esc(s.label)}</summary><div><div class="small"><span class="eyebrow">Spoken</span><div class="mono">${esc(s.text)}</div></div>${rows.map((run) => {
+      const o = run.r.offline.find((x) => x.segment === s.id);
+      return `<div class="small"><span class="model"><span class="sw" style="background:${col(run.model)}"></span>${MODELS[run.model].name}</span> <span class="muted">${pct(o.wer)} WER</span><div class="mono">${esc(o.text)}</div></div>`;
+    }).join('')}</div></details>`;
+  }
+  $('#transcripts').innerHTML = h;
+}
+transcripts();
+
+// ---------- method ----------
+const method = [
+  `<b>Audio.</b> Synthesized with Kokoro (the app's own TTS) for its word timestamps. Utterances 1–2: two clear voices. Utterance 3: British voice at 1.35× speed under three overlapping talkers at 3 dB SNR, with names, a number and jargon ("Siobhan", "four point seven million", "Kubernetes"). Utterance 4: 20 dB quieter, 1.2 kHz low-pass, 0.8 s room reverb and hiss. Synthetic speech is easier than real speech, so absolute WER is optimistic; the ranking on unclear speech is the useful signal.`,
+  `<b>Streaming protocol.</b> Every word is released at its real end time, so each wait is that word's own duration (60–700 ms, most 100–400 ms). The model re-transcribes all audio heard so far in the utterance. If a pass outlasts the incoming words, the next pass jumps to the newest audio, as a live mic buffer would. After the last word, the remaining 0.4 s tail plays and one final pass runs. None of the four models streams natively in this setup; this is the re-decode approach the app uses today.`,
+  `<b>Runtimes.</b> Whisper Base: Hugging Face transformers (fp16 on GPU, fp32 on CPU); in Chrome, transformers.js with the app's own dtypes. Canary 180M Flash: onnx-asr with the fp32 ONNX export; in Chrome, the same graphs on onnxruntime-web (int8 for WASM). Parakeet Redux: Photon (Moondream's official runtime) on CUDA; the community ONNX export (ternary weights stored as 4-bit MatMulNBits) on CPU and in Chrome. Phonon-2: Fermion's own engines, the Windows AVX2 CPU server and the CUDA container, called over local HTTP; in Chrome, the community ONNX export (tiyuvta/Phonon-2-ONNX), whose exact4x2 encoder stores Fermion's weights bit for bit as two ternary planes in 4-bit MatMulNBits (662 MB), with its own preprocessor graph; and phonon-2-c, a pure-C engine that keeps Fermion's packed five-value weights (187 MB download, about 255 MB in memory, exact) and expands them inside the GEMM, compiled to single-threaded WASM SIMD for the CPU.`,
+  `<b>Gaps.</b> Photon's Windows wheel only has a scalar CPU kernel and refuses to run Redux's ternary weights, hence the ONNX export on CPU. Phonon-2's CUDA numbers include about 2–5 ms of HTTP and Docker networking per pass.`,
+  `<b>Browser.</b> Chrome stable, one WASM thread (GitHub Pages can't send COOP/COEP headers, so the app can't use threads either). WebGPU was run on the integrated Intel GPU, which Chrome picks by default on this laptop, and on the RTX 3060 via --force_high_performance_gpu. Canary and Redux use a port of onnx-asr's preprocessing and greedy decoding on ORT's native WebGPU execution provider; the older JSEP WebGPU kernels fail on Parakeet's encoder. Parakeet's small TDT decoder runs on WASM; Canary's transformer decoder runs on the chosen device, one GPU round trip per token, which is why Canary loses most of its native speed in Chrome. Canary's int8 WASM build is less robust than fp32: it returned nothing for the muffled utterance and dropped the second sentence of utterance 2.`,
+  `<b>Scoring.</b> Whisper's English normalizer for both reference and hypothesis, as on the Open ASR Leaderboard. Canary and Phonon-2 write "to morrow", which costs them one word on utterance 1. Word delay maps normalized reference words to Kokoro's word timings proportionally, so it is accurate to about one word. Offline time is the median of three runs after a warm-up pass.`,
+];
+$('#method').innerHTML = method.map((x) => `<li>${x}</li>`).join('');
+
+// ---------- replay ----------
+const replay = { seg: null, env: 'native-gpu', t: 0, playing: false, t0: 0, dur: 1 };
+$('#seg').innerHTML = SEGS.map((s, i) => `<option value="${s.id}">${i + 1}. ${esc(segShort[s.id])}</option>`).join('');
+$('#env').innerHTML = ENVS.filter((e) => RUNS.some((r) => r.env === e.id && r.ok)).map((e) => `<option value="${e.id}">${esc(e.label)}</option>`).join('');
+const audio = $('#audio');
+
+function setupReplay() {
+  const seg = SEGS.find((s) => s.id === $('#seg').value);
+  replay.seg = seg; replay.env = $('#env').value;
+  const runs = RUNS.filter((r) => r.ok && r.env === replay.env);
+  const segLen = seg.end - seg.start + 0.4;
+  replay.runs = runs.map((run) => ({ run, st: run.r.streaming.find((x) => x.segment === seg.id) }));
+  replay.dur = Math.max(segLen, ...replay.runs.map((x) => x.st.final_latency_s + segLen)) + 0.3;
+  $('#refwords').innerHTML = seg.words.map((w) => `<span data-e="${(w.end - seg.start).toFixed(3)}">${esc(w.w)}</span>`).join(' ');
+  $('#rrows').innerHTML = replay.runs.map((x, i) => {
+    const s = x.st, D = replay.dur;
+    const ticks = s.steps.map((p) => `<line x1="${(p.done / D) * 100}%" x2="${(p.done / D) * 100}%" y1="3" y2="11" stroke="${col(x.run.model)}" stroke-width="2"></line>`).join('');
+    const fin = ((segLen + s.final_latency_s) / D) * 100;
+    return `<div class="rrow"><div class="rname"><span class="model"><span class="sw" style="background:${col(x.run.model)}"></span>${MODELS[x.run.model].name}</span><span class="rt">${esc(runtimeLabel(x.run))}</span></div>
+      <div><div class="rtext" id="rt${i}"></div>
+      <div class="track"><svg aria-hidden="true"><line x1="0" x2="100%" y1="7" y2="7" stroke="var(--line)" stroke-width="1"></line><rect x="0" y="2" width="${(segLen / D) * 100}%" height="10" fill="var(--sunk)"></rect>${ticks}<circle cx="${fin}%" cy="7" r="4" fill="var(--good)" stroke="var(--surface)" stroke-width="2"></circle><line class="ph" x1="0" x2="0" y1="0" y2="14" stroke="var(--fg)" stroke-width="1.5"></line></svg></div>
+      <div class="rstats">${s.steps_run}/${s.words} words got a partial · pass ${fmtS(s.step_ms_mean / 1000)} · final ${fmtS(s.final_latency_s)} after audio ends · ${pct(s.wer)} WER</div></div></div>`;
+  }).join('');
+  stop(); seek(0);
+  document.querySelectorAll('#seglegend button').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.seg === seg.id)));
+}
+const toks = (t) => t.split(/\s+/).filter(Boolean);
+function render() {
+  const t = replay.t, seg = replay.seg, segLen = seg.end - seg.start + 0.4;
+  $('#clock').textContent = `${t.toFixed(2)} s`;
+  $('#scrub').value = String(Math.round((t / replay.dur) * 1000));
+  document.querySelectorAll('#refwords span').forEach((sp) => sp.classList.toggle('on', Number(sp.dataset.e) <= t));
+  replay.runs.forEach((x, i) => {
+    const s = x.st, el = $(`#rt${i}`), finalAt = segLen + s.final_latency_s;
+    let cur = null, prev = null;
+    for (const p of s.steps) { if (p.done <= t) { prev = cur; cur = p; } }
+    if (t >= finalAt) { el.innerHTML = `${esc(s.final)}<span class="final">✓ final</span>`; }
+    else if (!cur) { el.innerHTML = `<span class="wait">…</span>`; }
+    else {
+      const a = toks(cur.text), b = prev ? toks(prev.text) : [];
+      el.innerHTML = a.map((w, k) => (b[k] !== undefined && b[k] !== w) ? `<span class="chg">${esc(w)}</span>` : esc(w)).join(' ');
+    }
+    const ph = el.parentElement.querySelector('.ph');
+    const xx = `${(t / replay.dur) * 100}%`; ph.setAttribute('x1', xx); ph.setAttribute('x2', xx);
+  });
+  drawWave();
+}
+function seek(t) { replay.t = Math.max(0, Math.min(replay.dur, t)); render(); }
+function frame() {
+  if (!replay.playing) return;
+  replay.t = (performance.now() - replay.t0) / 1000;
+  if (replay.t >= replay.dur) { replay.t = replay.dur; render(); stop(); return; }
+  if (!audio.paused && audio.currentTime >= replay.seg.end + 0.4) audio.pause();
+  render(); requestAnimationFrame(frame);
+}
+function play() {
+  if (replay.t >= replay.dur - 0.05) replay.t = 0;
+  replay.playing = true; replay.t0 = performance.now() - replay.t * 1000;
+  $('#play').textContent = '❚❚ Pause';
+  const segLen = replay.seg.end - replay.seg.start + 0.4;
+  if (replay.t < segLen) { try { audio.currentTime = replay.seg.start + replay.t; audio.play().catch(() => {}); } catch (e) {} }
+  requestAnimationFrame(frame);
+}
+function stop() { replay.playing = false; audio.pause(); $('#play').textContent = '▶ Play'; }
+$('#play').addEventListener('click', () => replay.playing ? stop() : play());
+$('#scrub').addEventListener('input', (e) => { stop(); seek((Number(e.target.value) / 1000) * replay.dur); });
+$('#seg').addEventListener('change', setupReplay);
+$('#env').addEventListener('change', setupReplay);
+document.querySelectorAll('#seglegend button').forEach((b) => b.addEventListener('click', () => { $('#seg').value = b.dataset.seg; setupReplay(); }));
+setupReplay();
+seek(SEGS[0].end - SEGS[0].start); // open on a meaningful frame: end of the first utterance
+addEventListener('resize', drawWave);
+matchMedia('(prefers-color-scheme: dark)').addEventListener('change', drawWave);
+new MutationObserver(drawWave).observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
+</script>

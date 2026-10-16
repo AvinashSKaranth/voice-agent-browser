@@ -1,0 +1,7 @@
+.venv/
+.chrome-profile/
+results/*.log
+.vendor/
+models/phonon-2-c/
+wasm/phonon2.*
+__pycache__/

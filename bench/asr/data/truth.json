@@ -1,0 +1,419 @@
+{
+ "sample_rate": 16000,
+ "duration": 28.675,
+ "segments": [
+  {
+   "id": "clear-1",
+   "label": "Clear, female voice",
+   "voice": "af_heart",
+   "speed": 1.0,
+   "fx": null,
+   "text": "Hey Jarvis, set a timer for ten minutes and remind me to call the dentist tomorrow morning.",
+   "start": 0.5,
+   "end": 6.45,
+   "words": [
+    {
+     "w": "Hey",
+     "start": 0.775,
+     "end": 1.012
+    },
+    {
+     "w": "Jarvis",
+     "start": 1.012,
+     "end": 1.675
+    },
+    {
+     "w": "set",
+     "start": 1.788,
+     "end": 1.938
+    },
+    {
+     "w": "a",
+     "start": 1.938,
+     "end": 2.0
+    },
+    {
+     "w": "timer",
+     "start": 2.0,
+     "end": 2.4
+    },
+    {
+     "w": "for",
+     "start": 2.4,
+     "end": 2.562
+    },
+    {
+     "w": "ten",
+     "start": 2.562,
+     "end": 2.812
+    },
+    {
+     "w": "minutes",
+     "start": 2.812,
+     "end": 3.462
+    },
+    {
+     "w": "and",
+     "start": 3.462,
+     "end": 3.6
+    },
+    {
+     "w": "remind",
+     "start": 3.6,
+     "end": 3.987
+    },
+    {
+     "w": "me",
+     "start": 3.987,
+     "end": 4.1
+    },
+    {
+     "w": "to",
+     "start": 4.1,
+     "end": 4.225
+    },
+    {
+     "w": "call",
+     "start": 4.225,
+     "end": 4.438
+    },
+    {
+     "w": "the",
+     "start": 4.438,
+     "end": 4.525
+    },
+    {
+     "w": "dentist",
+     "start": 4.525,
+     "end": 5.1
+    },
+    {
+     "w": "tomorrow",
+     "start": 5.1,
+     "end": 5.5
+    },
+    {
+     "w": "morning",
+     "start": 5.5,
+     "end": 6.2
+    }
+   ]
+  },
+  {
+   "id": "clear-2",
+   "label": "Clear, male voice",
+   "voice": "am_michael",
+   "speed": 1.0,
+   "fx": null,
+   "text": "What is the weather going to be like in San Francisco this weekend? I want to plan a long hike.",
+   "start": 7.65,
+   "end": 14.15,
+   "words": [
+    {
+     "w": "What",
+     "start": 8.05,
+     "end": 8.2
+    },
+    {
+     "w": "is",
+     "start": 8.2,
+     "end": 8.35
+    },
+    {
+     "w": "the",
+     "start": 8.35,
+     "end": 8.488
+    },
+    {
+     "w": "weather",
+     "start": 8.488,
+     "end": 8.825
+    },
+    {
+     "w": "going",
+     "start": 8.825,
+     "end": 9.013
+    },
+    {
+     "w": "to",
+     "start": 9.013,
+     "end": 9.088
+    },
+    {
+     "w": "be",
+     "start": 9.088,
+     "end": 9.225
+    },
+    {
+     "w": "like",
+     "start": 9.225,
+     "end": 9.5
+    },
+    {
+     "w": "in",
+     "start": 9.5,
+     "end": 9.663
+    },
+    {
+     "w": "San",
+     "start": 9.663,
+     "end": 9.975
+    },
+    {
+     "w": "Francisco",
+     "start": 9.975,
+     "end": 10.675
+    },
+    {
+     "w": "this",
+     "start": 10.675,
+     "end": 10.913
+    },
+    {
+     "w": "weekend",
+     "start": 10.913,
+     "end": 11.8
+    },
+    {
+     "w": "I",
+     "start": 11.938,
+     "end": 12.1
+    },
+    {
+     "w": "want",
+     "start": 12.1,
+     "end": 12.262
+    },
+    {
+     "w": "to",
+     "start": 12.262,
+     "end": 12.35
+    },
+    {
+     "w": "plan",
+     "start": 12.35,
+     "end": 12.7
+    },
+    {
+     "w": "a",
+     "start": 12.7,
+     "end": 12.812
+    },
+    {
+     "w": "long",
+     "start": 12.812,
+     "end": 13.188
+    },
+    {
+     "w": "hike",
+     "start": 13.188,
+     "end": 13.875
+    }
+   ]
+  },
+  {
+   "id": "unclear-fast-babble",
+   "label": "Unclear: fast speech + background chatter (3 dB SNR)",
+   "voice": "bf_emma",
+   "speed": 1.35,
+   "fx": "babble",
+   "text": "Could you email Siobhan the quarterly numbers, roughly four point seven million, before the Kubernetes sync on Thursday?",
+   "start": 15.35,
+   "end": 20.475,
+   "words": [
+    {
+     "w": "Could",
+     "start": 15.525,
+     "end": 15.638
+    },
+    {
+     "w": "you",
+     "start": 15.638,
+     "end": 15.75
+    },
+    {
+     "w": "email",
+     "start": 15.75,
+     "end": 15.95
+    },
+    {
+     "w": "Siobhan",
+     "start": 15.95,
+     "end": 16.213
+    },
+    {
+     "w": "the",
+     "start": 16.213,
+     "end": 16.288
+    },
+    {
+     "w": "quarterly",
+     "start": 16.288,
+     "end": 16.538
+    },
+    {
+     "w": "numbers",
+     "start": 16.538,
+     "end": 17.075
+    },
+    {
+     "w": "roughly",
+     "start": 17.15,
+     "end": 17.425
+    },
+    {
+     "w": "four",
+     "start": 17.425,
+     "end": 17.588
+    },
+    {
+     "w": "point",
+     "start": 17.588,
+     "end": 17.775
+    },
+    {
+     "w": "seven",
+     "start": 17.775,
+     "end": 17.963
+    },
+    {
+     "w": "million",
+     "start": 17.963,
+     "end": 18.35
+    },
+    {
+     "w": "before",
+     "start": 18.413,
+     "end": 18.613
+    },
+    {
+     "w": "the",
+     "start": 18.613,
+     "end": 18.688
+    },
+    {
+     "w": "Kubernetes",
+     "start": 18.688,
+     "end": 19.15
+    },
+    {
+     "w": "sync",
+     "start": 19.15,
+     "end": 19.338
+    },
+    {
+     "w": "on",
+     "start": 19.338,
+     "end": 19.45
+    },
+    {
+     "w": "Thursday",
+     "start": 19.45,
+     "end": 20.225
+    }
+   ]
+  },
+  {
+   "id": "unclear-muffled",
+   "label": "Unclear: quiet, muffled, echoey room + hiss",
+   "voice": "am_adam",
+   "speed": 1.1,
+   "fx": "muffled",
+   "text": "Turn off the living room lights, lock the front door and play some quiet jazz in the bedroom.",
+   "start": 21.675,
+   "end": 27.475,
+   "words": [
+    {
+     "w": "Turn",
+     "start": 21.9,
+     "end": 22.113
+    },
+    {
+     "w": "off",
+     "start": 22.113,
+     "end": 22.288
+    },
+    {
+     "w": "the",
+     "start": 22.288,
+     "end": 22.375
+    },
+    {
+     "w": "living",
+     "start": 22.375,
+     "end": 22.65
+    },
+    {
+     "w": "room",
+     "start": 22.65,
+     "end": 22.875
+    },
+    {
+     "w": "lights",
+     "start": 22.875,
+     "end": 23.425
+    },
+    {
+     "w": "lock",
+     "start": 23.525,
+     "end": 23.738
+    },
+    {
+     "w": "the",
+     "start": 23.738,
+     "end": 23.825
+    },
+    {
+     "w": "front",
+     "start": 23.825,
+     "end": 24.075
+    },
+    {
+     "w": "door",
+     "start": 24.075,
+     "end": 24.387
+    },
+    {
+     "w": "and",
+     "start": 24.387,
+     "end": 24.5
+    },
+    {
+     "w": "play",
+     "start": 24.5,
+     "end": 24.725
+    },
+    {
+     "w": "some",
+     "start": 24.725,
+     "end": 24.938
+    },
+    {
+     "w": "quiet",
+     "start": 24.938,
+     "end": 25.363
+    },
+    {
+     "w": "jazz",
+     "start": 25.363,
+     "end": 25.763
+    },
+    {
+     "w": "in",
+     "start": 25.763,
+     "end": 25.837
+    },
+    {
+     "w": "the",
+     "start": 25.837,
+     "end": 25.925
+    },
+    {
+     "w": "bedroom",
+     "start": 25.925,
+     "end": 26.8
+    }
+   ]
+  }
+ ]
+}

@@ -1,0 +1,4780 @@
+{
+ "whisper-base/cuda": {
+  "model": "whisper-base",
+  "device": "cuda",
+  "runtime": "transformers 5.20.0, torch 2.11.0+cu128, float16",
+  "load_s": 11.119462499395013,
+  "warmup_s": 0.704754700884223,
+  "offline": [
+   {
+    "segment": "clear-1",
+    "audio_s": 6.35,
+    "time_s": 0.3277591997757554,
+    "rtfx": 19.37397944693699,
+    "text": "Hey Jarvis, set a timer for 10 minutes and remind me to call the dentist tomorrow morning.",
+    "wer": 0.0
+   },
+   {
+    "segment": "clear-2",
+    "audio_s": 6.9,
+    "time_s": 0.2047305004671216,
+    "rtfx": 33.702843417354394,
+    "text": "What is the weather going to be like in San Francisco this weekend? I want to plan a long hike.",
+    "wer": 0.0
+   },
+   {
+    "segment": "unclear-fast-babble",
+    "audio_s": 5.525,
+    "time_s": 0.20258630067110062,
+    "rtfx": 27.272327801522238,
+    "text": "Could you image of all the quarterly numbers? Roughly 4.7 million before the community sink on Thursday.",
+    "wer": 0.3333333333333333
+   },
+   {
+    "segment": "unclear-muffled",
+    "audio_s": 6.2,
+    "time_s": 0.1941109001636505,
+    "rtfx": 31.940504086957098,
+    "text": "Turn off the radio and we'll light the front door and place them quite a tad to the day.",
+    "wer": 0.6666666666666666
+   }
+  ],
+  "streaming": [
+   {
+    "segment": "clear-1",
+    "steps": [
+     {
+      "word": 0,
+      "audio_s": 0.512,
+      "start": 0.513,
+      "done": 0.555,
+      "text": "Hey."
+     },
+     {
+      "word": 1,
+      "audio_s": 1.175,
+      "start": 1.175,
+      "done": 1.231,
+      "text": "Hey Jarvis."
+     },
+     {
+      "word": 2,
+      "audio_s": 1.438,
+      "start": 1.439,
+      "done": 1.52,
+      "text": "Hey Jarvis!"
+     },
+     {
+      "word": 3,
+      "audio_s": 1.5,
+      "start": 1.52,
+      "done": 1.598,
+      "text": "Hey Jarvis, set it"
+     },
+     {
+      "word": 4,
+      "audio_s": 1.9,
+      "start": 1.901,
+      "done": 1.992,
+      "text": "Hey Jarvis, set a timer."
+     },
+     {
+      "word": 5,
+      "audio_s": 2.062,
+      "start": 2.062,
+      "done": 2.157,
+      "text": "Hey Jarvis, set a timer for"
+     },
+     {
+      "word": 6,
+      "audio_s": 2.312,
+      "start": 2.312,
+      "done": 2.43,
+      "text": "Hey Jarvis, set a timer for 10 minutes."
+     },
+     {
+      "word": 7,
+      "audio_s": 2.962,
+      "start": 2.963,
+      "done": 3.062,
+      "text": "Hey Jarvis, set a timer for 10 minutes."
+     },
+     {
+      "word": 8,
+      "audio_s": 3.1,
+      "start": 3.1,
+      "done": 3.211,
+      "text": "Hey Jarvis, set a timer for 10 minutes."
+     },
+     {
+      "word": 9,
+      "audio_s": 3.487,
+      "start": 3.487,
+      "done": 3.615,
+      "text": "Hey Jarvis, set a timer for 10 minutes and remind"
+     },
+     {
+      "word": 10,
+      "audio_s": 3.6,
+      "start": 3.615,
+      "done": 3.744,
+      "text": "Hey Jarvis, set a timer for 10 minutes and remind me"
+     },
+     {
+      "word": 11,
+      "audio_s": 3.725,
+      "start": 3.744,
+      "done": 3.898,
+      "text": "Hey Jarvis, set a timer for 10 minutes and remind me to"
+     },
+     {
+      "word": 12,
+      "audio_s": 3.938,
+      "start": 3.939,
+      "done": 4.088,
+      "text": "Hey Jarvis, set a timer for 10 minutes and remind me to call"
+     },
+     {
+      "word": 13,
+      "audio_s": 4.025,
+      "start": 4.088,
+      "done": 4.24,
+      "text": "Hey Jarvis, set a timer for 10 minutes and remind me to call the"
+     },
+     {
+      "word": 14,
+      "audio_s": 4.6,
+      "start": 4.6,
+      "done": 4.773,
+      "text": "Hey Jarvis, set a timer for 10 minutes and remind me to call the dentist."
+     },
+     {
+      "word": 15,
+      "audio_s": 5.0,
+      "start": 5.0,
+      "done": 5.372,
+      "text": "Hey Jarvis, set a timer for 10 minutes and remind me to call the dentist tomorrow."
+     },
+     {
+      "word": 16,
+      "audio_s": 5.7,
+      "start": 5.7,
+      "done": 5.914,
+      "text": "Hey Jarvis, set a timer for 10 minutes and remind me to call the dentist tomorrow morning."
+     }
+    ],
+    "final": "Hey Jarvis, set a timer for 10 minutes and remind me to call the dentist tomorrow morning.",
+    "wer": 0.0,
+    "words": 17,
+    "steps_run": 17,
+    "words_skipped": 0,
+    "step_ms_mean": 131.9,
+    "step_ms_p95": 245.6,
+    "first_text_s": 0.043,
+    "word_latency_mean_s": 0.153,
+    "word_latency_p90_s": 0.42,
+    "rewrite_ratio": 0.056,
+    "final_latency_s": 0.274,
+    "end_to_final_s": 0.925
+   },
+   {
+    "segment": "clear-2",
+    "steps": [
+     {
+      "word": 0,
+      "audio_s": 0.55,
+      "start": 0.55,
+      "done": 0.623,
+      "text": "What?"
+     },
+     {
+      "word": 1,
+      "audio_s": 0.7,
+      "start": 0.7,
+      "done": 0.774,
+      "text": "What is"
+     },
+     {
+      "word": 2,
+      "audio_s": 0.838,
+      "start": 0.839,
+      "done": 0.924,
+      "text": "What is the"
+     },
+     {
+      "word": 3,
+      "audio_s": 1.175,
+      "start": 1.175,
+      "done": 1.281,
+      "text": "What is the weather?"
+     },
+     {
+      "word": 4,
+      "audio_s": 1.363,
+      "start": 1.363,
+      "done": 1.494,
+      "text": "What is the weather going to be?"
+     },
+     {
+      "word": 5,
+      "audio_s": 1.438,
+      "start": 1.494,
+      "done": 1.622,
+      "text": "What is the weather going to be?"
+     },
+     {
+      "word": 6,
+      "audio_s": 1.575,
+      "start": 1.622,
+      "done": 1.709,
+      "text": "What is the weather going to be the"
+     },
+     {
+      "word": 7,
+      "audio_s": 1.85,
+      "start": 1.85,
+      "done": 1.945,
+      "text": "What is the weather going to be like?"
+     },
+     {
+      "word": 8,
+      "audio_s": 2.013,
+      "start": 2.013,
+      "done": 2.107,
+      "text": "What is the weather going to be like in"
+     },
+     {
+      "word": 9,
+      "audio_s": 2.325,
+      "start": 2.325,
+      "done": 2.445,
+      "text": "What is the weather going to be like in Santa?"
+     },
+     {
+      "word": 10,
+      "audio_s": 3.025,
+      "start": 3.025,
+      "done": 3.154,
+      "text": "What is the weather going to be like in San Francisco?"
+     },
+     {
+      "word": 11,
+      "audio_s": 3.263,
+      "start": 3.263,
+      "done": 3.407,
+      "text": "What is the weather going to be like in San Francisco this week?"
+     },
+     {
+      "word": 12,
+      "audio_s": 4.15,
+      "start": 4.151,
+      "done": 4.345,
+      "text": "What is the weather going to be like in San Francisco this weekend?"
+     },
+     {
+      "word": 13,
+      "audio_s": 4.45,
+      "start": 4.451,
+      "done": 4.647,
+      "text": "What is the weather going to be like in San Francisco this weekend?"
+     },
+     {
+      "word": 14,
+      "audio_s": 4.612,
+      "start": 4.647,
+      "done": 4.859,
+      "text": "What is the weather going to be like in San Francisco this weekend? I want"
+     },
+     {
+      "word": 15,
+      "audio_s": 4.7,
+      "start": 4.859,
+      "done": 5.022,
+      "text": "What is the weather going to be like in San Francisco this weekend? I want to"
+     },
+     {
+      "word": 16,
+      "audio_s": 5.05,
+      "start": 5.05,
+      "done": 5.224,
+      "text": "What is the weather going to be like in San Francisco this weekend? I want to plan"
+     },
+     {
+      "word": 17,
+      "audio_s": 5.162,
+      "start": 5.224,
+      "done": 5.419,
+      "text": "What is the weather going to be like in San Francisco this weekend? I want to plan a"
+     },
+     {
+      "word": 18,
+      "audio_s": 5.538,
+      "start": 5.538,
+      "done": 5.721,
+      "text": "What is the weather going to be like in San Francisco this weekend? I want to plan a long"
+     },
+     {
+      "word": 19,
+      "audio_s": 6.225,
+      "start": 6.226,
+      "done": 6.429,
+      "text": "What is the weather going to be like in San Francisco this weekend? I want to plan a long hike."
+     }
+    ],
+    "final": "What is the weather going to be like in San Francisco this weekend? I want to plan a long hike.",
+    "wer": 0.0,
+    "words": 20,
+    "steps_run": 20,
+    "words_skipped": 0,
+    "step_ms_mean": 139.3,
+    "step_ms_p95": 203.5,
+    "first_text_s": 0.073,
+    "word_latency_mean_s": 0.186,
+    "word_latency_p90_s": 0.331,
+    "rewrite_ratio": 0.13,
+    "final_latency_s": 0.21,
+    "end_to_final_s": 0.886
+   },
+   {
+    "segment": "unclear-fast-babble",
+    "steps": [
+     {
+      "word": 0,
+      "audio_s": 0.288,
+      "start": 0.288,
+      "done": 0.36,
+      "text": "Okay."
+     },
+     {
+      "word": 1,
+      "audio_s": 0.4,
+      "start": 0.401,
+      "done": 0.473,
+      "text": "Could you"
+     },
+     {
+      "word": 2,
+      "audio_s": 0.6,
+      "start": 0.601,
+      "done": 0.673,
+      "text": "Could you"
+     },
+     {
+      "word": 3,
+      "audio_s": 0.863,
+      "start": 0.864,
+      "done": 1.03,
+      "text": "Could you eat my shaboo?"
+     },
+     {
+      "word": 4,
+      "audio_s": 0.938,
+      "start": 1.03,
+      "done": 1.158,
+      "text": "Could you eat my shabon?"
+     },
+     {
+      "word": 5,
+      "audio_s": 1.188,
+      "start": 1.188,
+      "done": 1.343,
+      "text": "Good evening, my name is Volna Polis."
+     },
+     {
+      "word": 6,
+      "audio_s": 1.725,
+      "start": 1.726,
+      "done": 1.834,
+      "text": "Could you imagine what the point of view is?"
+     },
+     {
+      "word": 7,
+      "audio_s": 2.075,
+      "start": 2.075,
+      "done": 2.196,
+      "text": "Could you eat much of all the important numbers?"
+     },
+     {
+      "word": 8,
+      "audio_s": 2.238,
+      "start": 2.238,
+      "done": 2.343,
+      "text": "Could you image of all the important numbers?"
+     },
+     {
+      "word": 9,
+      "audio_s": 2.425,
+      "start": 2.426,
+      "done": 2.54,
+      "text": "Could you image of all the important numbers?"
+     },
+     {
+      "word": 10,
+      "audio_s": 2.613,
+      "start": 2.613,
+      "done": 2.737,
+      "text": "Could you image the whole number of the calling numbers?"
+     },
+     {
+      "word": 11,
+      "audio_s": 3.0,
+      "start": 3.0,
+      "done": 3.18,
+      "text": "Could you image of all the important numbers? Roughly 4.7 million."
+     },
+     {
+      "word": 12,
+      "audio_s": 3.263,
+      "start": 3.263,
+      "done": 3.436,
+      "text": "Could you image all the important numbers? Roughly 4.7 million."
+     },
+     {
+      "word": 13,
+      "audio_s": 3.338,
+      "start": 3.436,
+      "done": 3.613,
+      "text": "Could you image all the important numbers? Roughly 4.7 million for the"
+     },
+     {
+      "word": 14,
+      "audio_s": 3.8,
+      "start": 3.801,
+      "done": 4.039,
+      "text": "Could you image of all the important numbers, roughly 4.7 million for the community?"
+     },
+     {
+      "word": 15,
+      "audio_s": 3.988,
+      "start": 4.039,
+      "done": 4.252,
+      "text": "Could you image of all the quarterly numbers, roughly 4.7 million before the committee sings?"
+     },
+     {
+      "word": 16,
+      "audio_s": 4.1,
+      "start": 4.252,
+      "done": 4.452,
+      "text": "Could you image of all the quarterly numbers, roughly 4.7 million before the community syncopes?"
+     },
+     {
+      "word": 17,
+      "audio_s": 4.875,
+      "start": 4.875,
+      "done": 5.092,
+      "text": "Could you image of all the quarterly numbers? Roughly 4.7 million before the community sink on Thursday."
+     }
+    ],
+    "final": "Could you image of all the quarterly numbers? Roughly 4.7 million before the community sink on Thursday.",
+    "wer": 0.3333333333333333,
+    "words": 18,
+    "steps_run": 18,
+    "words_skipped": 0,
+    "step_ms_mean": 146.4,
+    "step_ms_p95": 220.1,
+    "first_text_s": 0.072,
+    "word_latency_mean_s": 0.716,
+    "word_latency_p90_s": 1.252,
+    "rewrite_ratio": 0.802,
+    "final_latency_s": 0.205,
+    "end_to_final_s": 0.856
+   },
+   {
+    "segment": "unclear-muffled",
+    "steps": [
+     {
+      "word": 0,
+      "audio_s": 0.438,
+      "start": 0.439,
+      "done": 0.52,
+      "text": "Thank you."
+     },
+     {
+      "word": 1,
+      "audio_s": 0.613,
+      "start": 0.613,
+      "done": 0.683,
+      "text": "Yeah."
+     },
+     {
+      "word": 2,
+      "audio_s": 0.7,
+      "start": 0.701,
+      "done": 0.778,
+      "text": "No."
+     },
+     {
+      "word": 3,
+      "audio_s": 0.975,
+      "start": 0.975,
+      "done": 1.119,
+      "text": "Turn it off a little bit."
+     },
+     {
+      "word": 4,
+      "audio_s": 1.2,
+      "start": 1.2,
+      "done": 1.333,
+      "text": "Turn off the radio."
+     },
+     {
+      "word": 5,
+      "audio_s": 1.75,
+      "start": 1.75,
+      "done": 1.896,
+      "text": "Turn off the radio and then light it."
+     },
+     {
+      "word": 6,
+      "audio_s": 2.063,
+      "start": 2.064,
+      "done": 2.252,
+      "text": "Turn off the radio and we'll be right back."
+     },
+     {
+      "word": 7,
+      "audio_s": 2.15,
+      "start": 2.252,
+      "done": 2.674,
+      "text": "Turn off the radio and then we'll light the lights."
+     },
+     {
+      "word": 8,
+      "audio_s": 2.4,
+      "start": 2.674,
+      "done": 2.912,
+      "text": "Turn off the radio and we're like, lock it, lock it."
+     },
+     {
+      "word": 10,
+      "audio_s": 2.825,
+      "start": 2.912,
+      "done": 3.096,
+      "text": "Turn off the radio and then we'll light the front door."
+     },
+     {
+      "word": 11,
+      "audio_s": 3.05,
+      "start": 3.096,
+      "done": 3.316,
+      "text": "Turn off the radio, we're like, lock the front door in place."
+     },
+     {
+      "word": 12,
+      "audio_s": 3.263,
+      "start": 3.316,
+      "done": 3.513,
+      "text": "Turn off the radio and then we'll light the front door and take a look."
+     },
+     {
+      "word": 13,
+      "audio_s": 3.688,
+      "start": 3.688,
+      "done": 3.879,
+      "text": "Turn off the radio and then we'll light the front door and place the flag at the back."
+     },
+     {
+      "word": 14,
+      "audio_s": 4.088,
+      "start": 4.088,
+      "done": 4.284,
+      "text": "Turn off the radio and we'll light the front door and place them flat at the gas."
+     },
+     {
+      "word": 16,
+      "audio_s": 4.25,
+      "start": 4.284,
+      "done": 4.486,
+      "text": "Turn off the radio and we'll light the front door and place them flat at the gas."
+     },
+     {
+      "word": 17,
+      "audio_s": 5.125,
+      "start": 5.125,
+      "done": 5.349,
+      "text": "Turn off the radio and we'll light the front door and place them quite a tad to the day."
+     }
+    ],
+    "final": "Turn off the radio and we'll light the front door and place them quite a tad to the day.",
+    "wer": 0.6666666666666666,
+    "words": 18,
+    "steps_run": 16,
+    "words_skipped": 2,
+    "step_ms_mean": 182.1,
+    "step_ms_p95": 284.0,
+    "first_text_s": 0.082,
+    "word_latency_mean_s": 0.316,
+    "word_latency_p90_s": 0.924,
+    "rewrite_ratio": 0.773,
+    "final_latency_s": 0.256,
+    "end_to_final_s": 1.332
+   }
+  ]
+ },
+ "whisper-base/cpu": {
+  "model": "whisper-base",
+  "device": "cpu",
+  "runtime": "transformers 5.20.0, torch 2.11.0+cu128, float32",
+  "load_s": 1.6810729000717402,
+  "warmup_s": 1.0424188002943993,
+  "offline": [
+   {
+    "segment": "clear-1",
+    "audio_s": 6.35,
+    "time_s": 1.1070305993780494,
+    "rtfx": 5.736065474222256,
+    "text": "Hey Jarvis, set a timer for 10 minutes and remind me to call the dentist tomorrow morning.",
+    "wer": 0.0
+   },
+   {
+    "segment": "clear-2",
+    "audio_s": 6.9,
+    "time_s": 1.2439775001257658,
+    "rtfx": 5.5467241162339445,
+    "text": "What is the weather going to be like in San Francisco this weekend? I want to plan a long hike.",
+    "wer": 0.0
+   },
+   {
+    "segment": "unclear-fast-babble",
+    "audio_s": 5.525,
+    "time_s": 1.1081966999918222,
+    "rtfx": 4.9855770189901945,
+    "text": "Could you image of all the quarterly numbers? Roughly 4.7 million before the community sink on Thursday.",
+    "wer": 0.3333333333333333
+   },
+   {
+    "segment": "unclear-muffled",
+    "audio_s": 6.2,
+    "time_s": 1.1949064005166292,
+    "rtfx": 5.188690927857923,
+    "text": "Turn off the radio and we'll light the front door and place them quite a tad to the day.",
+    "wer": 0.6666666666666666
+   }
+  ],
+  "streaming": [
+   {
+    "segment": "clear-1",
+    "steps": [
+     {
+      "word": 0,
+      "audio_s": 0.512,
+      "start": 0.513,
+      "done": 1.104,
+      "text": "Hey."
+     },
+     {
+      "word": 1,
+      "audio_s": 1.175,
+      "start": 1.175,
+      "done": 1.817,
+      "text": "Hey Jarvis."
+     },
+     {
+      "word": 3,
+      "audio_s": 1.5,
+      "start": 1.817,
+      "done": 2.462,
+      "text": "Hey Jarvis, set it"
+     },
+     {
+      "word": 6,
+      "audio_s": 2.312,
+      "start": 2.462,
+      "done": 3.215,
+      "text": "Hey Jarvis, set a timer for 10 minutes."
+     },
+     {
+      "word": 8,
+      "audio_s": 3.1,
+      "start": 3.215,
+      "done": 4.063,
+      "text": "Hey Jarvis, set a timer for 10 minutes."
+     },
+     {
+      "word": 13,
+      "audio_s": 4.025,
+      "start": 4.063,
+      "done": 5.02,
+      "text": "Hey Jarvis, set a timer for 10 minutes and remind me to call the"
+     },
+     {
+      "word": 15,
+      "audio_s": 5.0,
+      "start": 5.02,
+      "done": 6.018,
+      "text": "Hey Jarvis, set a timer for 10 minutes and remind me to call the dentist tomorrow."
+     },
+     {
+      "word": 16,
+      "audio_s": 5.7,
+      "start": 6.018,
+      "done": 7.034,
+      "text": "Hey Jarvis, set a timer for 10 minutes and remind me to call the dentist tomorrow morning."
+     }
+    ],
+    "final": "Hey Jarvis, set a timer for 10 minutes and remind me to call the dentist tomorrow morning.",
+    "wer": 0.0,
+    "words": 17,
+    "steps_run": 8,
+    "words_skipped": 9,
+    "step_ms_mean": 806.2,
+    "step_ms_p95": 1009.7,
+    "first_text_s": 0.592,
+    "word_latency_mean_s": 1.154,
+    "word_latency_p90_s": 1.606,
+    "rewrite_ratio": 0.056,
+    "final_latency_s": 0.88,
+    "end_to_final_s": 2.214
+   },
+   {
+    "segment": "clear-2",
+    "steps": [
+     {
+      "word": 0,
+      "audio_s": 0.55,
+      "start": 0.55,
+      "done": 1.245,
+      "text": "What?"
+     },
+     {
+      "word": 3,
+      "audio_s": 1.175,
+      "start": 1.245,
+      "done": 1.872,
+      "text": "What is the weather?"
+     },
+     {
+      "word": 7,
+      "audio_s": 1.85,
+      "start": 1.872,
+      "done": 2.524,
+      "text": "What is the weather going to be like?"
+     },
+     {
+      "word": 9,
+      "audio_s": 2.325,
+      "start": 2.524,
+      "done": 3.236,
+      "text": "What is the weather going to be like in Santa?"
+     },
+     {
+      "word": 10,
+      "audio_s": 3.025,
+      "start": 3.236,
+      "done": 4.006,
+      "text": "What is the weather going to be like in San Francisco?"
+     },
+     {
+      "word": 11,
+      "audio_s": 3.263,
+      "start": 4.006,
+      "done": 4.793,
+      "text": "What is the weather going to be like in San Francisco this week?"
+     },
+     {
+      "word": 15,
+      "audio_s": 4.7,
+      "start": 4.793,
+      "done": 5.674,
+      "text": "What is the weather going to be like in San Francisco this weekend? I want to"
+     },
+     {
+      "word": 18,
+      "audio_s": 5.538,
+      "start": 5.674,
+      "done": 6.606,
+      "text": "What is the weather going to be like in San Francisco this weekend? I want to plan a long"
+     },
+     {
+      "word": 19,
+      "audio_s": 6.225,
+      "start": 6.606,
+      "done": 7.665,
+      "text": "What is the weather going to be like in San Francisco this weekend? I want to plan a long hike."
+     }
+    ],
+    "final": "What is the weather going to be like in San Francisco this weekend? I want to plan a long hike.",
+    "wer": 0.0,
+    "words": 20,
+    "steps_run": 9,
+    "words_skipped": 11,
+    "step_ms_mean": 790.6,
+    "step_ms_p95": 1008.2,
+    "first_text_s": 0.695,
+    "word_latency_mean_s": 1.159,
+    "word_latency_p90_s": 1.533,
+    "rewrite_ratio": 0.091,
+    "final_latency_s": 1.071,
+    "end_to_final_s": 2.511
+   },
+   {
+    "segment": "unclear-fast-babble",
+    "steps": [
+     {
+      "word": 0,
+      "audio_s": 0.288,
+      "start": 0.289,
+      "done": 0.824,
+      "text": "Okay."
+     },
+     {
+      "word": 2,
+      "audio_s": 0.6,
+      "start": 0.824,
+      "done": 1.32,
+      "text": "Could you"
+     },
+     {
+      "word": 5,
+      "audio_s": 1.188,
+      "start": 1.32,
+      "done": 2.105,
+      "text": "Good evening, my name is Volna Polis."
+     },
+     {
+      "word": 7,
+      "audio_s": 2.075,
+      "start": 2.105,
+      "done": 2.763,
+      "text": "Could you eat much of all the important numbers?"
+     },
+     {
+      "word": 10,
+      "audio_s": 2.613,
+      "start": 2.763,
+      "done": 3.482,
+      "text": "Could you image the whole number of the calling numbers?"
+     },
+     {
+      "word": 13,
+      "audio_s": 3.338,
+      "start": 3.482,
+      "done": 4.354,
+      "text": "Could you image all the important numbers? Roughly 4.7 million for the"
+     },
+     {
+      "word": 16,
+      "audio_s": 4.1,
+      "start": 4.354,
+      "done": 5.287,
+      "text": "Could you image of all the quarterly numbers, roughly 4.7 million before the community syncopes?"
+     },
+     {
+      "word": 17,
+      "audio_s": 4.875,
+      "start": 5.287,
+      "done": 6.337,
+      "text": "Could you image of all the quarterly numbers? Roughly 4.7 million before the community sink on Thursday."
+     }
+    ],
+    "final": "Could you image of all the quarterly numbers? Roughly 4.7 million before the community sink on Thursday.",
+    "wer": 0.3333333333333333,
+    "words": 18,
+    "steps_run": 8,
+    "words_skipped": 10,
+    "step_ms_mean": 756.0,
+    "step_ms_p95": 1009.0,
+    "first_text_s": 0.536,
+    "word_latency_mean_s": 1.701,
+    "word_latency_p90_s": 2.287,
+    "rewrite_ratio": 0.673,
+    "final_latency_s": 1.084,
+    "end_to_final_s": 2.546
+   },
+   {
+    "segment": "unclear-muffled",
+    "steps": [
+     {
+      "word": 0,
+      "audio_s": 0.438,
+      "start": 0.438,
+      "done": 1.026,
+      "text": "Thank you."
+     },
+     {
+      "word": 3,
+      "audio_s": 0.975,
+      "start": 1.026,
+      "done": 1.679,
+      "text": "Turn it off a little bit."
+     },
+     {
+      "word": 4,
+      "audio_s": 1.2,
+      "start": 1.679,
+      "done": 2.316,
+      "text": "Turn off the radio."
+     },
+     {
+      "word": 7,
+      "audio_s": 2.15,
+      "start": 2.316,
+      "done": 3.141,
+      "text": "Turn off the radio and then we'll light the lights."
+     },
+     {
+      "word": 11,
+      "audio_s": 3.05,
+      "start": 3.141,
+      "done": 4.048,
+      "text": "Turn off the radio, we're like, lock the front door in place."
+     },
+     {
+      "word": 13,
+      "audio_s": 3.688,
+      "start": 4.048,
+      "done": 5.111,
+      "text": "Turn off the radio and then we'll light the front door and place the flag at the back."
+     },
+     {
+      "word": 16,
+      "audio_s": 4.25,
+      "start": 5.111,
+      "done": 6.088,
+      "text": "Turn off the radio and we'll light the front door and place them flat at the gas."
+     },
+     {
+      "word": 17,
+      "audio_s": 5.125,
+      "start": 6.088,
+      "done": 7.292,
+      "text": "Turn off the radio and we'll light the front door and place them quite a tad to the day."
+     }
+    ],
+    "final": "Turn off the radio and we'll light the front door and place them quite a tad to the day.",
+    "wer": 0.6666666666666666,
+    "words": 18,
+    "steps_run": 8,
+    "words_skipped": 10,
+    "step_ms_mean": 856.8,
+    "step_ms_p95": 1154.6,
+    "first_text_s": 0.588,
+    "word_latency_mean_s": 1.383,
+    "word_latency_p90_s": 1.985,
+    "rewrite_ratio": 0.672,
+    "final_latency_s": 1.006,
+    "end_to_final_s": 3.173
+   }
+  ]
+ },
+ "canary-180m-flash/cuda": {
+  "model": "canary-180m-flash",
+  "device": "cuda",
+  "runtime": "onnx-asr 0.12.0 / ORT 1.31.0, fp32",
+  "load_s": 2.7368440004065633,
+  "warmup_s": 2.4850228996947408,
+  "offline": [
+   {
+    "segment": "clear-1",
+    "audio_s": 6.35,
+    "time_s": 0.20350740011781454,
+    "rtfx": 31.202796538719753,
+    "text": "Hey, Jarvis, set a timer for ten minutes and remind me to call the dentist to morrow morning.",
+    "wer": 0.11764705882352941
+   },
+   {
+    "segment": "clear-2",
+    "audio_s": 6.9,
+    "time_s": 0.2279138993471861,
+    "rtfx": 30.274590622878527,
+    "text": "What is the weather going to be like in San Francisco this weekend. I want to plan a long hike.",
+    "wer": 0.0
+   },
+   {
+    "segment": "unclear-fast-babble",
+    "audio_s": 5.525,
+    "time_s": 0.23681150004267693,
+    "rtfx": 23.330792630443682,
+    "text": "Could you even restore all the quartering numbers, roughly four point seven minutes before the committee sink on Thursday",
+    "wer": 0.5333333333333333
+   },
+   {
+    "segment": "unclear-muffled",
+    "audio_s": 6.2,
+    "time_s": 0.1786310002207756,
+    "rtfx": 34.70842122776689,
+    "text": "Turn off the living room lock the front door and place them a quiet dab in the bed.",
+    "wer": 0.3333333333333333
+   }
+  ],
+  "streaming": [
+   {
+    "segment": "clear-1",
+    "steps": [
+     {
+      "word": 0,
+      "audio_s": 0.512,
+      "start": 0.512,
+      "done": 0.598,
+      "text": ""
+     },
+     {
+      "word": 1,
+      "audio_s": 1.175,
+      "start": 1.175,
+      "done": 1.276,
+      "text": "Hey, Jarvis,"
+     },
+     {
+      "word": 2,
+      "audio_s": 1.438,
+      "start": 1.439,
+      "done": 1.619,
+      "text": "Hey, Jarvis,"
+     },
+     {
+      "word": 3,
+      "audio_s": 1.5,
+      "start": 1.619,
+      "done": 1.793,
+      "text": "Hey, Jarvis, said"
+     },
+     {
+      "word": 4,
+      "audio_s": 1.9,
+      "start": 1.9,
+      "done": 2.123,
+      "text": "Hey, Jarvis, set a timer"
+     },
+     {
+      "word": 5,
+      "audio_s": 2.062,
+      "start": 2.123,
+      "done": 2.339,
+      "text": "Hey, Jarvis, set a timer for"
+     },
+     {
+      "word": 6,
+      "audio_s": 2.312,
+      "start": 2.339,
+      "done": 2.54,
+      "text": "Hey, Jarvis, set a timer for ten"
+     },
+     {
+      "word": 7,
+      "audio_s": 2.962,
+      "start": 2.963,
+      "done": 3.133,
+      "text": "Hey, Jarvis, set a timer for ten minutes,"
+     },
+     {
+      "word": 8,
+      "audio_s": 3.1,
+      "start": 3.133,
+      "done": 3.389,
+      "text": "Hey, Jarvis, set a timer for ten minutes and"
+     },
+     {
+      "word": 9,
+      "audio_s": 3.487,
+      "start": 3.487,
+      "done": 3.774,
+      "text": "Hey, Jarvis, set a timer for ten minutes and remind"
+     },
+     {
+      "word": 11,
+      "audio_s": 3.725,
+      "start": 3.774,
+      "done": 4.002,
+      "text": "Hey, Jarvis, set a timer for ten minutes and remind me to"
+     },
+     {
+      "word": 12,
+      "audio_s": 3.938,
+      "start": 4.002,
+      "done": 4.252,
+      "text": "Hey, Jarvis, set a timer for ten minutes and remind me to call"
+     },
+     {
+      "word": 13,
+      "audio_s": 4.025,
+      "start": 4.252,
+      "done": 4.51,
+      "text": "Hey, Jarvis, set a timer for ten minutes and remind me to call the"
+     },
+     {
+      "word": 14,
+      "audio_s": 4.6,
+      "start": 4.6,
+      "done": 4.863,
+      "text": "Hey, Jarvis, set a timer for ten minutes, and remind me to call the dentist"
+     },
+     {
+      "word": 15,
+      "audio_s": 5.0,
+      "start": 5.001,
+      "done": 5.299,
+      "text": "Hey, Jarvis, set a timer for ten minutes and remind me to call the dentist tomorrow"
+     },
+     {
+      "word": 16,
+      "audio_s": 5.7,
+      "start": 5.7,
+      "done": 5.997,
+      "text": "Hey, Jarvis, set a timer for ten minutes and remind me to call the dentist to morrow morning."
+     }
+    ],
+    "final": "Hey, Jarvis, set a timer for ten minutes and remind me to call the dentist to morrow morning.",
+    "wer": 0.11764705882352941,
+    "words": 17,
+    "steps_run": 16,
+    "words_skipped": 1,
+    "step_ms_mean": 218.0,
+    "step_ms_p95": 297.2,
+    "first_text_s": 0.764,
+    "word_latency_mean_s": 0.352,
+    "word_latency_p90_s": 0.648,
+    "rewrite_ratio": 0.1,
+    "final_latency_s": 0.251,
+    "end_to_final_s": 0.901
+   },
+   {
+    "segment": "clear-2",
+    "steps": [
+     {
+      "word": 0,
+      "audio_s": 0.55,
+      "start": 0.55,
+      "done": 0.637,
+      "text": ""
+     },
+     {
+      "word": 1,
+      "audio_s": 0.7,
+      "start": 0.7,
+      "done": 0.8,
+      "text": "What is"
+     },
+     {
+      "word": 2,
+      "audio_s": 0.838,
+      "start": 0.838,
+      "done": 0.967,
+      "text": "What is the"
+     },
+     {
+      "word": 3,
+      "audio_s": 1.175,
+      "start": 1.176,
+      "done": 1.34,
+      "text": "What is the weather"
+     },
+     {
+      "word": 4,
+      "audio_s": 1.363,
+      "start": 1.363,
+      "done": 1.479,
+      "text": "What is the weather going"
+     },
+     {
+      "word": 5,
+      "audio_s": 1.438,
+      "start": 1.479,
+      "done": 1.554,
+      "text": "What is the weather going"
+     },
+     {
+      "word": 6,
+      "audio_s": 1.575,
+      "start": 1.575,
+      "done": 1.776,
+      "text": "What is the weather going to be"
+     },
+     {
+      "word": 7,
+      "audio_s": 1.85,
+      "start": 1.85,
+      "done": 2.025,
+      "text": "What is the weather going to be like?"
+     },
+     {
+      "word": 8,
+      "audio_s": 2.013,
+      "start": 2.025,
+      "done": 2.207,
+      "text": "What is the weather going to be like in"
+     },
+     {
+      "word": 9,
+      "audio_s": 2.325,
+      "start": 2.325,
+      "done": 2.482,
+      "text": "What is the weather like in San"
+     },
+     {
+      "word": 10,
+      "audio_s": 3.025,
+      "start": 3.025,
+      "done": 3.226,
+      "text": "What is the weather going to be like in San Francisco"
+     },
+     {
+      "word": 11,
+      "audio_s": 3.263,
+      "start": 3.263,
+      "done": 3.546,
+      "text": "What is the weather going to be like in San Francisco this"
+     },
+     {
+      "word": 12,
+      "audio_s": 4.15,
+      "start": 4.15,
+      "done": 4.383,
+      "text": "What is the weather going to be like in San Francisco this weekend?"
+     },
+     {
+      "word": 13,
+      "audio_s": 4.45,
+      "start": 4.45,
+      "done": 4.664,
+      "text": "What is the weather going to be like in San Francisco this weekend?"
+     },
+     {
+      "word": 14,
+      "audio_s": 4.612,
+      "start": 4.664,
+      "done": 4.863,
+      "text": "What is the weather going to be like in San Francisco this weekend? I want"
+     },
+     {
+      "word": 15,
+      "audio_s": 4.7,
+      "start": 4.863,
+      "done": 5.191,
+      "text": "What is the weather going to be like in San Francisco this weekend? I want a"
+     },
+     {
+      "word": 17,
+      "audio_s": 5.162,
+      "start": 5.192,
+      "done": 5.476,
+      "text": "What is the weather going to be like in San Francisco this weekend? I want a plan a"
+     },
+     {
+      "word": 18,
+      "audio_s": 5.538,
+      "start": 5.538,
+      "done": 5.858,
+      "text": "What is the weather going to be like in San Francisco this weekend? I want to plan a long"
+     },
+     {
+      "word": 19,
+      "audio_s": 6.225,
+      "start": 6.226,
+      "done": 6.466,
+      "text": "What is the weather going to be like in San Francisco this weekend. I want to plan a long hike."
+     }
+    ],
+    "final": "What is the weather going to be like in San Francisco this weekend. I want to plan a long hike.",
+    "wer": 0.0,
+    "words": 20,
+    "steps_run": 19,
+    "words_skipped": 1,
+    "step_ms_mean": 194.1,
+    "step_ms_p95": 320.8,
+    "first_text_s": 0.25,
+    "word_latency_mean_s": 0.269,
+    "word_latency_p90_s": 0.414,
+    "rewrite_ratio": 0.355,
+    "final_latency_s": 0.298,
+    "end_to_final_s": 0.973
+   },
+   {
+    "segment": "unclear-fast-babble",
+    "steps": [
+     {
+      "word": 0,
+      "audio_s": 0.288,
+      "start": 0.288,
+      "done": 0.364,
+      "text": ""
+     },
+     {
+      "word": 1,
+      "audio_s": 0.4,
+      "start": 0.4,
+      "done": 0.496,
+      "text": ""
+     },
+     {
+      "word": 2,
+      "audio_s": 0.6,
+      "start": 0.6,
+      "done": 0.696,
+      "text": ""
+     },
+     {
+      "word": 3,
+      "audio_s": 0.863,
+      "start": 0.863,
+      "done": 0.974,
+      "text": ""
+     },
+     {
+      "word": 4,
+      "audio_s": 0.938,
+      "start": 0.974,
+      "done": 1.098,
+      "text": ""
+     },
+     {
+      "word": 5,
+      "audio_s": 1.188,
+      "start": 1.188,
+      "done": 1.32,
+      "text": ""
+     },
+     {
+      "word": 6,
+      "audio_s": 1.725,
+      "start": 1.725,
+      "done": 1.835,
+      "text": ""
+     },
+     {
+      "word": 7,
+      "audio_s": 2.075,
+      "start": 2.075,
+      "done": 2.211,
+      "text": ""
+     },
+     {
+      "word": 8,
+      "audio_s": 2.238,
+      "start": 2.238,
+      "done": 2.366,
+      "text": ""
+     },
+     {
+      "word": 9,
+      "audio_s": 2.425,
+      "start": 2.425,
+      "done": 2.556,
+      "text": ""
+     },
+     {
+      "word": 10,
+      "audio_s": 2.613,
+      "start": 2.613,
+      "done": 2.765,
+      "text": ""
+     },
+     {
+      "word": 11,
+      "audio_s": 3.0,
+      "start": 3.0,
+      "done": 3.116,
+      "text": ""
+     },
+     {
+      "word": 12,
+      "audio_s": 3.263,
+      "start": 3.263,
+      "done": 3.433,
+      "text": ""
+     },
+     {
+      "word": 13,
+      "audio_s": 3.338,
+      "start": 3.433,
+      "done": 3.555,
+      "text": ""
+     },
+     {
+      "word": 14,
+      "audio_s": 3.8,
+      "start": 3.8,
+      "done": 3.96,
+      "text": ""
+     },
+     {
+      "word": 15,
+      "audio_s": 3.988,
+      "start": 3.988,
+      "done": 4.127,
+      "text": ""
+     },
+     {
+      "word": 16,
+      "audio_s": 4.1,
+      "start": 4.127,
+      "done": 4.296,
+      "text": ""
+     },
+     {
+      "word": 17,
+      "audio_s": 4.875,
+      "start": 4.876,
+      "done": 5.308,
+      "text": "Could you even much of all the quarterly numbers, roughly four point seven minutes before the committee sink on Thursday?"
+     }
+    ],
+    "final": "Could you even restore all the quartering numbers, roughly four point seven minutes before the committee sink on Thursday",
+    "wer": 0.5333333333333333,
+    "words": 18,
+    "steps_run": 18,
+    "words_skipped": 0,
+    "step_ms_mean": 144.4,
+    "step_ms_p95": 209.3,
+    "first_text_s": 5.02,
+    "word_latency_mean_s": 2.993,
+    "word_latency_p90_s": 4.919,
+    "rewrite_ratio": 0.0,
+    "final_latency_s": 0.258,
+    "end_to_final_s": 0.908
+   },
+   {
+    "segment": "unclear-muffled",
+    "steps": [
+     {
+      "word": 0,
+      "audio_s": 0.438,
+      "start": 0.438,
+      "done": 0.522,
+      "text": ""
+     },
+     {
+      "word": 1,
+      "audio_s": 0.613,
+      "start": 0.613,
+      "done": 0.71,
+      "text": ""
+     },
+     {
+      "word": 2,
+      "audio_s": 0.7,
+      "start": 0.71,
+      "done": 0.799,
+      "text": ""
+     },
+     {
+      "word": 3,
+      "audio_s": 0.975,
+      "start": 0.975,
+      "done": 1.109,
+      "text": "Turn off the leaves."
+     },
+     {
+      "word": 4,
+      "audio_s": 1.2,
+      "start": 1.2,
+      "done": 1.365,
+      "text": "Turn off a living room"
+     },
+     {
+      "word": 5,
+      "audio_s": 1.75,
+      "start": 1.75,
+      "done": 1.908,
+      "text": "turn off the living room of light."
+     },
+     {
+      "word": 6,
+      "audio_s": 2.063,
+      "start": 2.063,
+      "done": 2.21,
+      "text": "Turn off the living with a light"
+     },
+     {
+      "word": 7,
+      "audio_s": 2.15,
+      "start": 2.21,
+      "done": 2.358,
+      "text": "turn off the living with a light"
+     },
+     {
+      "word": 8,
+      "audio_s": 2.4,
+      "start": 2.4,
+      "done": 2.538,
+      "text": ""
+     },
+     {
+      "word": 9,
+      "audio_s": 2.712,
+      "start": 2.712,
+      "done": 2.946,
+      "text": "Turn off the living room like lock the front door"
+     },
+     {
+      "word": 10,
+      "audio_s": 2.825,
+      "start": 2.946,
+      "done": 3.151,
+      "text": "Turn off the living room like, lock the front door,"
+     },
+     {
+      "word": 11,
+      "audio_s": 3.05,
+      "start": 3.152,
+      "done": 3.256,
+      "text": ""
+     },
+     {
+      "word": 12,
+      "audio_s": 3.263,
+      "start": 3.263,
+      "done": 3.409,
+      "text": ""
+     },
+     {
+      "word": 13,
+      "audio_s": 3.688,
+      "start": 3.688,
+      "done": 3.878,
+      "text": ""
+     },
+     {
+      "word": 14,
+      "audio_s": 4.088,
+      "start": 4.089,
+      "done": 4.41,
+      "text": "Turn off the living room like lock the front door and place it in a quiet desk."
+     },
+     {
+      "word": 16,
+      "audio_s": 4.25,
+      "start": 4.41,
+      "done": 4.555,
+      "text": ""
+     },
+     {
+      "word": 17,
+      "audio_s": 5.125,
+      "start": 5.125,
+      "done": 5.385,
+      "text": "turn off the living room lights, lock the front door and place them quite a jab at the bed."
+     }
+    ],
+    "final": "Turn off the living room lock the front door and place them a quiet dab in the bed.",
+    "wer": 0.3333333333333333,
+    "words": 18,
+    "steps_run": 17,
+    "words_skipped": 1,
+    "step_ms_mean": 162.6,
+    "step_ms_p95": 272.2,
+    "first_text_s": 0.671,
+    "word_latency_mean_s": 0.994,
+    "word_latency_p90_s": 2.049,
+    "rewrite_ratio": 0.689,
+    "final_latency_s": 0.209,
+    "end_to_final_s": 1.285
+   }
+  ]
+ },
+ "canary-180m-flash/cpu": {
+  "model": "canary-180m-flash",
+  "device": "cpu",
+  "runtime": "onnx-asr 0.12.0 / ORT 1.31.0, fp32",
+  "load_s": 2.185142199508846,
+  "warmup_s": 4.670152500271797,
+  "offline": [
+   {
+    "segment": "clear-1",
+    "audio_s": 6.35,
+    "time_s": 2.177551600150764,
+    "rtfx": 2.916119186135637,
+    "text": "Hey, Jarvis, set a timer for ten minutes and remind me to call the dentist to morrow morning.",
+    "wer": 0.11764705882352941
+   },
+   {
+    "segment": "clear-2",
+    "audio_s": 6.9,
+    "time_s": 2.107347499579191,
+    "rtfx": 3.2742582803158173,
+    "text": "What is the weather going to be like in San Francisco this weekend. I want to plan a long hike.",
+    "wer": 0.0
+   },
+   {
+    "segment": "unclear-fast-babble",
+    "audio_s": 5.525,
+    "time_s": 2.0292213996872306,
+    "rtfx": 2.7227191674854128,
+    "text": "Could you even restore all the quartering numbers, roughly four point seven minutes before the committee sink on Thursday",
+    "wer": 0.5333333333333333
+   },
+   {
+    "segment": "unclear-muffled",
+    "audio_s": 6.2,
+    "time_s": 2.3167607998475432,
+    "rtfx": 2.6761502527183634,
+    "text": "Turn off the living room lock the front door and place them a quiet dab in the bed.",
+    "wer": 0.3333333333333333
+   }
+  ],
+  "streaming": [
+   {
+    "segment": "clear-1",
+    "steps": [
+     {
+      "word": 0,
+      "audio_s": 0.512,
+      "start": 0.512,
+      "done": 0.561,
+      "text": ""
+     },
+     {
+      "word": 1,
+      "audio_s": 1.175,
+      "start": 1.189,
+      "done": 1.86,
+      "text": "Hey, Jarvis,"
+     },
+     {
+      "word": 3,
+      "audio_s": 1.5,
+      "start": 1.86,
+      "done": 2.843,
+      "text": "Hey, Jarvis, said"
+     },
+     {
+      "word": 6,
+      "audio_s": 2.312,
+      "start": 2.843,
+      "done": 4.35,
+      "text": "Hey, Jarvis, set a timer for ten"
+     },
+     {
+      "word": 13,
+      "audio_s": 4.025,
+      "start": 4.35,
+      "done": 6.062,
+      "text": "Hey, Jarvis, set a timer for ten minutes and remind me to call the"
+     },
+     {
+      "word": 16,
+      "audio_s": 5.7,
+      "start": 6.062,
+      "done": 7.911,
+      "text": "Hey, Jarvis, set a timer for ten minutes and remind me to call the dentist to morrow morning."
+     }
+    ],
+    "final": "Hey, Jarvis, set a timer for ten minutes and remind me to call the dentist to morrow morning.",
+    "wer": 0.11764705882352941,
+    "words": 17,
+    "steps_run": 6,
+    "words_skipped": 11,
+    "step_ms_mean": 1128.5,
+    "step_ms_p95": 1814.7,
+    "first_text_s": 1.348,
+    "word_latency_mean_s": 2.356,
+    "word_latency_p90_s": 3.031,
+    "rewrite_ratio": 0.053,
+    "final_latency_s": 2.011,
+    "end_to_final_s": 4.221
+   },
+   {
+    "segment": "clear-2",
+    "steps": [
+     {
+      "word": 0,
+      "audio_s": 0.55,
+      "start": 0.55,
+      "done": 0.649,
+      "text": ""
+     },
+     {
+      "word": 1,
+      "audio_s": 0.7,
+      "start": 0.713,
+      "done": 1.221,
+      "text": "What is"
+     },
+     {
+      "word": 3,
+      "audio_s": 1.175,
+      "start": 1.221,
+      "done": 1.905,
+      "text": "What is the weather"
+     },
+     {
+      "word": 7,
+      "audio_s": 1.85,
+      "start": 1.905,
+      "done": 2.886,
+      "text": "What is the weather going to be like?"
+     },
+     {
+      "word": 9,
+      "audio_s": 2.325,
+      "start": 2.886,
+      "done": 3.766,
+      "text": "What is the weather like in San"
+     },
+     {
+      "word": 11,
+      "audio_s": 3.263,
+      "start": 3.766,
+      "done": 5.346,
+      "text": "What is the weather going to be like in San Francisco this"
+     },
+     {
+      "word": 17,
+      "audio_s": 5.162,
+      "start": 5.346,
+      "done": 7.349,
+      "text": "What is the weather going to be like in San Francisco this weekend? I want a plan a"
+     },
+     {
+      "word": 19,
+      "audio_s": 6.225,
+      "start": 7.349,
+      "done": 9.552,
+      "text": "What is the weather going to be like in San Francisco this weekend. I want to plan a long hike."
+     }
+    ],
+    "final": "What is the weather going to be like in San Francisco this weekend. I want to plan a long hike.",
+    "wer": 0.0,
+    "words": 20,
+    "steps_run": 8,
+    "words_skipped": 12,
+    "step_ms_mean": 1117.2,
+    "step_ms_p95": 2133.0,
+    "first_text_s": 0.671,
+    "word_latency_mean_s": 2.071,
+    "word_latency_p90_s": 3.396,
+    "rewrite_ratio": 0.333,
+    "final_latency_s": 1.96,
+    "end_to_final_s": 5.287
+   },
+   {
+    "segment": "unclear-fast-babble",
+    "steps": [
+     {
+      "word": 0,
+      "audio_s": 0.288,
+      "start": 0.288,
+      "done": 0.342,
+      "text": ""
+     },
+     {
+      "word": 1,
+      "audio_s": 0.4,
+      "start": 0.455,
+      "done": 0.61,
+      "text": ""
+     },
+     {
+      "word": 2,
+      "audio_s": 0.6,
+      "start": 0.61,
+      "done": 0.762,
+      "text": ""
+     },
+     {
+      "word": 3,
+      "audio_s": 0.863,
+      "start": 0.895,
+      "done": 1.396,
+      "text": ""
+     },
+     {
+      "word": 5,
+      "audio_s": 1.188,
+      "start": 1.396,
+      "done": 1.646,
+      "text": ""
+     },
+     {
+      "word": 6,
+      "audio_s": 1.725,
+      "start": 1.745,
+      "done": 2.178,
+      "text": ""
+     },
+     {
+      "word": 7,
+      "audio_s": 2.075,
+      "start": 2.178,
+      "done": 2.542,
+      "text": ""
+     },
+     {
+      "word": 9,
+      "audio_s": 2.425,
+      "start": 2.542,
+      "done": 3.019,
+      "text": ""
+     },
+     {
+      "word": 11,
+      "audio_s": 3.0,
+      "start": 3.019,
+      "done": 3.581,
+      "text": ""
+     },
+     {
+      "word": 13,
+      "audio_s": 3.338,
+      "start": 3.581,
+      "done": 3.957,
+      "text": ""
+     },
+     {
+      "word": 14,
+      "audio_s": 3.8,
+      "start": 3.957,
+      "done": 4.481,
+      "text": ""
+     },
+     {
+      "word": 16,
+      "audio_s": 4.1,
+      "start": 4.481,
+      "done": 5.12,
+      "text": ""
+     },
+     {
+      "word": 17,
+      "audio_s": 4.875,
+      "start": 5.12,
+      "done": 7.547,
+      "text": "Could you even much of all the quarterly numbers, roughly four point seven minutes before the committee sink on Thursday?"
+     }
+    ],
+    "final": "Could you even restore all the quartering numbers, roughly four point seven minutes before the committee sink on Thursday",
+    "wer": 0.5333333333333333,
+    "words": 18,
+    "steps_run": 13,
+    "words_skipped": 5,
+    "step_ms_mean": 531.8,
+    "step_ms_p95": 1354.2,
+    "first_text_s": 7.259,
+    "word_latency_mean_s": 5.232,
+    "word_latency_p90_s": 7.158,
+    "rewrite_ratio": 0.0,
+    "final_latency_s": 2.165,
+    "end_to_final_s": 4.837
+   },
+   {
+    "segment": "unclear-muffled",
+    "steps": [
+     {
+      "word": 0,
+      "audio_s": 0.438,
+      "start": 0.438,
+      "done": 0.509,
+      "text": ""
+     },
+     {
+      "word": 1,
+      "audio_s": 0.613,
+      "start": 0.62,
+      "done": 0.828,
+      "text": ""
+     },
+     {
+      "word": 2,
+      "audio_s": 0.7,
+      "start": 0.828,
+      "done": 1.05,
+      "text": ""
+     },
+     {
+      "word": 3,
+      "audio_s": 0.975,
+      "start": 1.05,
+      "done": 1.88,
+      "text": "Turn off the leaves."
+     },
+     {
+      "word": 5,
+      "audio_s": 1.75,
+      "start": 1.88,
+      "done": 3.076,
+      "text": "turn off the living room of light."
+     },
+     {
+      "word": 11,
+      "audio_s": 3.05,
+      "start": 3.076,
+      "done": 3.537,
+      "text": ""
+     },
+     {
+      "word": 12,
+      "audio_s": 3.263,
+      "start": 3.537,
+      "done": 4.177,
+      "text": ""
+     },
+     {
+      "word": 15,
+      "audio_s": 4.162,
+      "start": 4.177,
+      "done": 6.093,
+      "text": "Turn off the living room like lock the front door and place it in a quiet deck"
+     },
+     {
+      "word": 17,
+      "audio_s": 5.125,
+      "start": 6.093,
+      "done": 7.911,
+      "text": "turn off the living room lights, lock the front door and place them quite a jab at the bed."
+     }
+    ],
+    "final": "Turn off the living room lock the front door and place them a quiet dab in the bed.",
+    "wer": 0.3333333333333333,
+    "words": 18,
+    "steps_run": 9,
+    "words_skipped": 9,
+    "step_ms_mean": 818.0,
+    "step_ms_p95": 1876.8,
+    "first_text_s": 1.442,
+    "word_latency_mean_s": 3.163,
+    "word_latency_p90_s": 5.323,
+    "rewrite_ratio": 0.513,
+    "final_latency_s": 2.129,
+    "end_to_final_s": 4.915
+   }
+  ]
+ },
+ "parakeet-redux/cuda": {
+  "model": "parakeet-redux",
+  "device": "cuda",
+  "runtime": "moondream 2.6.1 Photon (official runtime), ternary",
+  "load_s": 7.110407600179315,
+  "warmup_s": 0.7111534001305699,
+  "offline": [
+   {
+    "segment": "clear-1",
+    "audio_s": 6.35,
+    "time_s": 0.10791040025651455,
+    "rtfx": 58.84511580816466,
+    "text": "Hey Jarvis, set a timer for 10 minutes and remind me to call the dentist tomorrow morning.",
+    "wer": 0.0
+   },
+   {
+    "segment": "clear-2",
+    "audio_s": 6.9,
+    "time_s": 0.06298549938946962,
+    "rtfx": 109.54902424975602,
+    "text": "What is the weather going to be like in San Francisco this weekend? I want to plan a long hike.",
+    "wer": 0.0
+   },
+   {
+    "segment": "unclear-fast-babble",
+    "audio_s": 5.525,
+    "time_s": 0.07800230011343956,
+    "rtfx": 70.83124461669637,
+    "text": "Could you eash have won the courting numbers, roughly 4.7 million, before the Kuhnletis sink on Thursday?",
+    "wer": 0.4
+   },
+   {
+    "segment": "unclear-muffled",
+    "audio_s": 6.2,
+    "time_s": 0.06153330020606518,
+    "rtfx": 100.75845077766334,
+    "text": "Turn off the living room might lock the front door and place some quiet dead as there.",
+    "wer": 0.3333333333333333
+   }
+  ],
+  "streaming": [
+   {
+    "segment": "clear-1",
+    "steps": [
+     {
+      "word": 0,
+      "audio_s": 0.512,
+      "start": 0.512,
+      "done": 0.557,
+      "text": "Hey,"
+     },
+     {
+      "word": 1,
+      "audio_s": 1.175,
+      "start": 1.175,
+      "done": 1.215,
+      "text": "Hey Jarvis"
+     },
+     {
+      "word": 2,
+      "audio_s": 1.438,
+      "start": 1.439,
+      "done": 1.483,
+      "text": "Hey Jarvis, said"
+     },
+     {
+      "word": 3,
+      "audio_s": 1.5,
+      "start": 1.5,
+      "done": 1.55,
+      "text": "Hey, Jarvis, said"
+     },
+     {
+      "word": 4,
+      "audio_s": 1.9,
+      "start": 1.9,
+      "done": 1.971,
+      "text": "Hey, Jarvis, said a timer."
+     },
+     {
+      "word": 5,
+      "audio_s": 2.062,
+      "start": 2.063,
+      "done": 2.132,
+      "text": "Hey Jarvis, said a timer for"
+     },
+     {
+      "word": 6,
+      "audio_s": 2.312,
+      "start": 2.312,
+      "done": 2.383,
+      "text": "Hey Jarvis, set a timer for 10."
+     },
+     {
+      "word": 7,
+      "audio_s": 2.962,
+      "start": 2.963,
+      "done": 3.032,
+      "text": "Hey, Jarvis, set a timer for ten minutes,"
+     },
+     {
+      "word": 8,
+      "audio_s": 3.1,
+      "start": 3.101,
+      "done": 3.171,
+      "text": "Hey Jarvis, set a timer for 10 minutes, and"
+     },
+     {
+      "word": 9,
+      "audio_s": 3.487,
+      "start": 3.488,
+      "done": 3.611,
+      "text": "Hey Jarvis, set a timer for 10 minutes, and remind"
+     },
+     {
+      "word": 10,
+      "audio_s": 3.6,
+      "start": 3.611,
+      "done": 3.727,
+      "text": "Hey Jarvis, set a timer for 10 minutes, and remind me"
+     },
+     {
+      "word": 11,
+      "audio_s": 3.725,
+      "start": 3.727,
+      "done": 3.844,
+      "text": "Hey Jarvis, set a timer for 10 minutes, and remind me to"
+     },
+     {
+      "word": 12,
+      "audio_s": 3.938,
+      "start": 3.938,
+      "done": 4.051,
+      "text": "Hey Jarvis, set a timer for 10 minutes, and remind me to call"
+     },
+     {
+      "word": 13,
+      "audio_s": 4.025,
+      "start": 4.051,
+      "done": 4.118,
+      "text": "Hey Jarvis, set a timer for 10 minutes, and remind me to call the"
+     },
+     {
+      "word": 14,
+      "audio_s": 4.6,
+      "start": 4.6,
+      "done": 4.669,
+      "text": "Hey Jarvis, set a timer for 10 minutes, and remind me to call the dentist."
+     },
+     {
+      "word": 15,
+      "audio_s": 5.0,
+      "start": 5.0,
+      "done": 5.076,
+      "text": "Hey Jarvis, set a timer for 10 minutes, and remind me to call the dentist tomorrow."
+     },
+     {
+      "word": 16,
+      "audio_s": 5.7,
+      "start": 5.7,
+      "done": 5.781,
+      "text": "Hey Jarvis, set a timer for ten minutes, and remind me to call the dentist to morrow morning."
+     }
+    ],
+    "final": "Hey Jarvis, set a timer for 10 minutes and remind me to call the dentist tomorrow morning.",
+    "wer": 0.0,
+    "words": 17,
+    "steps_run": 17,
+    "words_skipped": 0,
+    "step_ms_mean": 75.9,
+    "step_ms_p95": 118.2,
+    "first_text_s": 0.045,
+    "word_latency_mean_s": 0.156,
+    "word_latency_p90_s": 0.265,
+    "rewrite_ratio": 0.217,
+    "final_latency_s": 0.155,
+    "end_to_final_s": 0.806
+   },
+   {
+    "segment": "clear-2",
+    "steps": [
+     {
+      "word": 0,
+      "audio_s": 0.55,
+      "start": 0.55,
+      "done": 0.618,
+      "text": ""
+     },
+     {
+      "word": 1,
+      "audio_s": 0.7,
+      "start": 0.7,
+      "done": 0.776,
+      "text": "What is"
+     },
+     {
+      "word": 2,
+      "audio_s": 0.838,
+      "start": 0.839,
+      "done": 0.919,
+      "text": "What is the"
+     },
+     {
+      "word": 3,
+      "audio_s": 1.175,
+      "start": 1.175,
+      "done": 1.25,
+      "text": "What is the weather?"
+     },
+     {
+      "word": 4,
+      "audio_s": 1.363,
+      "start": 1.364,
+      "done": 1.452,
+      "text": "What is the weather going?"
+     },
+     {
+      "word": 5,
+      "audio_s": 1.438,
+      "start": 1.452,
+      "done": 1.533,
+      "text": "What is the weather going to?"
+     },
+     {
+      "word": 6,
+      "audio_s": 1.575,
+      "start": 1.575,
+      "done": 1.616,
+      "text": "What is the weather going to be?"
+     },
+     {
+      "word": 7,
+      "audio_s": 1.85,
+      "start": 1.851,
+      "done": 1.89,
+      "text": "What is the weather going to be like?"
+     },
+     {
+      "word": 8,
+      "audio_s": 2.013,
+      "start": 2.013,
+      "done": 2.057,
+      "text": "What is the weather going to be like in?"
+     },
+     {
+      "word": 9,
+      "audio_s": 2.325,
+      "start": 2.325,
+      "done": 2.371,
+      "text": "What is the weather going to be like in Santa?"
+     },
+     {
+      "word": 10,
+      "audio_s": 3.025,
+      "start": 3.026,
+      "done": 3.075,
+      "text": "What is the weather going to be like in San Francisco?"
+     },
+     {
+      "word": 11,
+      "audio_s": 3.263,
+      "start": 3.263,
+      "done": 3.308,
+      "text": "What is the weather going to be like in San Francisco this week?"
+     },
+     {
+      "word": 12,
+      "audio_s": 4.15,
+      "start": 4.15,
+      "done": 4.277,
+      "text": "What is the weather going to be like in San Francisco this weekend?"
+     },
+     {
+      "word": 13,
+      "audio_s": 4.45,
+      "start": 4.45,
+      "done": 4.564,
+      "text": "What is the weather going to be like in San Francisco this weekend?"
+     },
+     {
+      "word": 14,
+      "audio_s": 4.612,
+      "start": 4.612,
+      "done": 4.731,
+      "text": "What is the weather going to be like in San Francisco this weekend? I want"
+     },
+     {
+      "word": 15,
+      "audio_s": 4.7,
+      "start": 4.731,
+      "done": 4.853,
+      "text": "What is the weather going to be like in San Francisco this weekend? I want to"
+     },
+     {
+      "word": 16,
+      "audio_s": 5.05,
+      "start": 5.05,
+      "done": 5.165,
+      "text": "What is the weather going to be like in San Francisco this weekend? I want a plan"
+     },
+     {
+      "word": 17,
+      "audio_s": 5.162,
+      "start": 5.165,
+      "done": 5.292,
+      "text": "What is the weather going to be like in San Francisco this weekend? I want to plan a"
+     },
+     {
+      "word": 18,
+      "audio_s": 5.538,
+      "start": 5.539,
+      "done": 5.671,
+      "text": "What is the weather going to be like in San Francisco this weekend? I want to plan a long"
+     },
+     {
+      "word": 19,
+      "audio_s": 6.225,
+      "start": 6.226,
+      "done": 6.278,
+      "text": "What is the weather going to be like in San Francisco this weekend? I want to plan a long hike."
+     }
+    ],
+    "final": "What is the weather going to be like in San Francisco this weekend? I want to plan a long hike.",
+    "wer": 0.0,
+    "words": 20,
+    "steps_run": 20,
+    "words_skipped": 0,
+    "step_ms_mean": 82.0,
+    "step_ms_p95": 127.2,
+    "first_text_s": 0.226,
+    "word_latency_mean_s": 0.136,
+    "word_latency_p90_s": 0.232,
+    "rewrite_ratio": 0.2,
+    "final_latency_s": 0.057,
+    "end_to_final_s": 0.732
+   },
+   {
+    "segment": "unclear-fast-babble",
+    "steps": [
+     {
+      "word": 0,
+      "audio_s": 0.288,
+      "start": 0.288,
+      "done": 0.321,
+      "text": ""
+     },
+     {
+      "word": 1,
+      "audio_s": 0.4,
+      "start": 0.4,
+      "done": 0.455,
+      "text": ""
+     },
+     {
+      "word": 2,
+      "audio_s": 0.6,
+      "start": 0.601,
+      "done": 0.685,
+      "text": "Could you eat?"
+     },
+     {
+      "word": 3,
+      "audio_s": 0.863,
+      "start": 0.863,
+      "done": 0.912,
+      "text": "Could you eat support?"
+     },
+     {
+      "word": 4,
+      "audio_s": 0.938,
+      "start": 0.938,
+      "done": 0.98,
+      "text": "Could you notice?"
+     },
+     {
+      "word": 5,
+      "audio_s": 1.188,
+      "start": 1.188,
+      "done": 1.235,
+      "text": "Could you imagine the court?"
+     },
+     {
+      "word": 6,
+      "audio_s": 1.725,
+      "start": 1.725,
+      "done": 1.788,
+      "text": "Could you eat much of all the quarter numbers?"
+     },
+     {
+      "word": 7,
+      "audio_s": 2.075,
+      "start": 2.075,
+      "done": 2.182,
+      "text": "Could you image on the courty numbers? Roughly"
+     },
+     {
+      "word": 8,
+      "audio_s": 2.238,
+      "start": 2.239,
+      "done": 2.352,
+      "text": "Could you eat have on the porting numbers? Roughly four"
+     },
+     {
+      "word": 9,
+      "audio_s": 2.425,
+      "start": 2.426,
+      "done": 2.542,
+      "text": "Could you eash have on the courting numbers? Roughly 4."
+     },
+     {
+      "word": 10,
+      "audio_s": 2.613,
+      "start": 2.614,
+      "done": 2.731,
+      "text": "Could you eash have on the quarter numbers? Roughly 4.7"
+     },
+     {
+      "word": 11,
+      "audio_s": 3.0,
+      "start": 3.001,
+      "done": 3.119,
+      "text": "Could you eash have won the quarter numbers? Roughly 4.7 million."
+     },
+     {
+      "word": 12,
+      "audio_s": 3.263,
+      "start": 3.264,
+      "done": 3.381,
+      "text": "Could you eash have on the quarter numbers? Roughly 4.7 million."
+     },
+     {
+      "word": 13,
+      "audio_s": 3.338,
+      "start": 3.381,
+      "done": 3.509,
+      "text": "Could you eash have won the quarter numbers? Roughly 4.7 million. Before the"
+     },
+     {
+      "word": 14,
+      "audio_s": 3.8,
+      "start": 3.8,
+      "done": 3.931,
+      "text": "Could you Emochevone the quarter numbers, roughly 4.7 million, before the cubletti?"
+     },
+     {
+      "word": 15,
+      "audio_s": 3.988,
+      "start": 3.988,
+      "done": 4.047,
+      "text": "Could you Emo Shavan the quarter numbers, roughly 4.7 million, before the Coupletti?"
+     },
+     {
+      "word": 16,
+      "audio_s": 4.1,
+      "start": 4.101,
+      "done": 4.157,
+      "text": "Could you even shaven the quarter numbers, roughly 4.7 million, before the Kubernetes income?"
+     },
+     {
+      "word": 17,
+      "audio_s": 4.875,
+      "start": 4.875,
+      "done": 4.936,
+      "text": "Could you eash have won the quarter numbers, roughly 4.7 million, before the Kubernetes sink on Thursday?"
+     }
+    ],
+    "final": "Could you eash have won the courting numbers, roughly 4.7 million, before the Kuhnletis sink on Thursday?",
+    "wer": 0.4,
+    "words": 18,
+    "steps_run": 18,
+    "words_skipped": 0,
+    "step_ms_mean": 83.1,
+    "step_ms_p95": 128.5,
+    "first_text_s": 0.397,
+    "word_latency_mean_s": 0.306,
+    "word_latency_p90_s": 0.819,
+    "rewrite_ratio": 0.848,
+    "final_latency_s": 0.077,
+    "end_to_final_s": 0.728
+   },
+   {
+    "segment": "unclear-muffled",
+    "steps": [
+     {
+      "word": 0,
+      "audio_s": 0.438,
+      "start": 0.438,
+      "done": 0.472,
+      "text": ""
+     },
+     {
+      "word": 1,
+      "audio_s": 0.613,
+      "start": 0.613,
+      "done": 0.652,
+      "text": ""
+     },
+     {
+      "word": 2,
+      "audio_s": 0.7,
+      "start": 0.7,
+      "done": 0.732,
+      "text": ""
+     },
+     {
+      "word": 3,
+      "audio_s": 0.975,
+      "start": 0.975,
+      "done": 1.022,
+      "text": "Turn off the loop."
+     },
+     {
+      "word": 4,
+      "audio_s": 1.2,
+      "start": 1.201,
+      "done": 1.286,
+      "text": "There are lady one."
+     },
+     {
+      "word": 5,
+      "audio_s": 1.75,
+      "start": 1.75,
+      "done": 1.862,
+      "text": "turn off the living real life."
+     },
+     {
+      "word": 6,
+      "audio_s": 2.063,
+      "start": 2.063,
+      "done": 2.166,
+      "text": "Turn off the vision and like."
+     },
+     {
+      "word": 7,
+      "audio_s": 2.15,
+      "start": 2.166,
+      "done": 2.267,
+      "text": "Turn off the vision we were like."
+     },
+     {
+      "word": 8,
+      "audio_s": 2.4,
+      "start": 2.4,
+      "done": 2.511,
+      "text": "Turn off the vision, we were like, buck the front."
+     },
+     {
+      "word": 9,
+      "audio_s": 2.712,
+      "start": 2.712,
+      "done": 2.827,
+      "text": "Turn off the living room like lock the front door."
+     },
+     {
+      "word": 10,
+      "audio_s": 2.825,
+      "start": 2.827,
+      "done": 2.937,
+      "text": "Turn off the living room might lock the front door."
+     },
+     {
+      "word": 11,
+      "audio_s": 3.05,
+      "start": 3.05,
+      "done": 3.157,
+      "text": "Turn off the living room might lock the front door."
+     },
+     {
+      "word": 12,
+      "audio_s": 3.263,
+      "start": 3.264,
+      "done": 3.371,
+      "text": "Turn off the living room might lock the front door and face"
+     },
+     {
+      "word": 13,
+      "audio_s": 3.688,
+      "start": 3.689,
+      "done": 3.803,
+      "text": "Turn off the living room might lock the front door and place them quiet."
+     },
+     {
+      "word": 14,
+      "audio_s": 4.088,
+      "start": 4.088,
+      "done": 4.205,
+      "text": "Turn off the living room, might lock the front door and place from quiet dead."
+     },
+     {
+      "word": 15,
+      "audio_s": 4.162,
+      "start": 4.205,
+      "done": 4.32,
+      "text": "Turn off the living room might lock the front door and place from quiet dead."
+     },
+     {
+      "word": 16,
+      "audio_s": 4.25,
+      "start": 4.32,
+      "done": 4.412,
+      "text": "Turn off the living room might lock the front door and place some quiet dead."
+     },
+     {
+      "word": 17,
+      "audio_s": 5.125,
+      "start": 5.125,
+      "done": 5.177,
+      "text": "Turn off the living room, might lock the front door and place some quiet dad in bed."
+     }
+    ],
+    "final": "Turn off the living room might lock the front door and place some quiet dead as there.",
+    "wer": 0.3333333333333333,
+    "words": 18,
+    "steps_run": 18,
+    "words_skipped": 0,
+    "step_ms_mean": 88.5,
+    "step_ms_p95": 115.3,
+    "first_text_s": 0.584,
+    "word_latency_mean_s": 0.523,
+    "word_latency_p90_s": 1.122,
+    "rewrite_ratio": 0.653,
+    "final_latency_s": 0.094,
+    "end_to_final_s": 1.169
+   }
+  ]
+ },
+ "parakeet-redux/cpu": {
+  "model": "parakeet-redux",
+  "device": "cpu",
+  "error": "RuntimeError('Photon on Windows ships only a scalar CPU kernel and refuses ternary weights on it')"
+ },
+ "parakeet-redux-onnx/cuda": {
+  "model": "parakeet-redux-onnx",
+  "device": "cuda",
+  "runtime": "onnx-asr 0.12.0 / ORT 1.31.0, ternary as 4-bit MatMulNBits",
+  "load_s": 1.5228490000590682,
+  "warmup_s": 0.5095913000404835,
+  "offline": [
+   {
+    "segment": "clear-1",
+    "audio_s": 6.35,
+    "time_s": 0.15880140010267496,
+    "rtfx": 39.98705298501355,
+    "text": "Hey Jarvis, set a timer for 10 minutes and remind me to call the dentist tomorrow morning.",
+    "wer": 0.0
+   },
+   {
+    "segment": "clear-2",
+    "audio_s": 6.9,
+    "time_s": 0.21044819988310337,
+    "rtfx": 32.78716569603689,
+    "text": "What is the weather going to be like in San Francisco this weekend? I want to plan a long hike.",
+    "wer": 0.0
+   },
+   {
+    "segment": "unclear-fast-babble",
+    "audio_s": 5.525,
+    "time_s": 0.1049252999946475,
+    "rtfx": 52.65650896668243,
+    "text": "Could you eash have won the courting numbers, roughly 4.7 million, before the Kuhnletis sink on Thursday?",
+    "wer": 0.4
+   },
+   {
+    "segment": "unclear-muffled",
+    "audio_s": 6.2,
+    "time_s": 0.08030449971556664,
+    "rtfx": 77.20613442534355,
+    "text": "Turn off the living room might lock the front door and place some quiet dead as there.",
+    "wer": 0.3333333333333333
+   }
+  ],
+  "streaming": [
+   {
+    "segment": "clear-1",
+    "steps": [
+     {
+      "word": 0,
+      "audio_s": 0.512,
+      "start": 0.512,
+      "done": 0.548,
+      "text": "Hey,"
+     },
+     {
+      "word": 1,
+      "audio_s": 1.175,
+      "start": 1.176,
+      "done": 1.212,
+      "text": "Hey Jarvis"
+     },
+     {
+      "word": 2,
+      "audio_s": 1.438,
+      "start": 1.439,
+      "done": 1.498,
+      "text": "Hey Jarvis, said"
+     },
+     {
+      "word": 3,
+      "audio_s": 1.5,
+      "start": 1.5,
+      "done": 1.554,
+      "text": "Hey, Jarvis, said"
+     },
+     {
+      "word": 4,
+      "audio_s": 1.9,
+      "start": 1.9,
+      "done": 1.988,
+      "text": "Hey, Jarvis, said a timer."
+     },
+     {
+      "word": 5,
+      "audio_s": 2.062,
+      "start": 2.062,
+      "done": 2.142,
+      "text": "Hey Jarvis, said a timer for"
+     },
+     {
+      "word": 6,
+      "audio_s": 2.312,
+      "start": 2.312,
+      "done": 2.388,
+      "text": "Hey Jarvis, set a timer for 10."
+     },
+     {
+      "word": 7,
+      "audio_s": 2.962,
+      "start": 2.963,
+      "done": 3.039,
+      "text": "Hey, Jarvis, set a timer for ten minutes,"
+     },
+     {
+      "word": 8,
+      "audio_s": 3.1,
+      "start": 3.1,
+      "done": 3.181,
+      "text": "Hey Jarvis, set a timer for 10 minutes, and"
+     },
+     {
+      "word": 9,
+      "audio_s": 3.487,
+      "start": 3.487,
+      "done": 3.569,
+      "text": "Hey Jarvis, set a timer for 10 minutes, and remind"
+     },
+     {
+      "word": 10,
+      "audio_s": 3.6,
+      "start": 3.6,
+      "done": 3.679,
+      "text": "Hey Jarvis, set a timer for 10 minutes, and remind me"
+     },
+     {
+      "word": 11,
+      "audio_s": 3.725,
+      "start": 3.725,
+      "done": 3.787,
+      "text": "Hey Jarvis, set a timer for 10 minutes, and remind me to"
+     },
+     {
+      "word": 12,
+      "audio_s": 3.938,
+      "start": 3.938,
+      "done": 4.001,
+      "text": "Hey Jarvis, set a timer for 10 minutes, and remind me to call"
+     },
+     {
+      "word": 13,
+      "audio_s": 4.025,
+      "start": 4.025,
+      "done": 4.092,
+      "text": "Hey Jarvis, set a timer for 10 minutes, and remind me to call the"
+     },
+     {
+      "word": 14,
+      "audio_s": 4.6,
+      "start": 4.601,
+      "done": 4.667,
+      "text": "Hey Jarvis, set a timer for 10 minutes, and remind me to call the dentist."
+     },
+     {
+      "word": 15,
+      "audio_s": 5.0,
+      "start": 5.0,
+      "done": 5.076,
+      "text": "Hey Jarvis, set a timer for 10 minutes, and remind me to call the dentist tomorrow."
+     },
+     {
+      "word": 16,
+      "audio_s": 5.7,
+      "start": 5.7,
+      "done": 5.777,
+      "text": "Hey Jarvis, set a timer for ten minutes, and remind me to call the dentist to morrow morning."
+     }
+    ],
+    "final": "Hey Jarvis, set a timer for 10 minutes and remind me to call the dentist tomorrow morning.",
+    "wer": 0.0,
+    "words": 17,
+    "steps_run": 17,
+    "words_skipped": 0,
+    "step_ms_mean": 68.1,
+    "step_ms_p95": 83.2,
+    "first_text_s": 0.036,
+    "word_latency_mean_s": 0.146,
+    "word_latency_p90_s": 0.248,
+    "rewrite_ratio": 0.217,
+    "final_latency_s": 0.108,
+    "end_to_final_s": 0.759
+   },
+   {
+    "segment": "clear-2",
+    "steps": [
+     {
+      "word": 0,
+      "audio_s": 0.55,
+      "start": 0.551,
+      "done": 0.58,
+      "text": ""
+     },
+     {
+      "word": 1,
+      "audio_s": 0.7,
+      "start": 0.7,
+      "done": 0.735,
+      "text": "What is"
+     },
+     {
+      "word": 2,
+      "audio_s": 0.838,
+      "start": 0.839,
+      "done": 0.877,
+      "text": "What is the"
+     },
+     {
+      "word": 3,
+      "audio_s": 1.175,
+      "start": 1.176,
+      "done": 1.227,
+      "text": "What is the weather?"
+     },
+     {
+      "word": 4,
+      "audio_s": 1.363,
+      "start": 1.364,
+      "done": 1.433,
+      "text": "What is the weather going?"
+     },
+     {
+      "word": 5,
+      "audio_s": 1.438,
+      "start": 1.439,
+      "done": 1.51,
+      "text": "What is the weather going to?"
+     },
+     {
+      "word": 6,
+      "audio_s": 1.575,
+      "start": 1.576,
+      "done": 1.649,
+      "text": "What is the weather going to be?"
+     },
+     {
+      "word": 7,
+      "audio_s": 1.85,
+      "start": 1.851,
+      "done": 1.919,
+      "text": "What is the weather going to be like?"
+     },
+     {
+      "word": 8,
+      "audio_s": 2.013,
+      "start": 2.014,
+      "done": 2.076,
+      "text": "What is the weather going to be like in?"
+     },
+     {
+      "word": 9,
+      "audio_s": 2.325,
+      "start": 2.325,
+      "done": 2.387,
+      "text": "What is the weather going to be like in Santa?"
+     },
+     {
+      "word": 10,
+      "audio_s": 3.025,
+      "start": 3.026,
+      "done": 3.089,
+      "text": "What is the weather going to be like in San Francisco?"
+     },
+     {
+      "word": 11,
+      "audio_s": 3.263,
+      "start": 3.264,
+      "done": 3.333,
+      "text": "What is the weather going to be like in San Francisco this week?"
+     },
+     {
+      "word": 12,
+      "audio_s": 4.15,
+      "start": 4.15,
+      "done": 4.258,
+      "text": "What is the weather going to be like in San Francisco this weekend?"
+     },
+     {
+      "word": 13,
+      "audio_s": 4.45,
+      "start": 4.45,
+      "done": 4.571,
+      "text": "What is the weather going to be like in San Francisco this weekend?"
+     },
+     {
+      "word": 14,
+      "audio_s": 4.612,
+      "start": 4.612,
+      "done": 4.714,
+      "text": "What is the weather going to be like in San Francisco this weekend? I want"
+     },
+     {
+      "word": 15,
+      "audio_s": 4.7,
+      "start": 4.714,
+      "done": 4.808,
+      "text": "What is the weather going to be like in San Francisco this weekend? I want to"
+     },
+     {
+      "word": 16,
+      "audio_s": 5.05,
+      "start": 5.051,
+      "done": 5.119,
+      "text": "What is the weather going to be like in San Francisco this weekend? I want a plan"
+     },
+     {
+      "word": 17,
+      "audio_s": 5.162,
+      "start": 5.162,
+      "done": 5.241,
+      "text": "What is the weather going to be like in San Francisco this weekend? I want to plan a"
+     },
+     {
+      "word": 18,
+      "audio_s": 5.538,
+      "start": 5.538,
+      "done": 5.611,
+      "text": "What is the weather going to be like in San Francisco this weekend? I want to plan a long"
+     },
+     {
+      "word": 19,
+      "audio_s": 6.225,
+      "start": 6.225,
+      "done": 6.308,
+      "text": "What is the weather going to be like in San Francisco this weekend? I want to plan a long hike."
+     }
+    ],
+    "final": "What is the weather going to be like in San Francisco this weekend? I want to plan a long hike.",
+    "wer": 0.0,
+    "words": 20,
+    "steps_run": 20,
+    "words_skipped": 0,
+    "step_ms_mean": 70.9,
+    "step_ms_p95": 108.6,
+    "first_text_s": 0.185,
+    "word_latency_mean_s": 0.122,
+    "word_latency_p90_s": 0.193,
+    "rewrite_ratio": 0.2,
+    "final_latency_s": 0.084,
+    "end_to_final_s": 0.76
+   },
+   {
+    "segment": "unclear-fast-babble",
+    "steps": [
+     {
+      "word": 0,
+      "audio_s": 0.288,
+      "start": 0.288,
+      "done": 0.312,
+      "text": ""
+     },
+     {
+      "word": 1,
+      "audio_s": 0.4,
+      "start": 0.4,
+      "done": 0.429,
+      "text": ""
+     },
+     {
+      "word": 2,
+      "audio_s": 0.6,
+      "start": 0.6,
+      "done": 0.633,
+      "text": "Could you eat?"
+     },
+     {
+      "word": 3,
+      "audio_s": 0.863,
+      "start": 0.863,
+      "done": 0.911,
+      "text": "Could you eat support?"
+     },
+     {
+      "word": 4,
+      "audio_s": 0.938,
+      "start": 0.938,
+      "done": 0.984,
+      "text": "Could you?"
+     },
+     {
+      "word": 5,
+      "audio_s": 1.188,
+      "start": 1.188,
+      "done": 1.242,
+      "text": "Could you imagine the court?"
+     },
+     {
+      "word": 6,
+      "audio_s": 1.725,
+      "start": 1.725,
+      "done": 1.824,
+      "text": "Could you eat much of all the quarter numbers?"
+     },
+     {
+      "word": 7,
+      "audio_s": 2.075,
+      "start": 2.076,
+      "done": 2.182,
+      "text": "Could you image on the courty numbers? Roughly"
+     },
+     {
+      "word": 8,
+      "audio_s": 2.238,
+      "start": 2.238,
+      "done": 2.339,
+      "text": "Could you eat have on the porting numbers? Roughly four"
+     },
+     {
+      "word": 9,
+      "audio_s": 2.425,
+      "start": 2.425,
+      "done": 2.528,
+      "text": "Could you eash have on the courting numbers? Roughly 4."
+     },
+     {
+      "word": 10,
+      "audio_s": 2.613,
+      "start": 2.613,
+      "done": 2.705,
+      "text": "Could you eash have on the quarter numbers? Roughly 4.7"
+     },
+     {
+      "word": 11,
+      "audio_s": 3.0,
+      "start": 3.0,
+      "done": 3.097,
+      "text": "Could you eash have won the quarter numbers? Roughly 4.7 million."
+     },
+     {
+      "word": 12,
+      "audio_s": 3.263,
+      "start": 3.264,
+      "done": 3.355,
+      "text": "Could you eash have won the quarter numbers? Roughly 4.7 million."
+     },
+     {
+      "word": 13,
+      "audio_s": 3.338,
+      "start": 3.355,
+      "done": 3.448,
+      "text": "Could you eash have won the quarter numbers? Roughly 4.7 million. Before the"
+     },
+     {
+      "word": 14,
+      "audio_s": 3.8,
+      "start": 3.8,
+      "done": 3.877,
+      "text": "Could you Emochewan the quarter numbers, roughly 4.7 million, before the cubletti?"
+     },
+     {
+      "word": 15,
+      "audio_s": 3.988,
+      "start": 3.988,
+      "done": 4.059,
+      "text": "Could you Emo Shavan the quarter numbers, roughly 4.7 million, before the Coupletti?"
+     },
+     {
+      "word": 16,
+      "audio_s": 4.1,
+      "start": 4.1,
+      "done": 4.175,
+      "text": "Could you even shave on the quarter numbers, roughly 4.7 million, before the Kubernetes income?"
+     },
+     {
+      "word": 17,
+      "audio_s": 4.875,
+      "start": 4.875,
+      "done": 4.95,
+      "text": "Could you eash have won the quarter numbers, roughly 4.7 million, before the Kubernetes sink on Thursday?"
+     }
+    ],
+    "final": "Could you eash have won the courting numbers, roughly 4.7 million, before the Kuhnletis sink on Thursday?",
+    "wer": 0.4,
+    "words": 18,
+    "steps_run": 18,
+    "words_skipped": 0,
+    "step_ms_mean": 73.0,
+    "step_ms_p95": 103.5,
+    "first_text_s": 0.345,
+    "word_latency_mean_s": 0.291,
+    "word_latency_p90_s": 0.837,
+    "rewrite_ratio": 0.828,
+    "final_latency_s": 0.121,
+    "end_to_final_s": 0.772
+   },
+   {
+    "segment": "unclear-muffled",
+    "steps": [
+     {
+      "word": 0,
+      "audio_s": 0.438,
+      "start": 0.438,
+      "done": 0.466,
+      "text": ""
+     },
+     {
+      "word": 1,
+      "audio_s": 0.613,
+      "start": 0.613,
+      "done": 0.644,
+      "text": ""
+     },
+     {
+      "word": 2,
+      "audio_s": 0.7,
+      "start": 0.701,
+      "done": 0.732,
+      "text": ""
+     },
+     {
+      "word": 3,
+      "audio_s": 0.975,
+      "start": 0.975,
+      "done": 1.019,
+      "text": "Turn off the loop."
+     },
+     {
+      "word": 4,
+      "audio_s": 1.2,
+      "start": 1.2,
+      "done": 1.252,
+      "text": "There are lady one."
+     },
+     {
+      "word": 5,
+      "audio_s": 1.75,
+      "start": 1.75,
+      "done": 1.874,
+      "text": "turn off the living and life."
+     },
+     {
+      "word": 6,
+      "audio_s": 2.063,
+      "start": 2.063,
+      "done": 2.189,
+      "text": "Turn off the vision and like"
+     },
+     {
+      "word": 7,
+      "audio_s": 2.15,
+      "start": 2.189,
+      "done": 2.29,
+      "text": "Turn off the vision we were like."
+     },
+     {
+      "word": 8,
+      "audio_s": 2.4,
+      "start": 2.4,
+      "done": 2.502,
+      "text": "Turn off the vision we were like, buck the front."
+     },
+     {
+      "word": 9,
+      "audio_s": 2.712,
+      "start": 2.712,
+      "done": 2.812,
+      "text": "Turn off the living room like lock the front door."
+     },
+     {
+      "word": 10,
+      "audio_s": 2.825,
+      "start": 2.825,
+      "done": 2.924,
+      "text": "Turn off the living room might lock the front door."
+     },
+     {
+      "word": 11,
+      "audio_s": 3.05,
+      "start": 3.05,
+      "done": 3.136,
+      "text": "Turn off the living room might lock the front door."
+     },
+     {
+      "word": 12,
+      "audio_s": 3.263,
+      "start": 3.263,
+      "done": 3.35,
+      "text": "Turn off the living room might lock the front door and face"
+     },
+     {
+      "word": 13,
+      "audio_s": 3.688,
+      "start": 3.688,
+      "done": 3.783,
+      "text": "Turn off the living room might lock the front door and place them quiet."
+     },
+     {
+      "word": 14,
+      "audio_s": 4.088,
+      "start": 4.089,
+      "done": 4.183,
+      "text": "Turn off the living room, might lock the front door and place from quiet dead."
+     },
+     {
+      "word": 15,
+      "audio_s": 4.162,
+      "start": 4.183,
+      "done": 4.277,
+      "text": "Turn off the living room might lock the front door and place from quiet dead."
+     },
+     {
+      "word": 16,
+      "audio_s": 4.25,
+      "start": 4.277,
+      "done": 4.378,
+      "text": "Turn off the living room might lock the front door and place some quiet dead."
+     },
+     {
+      "word": 17,
+      "audio_s": 5.125,
+      "start": 5.125,
+      "done": 5.205,
+      "text": "Turn off the living room, might lock the front door and place some quiet dad in bed."
+     }
+    ],
+    "final": "Turn off the living room might lock the front door and place some quiet dead as there.",
+    "wer": 0.3333333333333333,
+    "words": 18,
+    "steps_run": 18,
+    "words_skipped": 0,
+    "step_ms_mean": 81.9,
+    "step_ms_p95": 124.3,
+    "first_text_s": 0.581,
+    "word_latency_mean_s": 0.494,
+    "word_latency_p90_s": 1.101,
+    "rewrite_ratio": 0.653,
+    "final_latency_s": 0.143,
+    "end_to_final_s": 1.218
+   }
+  ]
+ },
+ "parakeet-redux-onnx/cpu": {
+  "model": "parakeet-redux-onnx",
+  "device": "cpu",
+  "runtime": "onnx-asr 0.12.0 / ORT 1.31.0, ternary as 4-bit MatMulNBits",
+  "load_s": 1.17597739957273,
+  "warmup_s": 3.687518699094653,
+  "offline": [
+   {
+    "segment": "clear-1",
+    "audio_s": 6.35,
+    "time_s": 1.366704300045967,
+    "rtfx": 4.646213522403073,
+    "text": "Hey Jarvis, set a timer for 10 minutes and remind me to call the dentist tomorrow morning.",
+    "wer": 0.0
+   },
+   {
+    "segment": "clear-2",
+    "audio_s": 6.9,
+    "time_s": 1.2839939994737506,
+    "rtfx": 5.37385688938421,
+    "text": "What is the weather going to be like in San Francisco this weekend? I want to plan a long hike.",
+    "wer": 0.0
+   },
+   {
+    "segment": "unclear-fast-babble",
+    "audio_s": 5.525,
+    "time_s": 1.4583038995042443,
+    "rtfx": 3.7886478955986087,
+    "text": "Could you eash have won the courting numbers, roughly 4.7 million, before the Kuhnletis sink on Thursday?",
+    "wer": 0.4
+   },
+   {
+    "segment": "unclear-muffled",
+    "audio_s": 6.2,
+    "time_s": 1.0934495003893971,
+    "rtfx": 5.670129254064379,
+    "text": "Turn off the living room might lock the front door and place some quiet dead as there.",
+    "wer": 0.3333333333333333
+   }
+  ],
+  "streaming": [
+   {
+    "segment": "clear-1",
+    "steps": [
+     {
+      "word": 0,
+      "audio_s": 0.512,
+      "start": 0.512,
+      "done": 0.63,
+      "text": "Hey,"
+     },
+     {
+      "word": 1,
+      "audio_s": 1.175,
+      "start": 1.175,
+      "done": 1.343,
+      "text": "Hey Jarvis"
+     },
+     {
+      "word": 2,
+      "audio_s": 1.438,
+      "start": 1.441,
+      "done": 2.134,
+      "text": "Hey Jarvis, said"
+     },
+     {
+      "word": 5,
+      "audio_s": 2.062,
+      "start": 2.134,
+      "done": 2.924,
+      "text": "Hey Jarvis, said a timer for"
+     },
+     {
+      "word": 6,
+      "audio_s": 2.312,
+      "start": 2.924,
+      "done": 3.621,
+      "text": "Hey Jarvis, set a timer for 10."
+     },
+     {
+      "word": 10,
+      "audio_s": 3.6,
+      "start": 3.621,
+      "done": 4.768,
+      "text": "Hey Jarvis, set a timer for 10 minutes, and remind me"
+     },
+     {
+      "word": 14,
+      "audio_s": 4.6,
+      "start": 4.768,
+      "done": 5.812,
+      "text": "Hey Jarvis, set a timer for 10 minutes, and remind me to call the dentist."
+     },
+     {
+      "word": 16,
+      "audio_s": 5.7,
+      "start": 5.812,
+      "done": 6.886,
+      "text": "Hey Jarvis, set a timer for ten minutes, and remind me to call the dentist to morrow morning."
+     }
+    ],
+    "final": "Hey Jarvis, set a timer for 10 minutes and remind me to call the dentist tomorrow morning.",
+    "wer": 0.0,
+    "words": 17,
+    "steps_run": 8,
+    "words_skipped": 9,
+    "step_ms_mean": 716.4,
+    "step_ms_p95": 1121.4,
+    "first_text_s": 0.118,
+    "word_latency_mean_s": 1.415,
+    "word_latency_p90_s": 2.125,
+    "rewrite_ratio": 0.182,
+    "final_latency_s": 1.007,
+    "end_to_final_s": 2.194
+   },
+   {
+    "segment": "clear-2",
+    "steps": [
+     {
+      "word": 0,
+      "audio_s": 0.55,
+      "start": 0.55,
+      "done": 0.76,
+      "text": ""
+     },
+     {
+      "word": 1,
+      "audio_s": 0.7,
+      "start": 0.76,
+      "done": 1.38,
+      "text": "What is"
+     },
+     {
+      "word": 4,
+      "audio_s": 1.363,
+      "start": 1.38,
+      "done": 2.023,
+      "text": "What is the weather going?"
+     },
+     {
+      "word": 8,
+      "audio_s": 2.013,
+      "start": 2.023,
+      "done": 2.95,
+      "text": "What is the weather going to be like in?"
+     },
+     {
+      "word": 9,
+      "audio_s": 2.325,
+      "start": 2.95,
+      "done": 3.843,
+      "text": "What is the weather going to be like in Santa?"
+     },
+     {
+      "word": 11,
+      "audio_s": 3.263,
+      "start": 3.843,
+      "done": 4.714,
+      "text": "What is the weather going to be like in San Francisco this week?"
+     },
+     {
+      "word": 15,
+      "audio_s": 4.7,
+      "start": 4.714,
+      "done": 5.524,
+      "text": "What is the weather going to be like in San Francisco this weekend? I want to"
+     },
+     {
+      "word": 17,
+      "audio_s": 5.162,
+      "start": 5.524,
+      "done": 6.418,
+      "text": "What is the weather going to be like in San Francisco this weekend? I want to plan a"
+     },
+     {
+      "word": 19,
+      "audio_s": 6.225,
+      "start": 6.418,
+      "done": 7.388,
+      "text": "What is the weather going to be like in San Francisco this weekend? I want to plan a long hike."
+     }
+    ],
+    "final": "What is the weather going to be like in San Francisco this weekend? I want to plan a long hike.",
+    "wer": 0.0,
+    "words": 20,
+    "steps_run": 9,
+    "words_skipped": 11,
+    "step_ms_mean": 759.8,
+    "step_ms_p95": 952.8,
+    "first_text_s": 0.83,
+    "word_latency_mean_s": 1.224,
+    "word_latency_p90_s": 1.705,
+    "rewrite_ratio": 0.091,
+    "final_latency_s": 1.16,
+    "end_to_final_s": 2.323
+   },
+   {
+    "segment": "unclear-fast-babble",
+    "steps": [
+     {
+      "word": 0,
+      "audio_s": 0.288,
+      "start": 0.29,
+      "done": 0.632,
+      "text": ""
+     },
+     {
+      "word": 2,
+      "audio_s": 0.6,
+      "start": 0.632,
+      "done": 1.233,
+      "text": "Could you eat?"
+     },
+     {
+      "word": 5,
+      "audio_s": 1.188,
+      "start": 1.233,
+      "done": 1.887,
+      "text": "Could you imagine the court?"
+     },
+     {
+      "word": 6,
+      "audio_s": 1.725,
+      "start": 1.887,
+      "done": 2.644,
+      "text": "Could you eat much of all the quarter numbers?"
+     },
+     {
+      "word": 10,
+      "audio_s": 2.613,
+      "start": 2.644,
+      "done": 3.631,
+      "text": "Could you eash have on the quarter numbers? Roughly 4.7"
+     },
+     {
+      "word": 13,
+      "audio_s": 3.338,
+      "start": 3.631,
+      "done": 4.677,
+      "text": "Could you eash have won the quarter numbers? Roughly 4.7 million. Before the"
+     },
+     {
+      "word": 16,
+      "audio_s": 4.1,
+      "start": 4.677,
+      "done": 5.576,
+      "text": "Could you even shave on the quarter numbers, roughly 4.7 million, before the Kubernetes income?"
+     },
+     {
+      "word": 17,
+      "audio_s": 4.875,
+      "start": 5.576,
+      "done": 6.881,
+      "text": "Could you eash have won the quarter numbers, roughly 4.7 million, before the Kubernetes sink on Thursday?"
+     }
+    ],
+    "final": "Could you eash have won the courting numbers, roughly 4.7 million, before the Kuhnletis sink on Thursday?",
+    "wer": 0.4,
+    "words": 18,
+    "steps_run": 8,
+    "words_skipped": 10,
+    "step_ms_mean": 823.9,
+    "step_ms_p95": 1214.4,
+    "first_text_s": 0.945,
+    "word_latency_mean_s": 1.511,
+    "word_latency_p90_s": 2.238,
+    "rewrite_ratio": 0.709,
+    "final_latency_s": 1.003,
+    "end_to_final_s": 3.009
+   },
+   {
+    "segment": "unclear-muffled",
+    "steps": [
+     {
+      "word": 0,
+      "audio_s": 0.438,
+      "start": 0.44,
+      "done": 0.628,
+      "text": ""
+     },
+     {
+      "word": 1,
+      "audio_s": 0.613,
+      "start": 0.628,
+      "done": 1.351,
+      "text": ""
+     },
+     {
+      "word": 4,
+      "audio_s": 1.2,
+      "start": 1.351,
+      "done": 2.002,
+      "text": "There are lady one."
+     },
+     {
+      "word": 5,
+      "audio_s": 1.75,
+      "start": 2.002,
+      "done": 2.797,
+      "text": "turn off the living and life."
+     },
+     {
+      "word": 9,
+      "audio_s": 2.712,
+      "start": 2.797,
+      "done": 3.659,
+      "text": "Turn off the living room like lock the front door."
+     },
+     {
+      "word": 12,
+      "audio_s": 3.263,
+      "start": 3.659,
+      "done": 4.558,
+      "text": "Turn off the living room might lock the front door and face"
+     },
+     {
+      "word": 16,
+      "audio_s": 4.25,
+      "start": 4.558,
+      "done": 5.515,
+      "text": "Turn off the living room might lock the front door and place some quiet dead."
+     },
+     {
+      "word": 17,
+      "audio_s": 5.125,
+      "start": 5.515,
+      "done": 6.61,
+      "text": "Turn off the living room, might lock the front door and place some quiet dad in bed."
+     }
+    ],
+    "final": "Turn off the living room might lock the front door and place some quiet dead as there.",
+    "wer": 0.3333333333333333,
+    "words": 18,
+    "steps_run": 8,
+    "words_skipped": 10,
+    "step_ms_mean": 771.2,
+    "step_ms_p95": 1046.7,
+    "first_text_s": 1.564,
+    "word_latency_mean_s": 1.749,
+    "word_latency_p90_s": 2.43,
+    "rewrite_ratio": 0.433,
+    "final_latency_s": 0.979,
+    "end_to_final_s": 2.464
+   }
+  ]
+ },
+ "phonon-2/cpu": {
+  "model": "phonon-2",
+  "device": "cpu",
+  "runtime": "fermion-research CPU engine, HTTP",
+  "load_s": 6.043756400234997,
+  "warmup_s": 0.281874000094831,
+  "offline": [
+   {
+    "segment": "clear-1",
+    "audio_s": 6.35,
+    "time_s": 0.2746401000767946,
+    "rtfx": 23.121168388099257,
+    "text": "Hey Jarvis, set a timer for ten minutes, and remind me to call the dentist to morrow morning.",
+    "wer": 0.11764705882352941
+   },
+   {
+    "segment": "clear-2",
+    "audio_s": 6.9,
+    "time_s": 0.2837773999199271,
+    "rtfx": 24.314832689097013,
+    "text": "What is the weather going to be like in San Francisco this weekend? I want to plan a long hike.",
+    "wer": 0.0
+   },
+   {
+    "segment": "unclear-fast-babble",
+    "audio_s": 5.525,
+    "time_s": 0.25719140004366636,
+    "rtfx": 21.482055772712297,
+    "text": "Could you be much of all the quarterly numbers? Roughly four point seven million before the Good Let's sink on Thursday.",
+    "wer": 0.5333333333333333
+   },
+   {
+    "segment": "unclear-muffled",
+    "audio_s": 6.2,
+    "time_s": 0.2726981993764639,
+    "rtfx": 22.735757017012087,
+    "text": "turn off the living room like lock the front door and place some quiet gad in the bedroom.",
+    "wer": 0.16666666666666666
+   }
+  ],
+  "streaming": [
+   {
+    "segment": "clear-1",
+    "steps": [
+     {
+      "word": 0,
+      "audio_s": 0.512,
+      "start": 0.513,
+      "done": 0.602,
+      "text": "Hate"
+     },
+     {
+      "word": 1,
+      "audio_s": 1.175,
+      "start": 1.175,
+      "done": 1.248,
+      "text": "Hey Jarvis,"
+     },
+     {
+      "word": 2,
+      "audio_s": 1.438,
+      "start": 1.439,
+      "done": 1.518,
+      "text": "Hey Jarvis, said"
+     },
+     {
+      "word": 3,
+      "audio_s": 1.5,
+      "start": 1.518,
+      "done": 1.594,
+      "text": "Hey Jarvis, said a man."
+     },
+     {
+      "word": 4,
+      "audio_s": 1.9,
+      "start": 1.9,
+      "done": 1.992,
+      "text": "Hey, Jarvis, said a timer with a little"
+     },
+     {
+      "word": 5,
+      "audio_s": 2.062,
+      "start": 2.063,
+      "done": 2.173,
+      "text": "Hey Jarvis, set a timer for Jack."
+     },
+     {
+      "word": 6,
+      "audio_s": 2.312,
+      "start": 2.312,
+      "done": 2.424,
+      "text": "Hey Jarvis, set a timer for ten minutes."
+     },
+     {
+      "word": 7,
+      "audio_s": 2.962,
+      "start": 2.962,
+      "done": 3.108,
+      "text": "Hey Jarvis, set a timer for ten minutes, and"
+     },
+     {
+      "word": 8,
+      "audio_s": 3.1,
+      "start": 3.108,
+      "done": 3.242,
+      "text": "Hey Jarvis, set a timer for ten minutes and read."
+     },
+     {
+      "word": 9,
+      "audio_s": 3.487,
+      "start": 3.488,
+      "done": 3.663,
+      "text": "Hey Jarvis, set a timer for ten minutes and remind me."
+     },
+     {
+      "word": 10,
+      "audio_s": 3.6,
+      "start": 3.663,
+      "done": 3.824,
+      "text": "Hey Jarvis, set a timer for ten minutes and remind me of the"
+     },
+     {
+      "word": 11,
+      "audio_s": 3.725,
+      "start": 3.824,
+      "done": 3.987,
+      "text": "Hey Jarvis, set a timer for ten minutes, and remind me to call me."
+     },
+     {
+      "word": 12,
+      "audio_s": 3.938,
+      "start": 3.987,
+      "done": 4.163,
+      "text": "Hey Jarvis, set a timer for ten minutes, and remind me to call you."
+     },
+     {
+      "word": 13,
+      "audio_s": 4.025,
+      "start": 4.163,
+      "done": 4.344,
+      "text": "Hey Jarvis, set a timer for ten minutes, and remind me to call the"
+     },
+     {
+      "word": 14,
+      "audio_s": 4.6,
+      "start": 4.6,
+      "done": 4.8,
+      "text": "Hey Jarvis, set a timer for ten minutes, and remind me to call the dentist"
+     },
+     {
+      "word": 15,
+      "audio_s": 5.0,
+      "start": 5.001,
+      "done": 5.215,
+      "text": "Hey Jarvis, set a timer for ten minutes, and remind me to call the dentist tomorrow morning."
+     },
+     {
+      "word": 16,
+      "audio_s": 5.7,
+      "start": 5.7,
+      "done": 5.93,
+      "text": "Hey Jarvis, set a timer for ten minutes, and remind me to call the dentist to morrow morning."
+     }
+    ],
+    "final": "Hey Jarvis, set a timer for ten minutes, and remind me to call the dentist to morrow morning.",
+    "wer": 0.11764705882352941,
+    "words": 17,
+    "steps_run": 17,
+    "words_skipped": 0,
+    "step_ms_mean": 141.8,
+    "step_ms_p95": 217.2,
+    "first_text_s": 0.09,
+    "word_latency_mean_s": 0.1,
+    "word_latency_p90_s": 0.451,
+    "rewrite_ratio": 0.471,
+    "final_latency_s": 0.286,
+    "end_to_final_s": 0.936
+   },
+   {
+    "segment": "clear-2",
+    "steps": [
+     {
+      "word": 0,
+      "audio_s": 0.55,
+      "start": 0.55,
+      "done": 0.594,
+      "text": "What"
+     },
+     {
+      "word": 1,
+      "audio_s": 0.7,
+      "start": 0.7,
+      "done": 0.763,
+      "text": "What is the thing?"
+     },
+     {
+      "word": 2,
+      "audio_s": 0.838,
+      "start": 0.839,
+      "done": 0.921,
+      "text": "What is the word?"
+     },
+     {
+      "word": 3,
+      "audio_s": 1.175,
+      "start": 1.176,
+      "done": 1.242,
+      "text": "What is the weather going?"
+     },
+     {
+      "word": 4,
+      "audio_s": 1.363,
+      "start": 1.363,
+      "done": 1.445,
+      "text": "What is the weather going on?"
+     },
+     {
+      "word": 5,
+      "audio_s": 1.438,
+      "start": 1.445,
+      "done": 1.518,
+      "text": "What is the weather going to be?"
+     },
+     {
+      "word": 6,
+      "audio_s": 1.575,
+      "start": 1.576,
+      "done": 1.701,
+      "text": "What is the weather going to be like?"
+     },
+     {
+      "word": 7,
+      "audio_s": 1.85,
+      "start": 1.85,
+      "done": 1.953,
+      "text": "What is the weather going to be like?"
+     },
+     {
+      "word": 8,
+      "audio_s": 2.013,
+      "start": 2.013,
+      "done": 2.15,
+      "text": "What is the weather going to be like in"
+     },
+     {
+      "word": 9,
+      "audio_s": 2.325,
+      "start": 2.326,
+      "done": 2.459,
+      "text": "What is the weather going to be like in San Francisco?"
+     },
+     {
+      "word": 10,
+      "audio_s": 3.025,
+      "start": 3.026,
+      "done": 3.186,
+      "text": "What is the weather going to be like in San Francisco?"
+     },
+     {
+      "word": 11,
+      "audio_s": 3.263,
+      "start": 3.263,
+      "done": 3.425,
+      "text": "What is the weather going to be like in San Francisco this week?"
+     },
+     {
+      "word": 12,
+      "audio_s": 4.15,
+      "start": 4.151,
+      "done": 4.325,
+      "text": "What is the weather going to be like in San Francisco this weekend?"
+     },
+     {
+      "word": 13,
+      "audio_s": 4.45,
+      "start": 4.451,
+      "done": 4.676,
+      "text": "What is the weather going to be like in San Francisco this weekend?"
+     },
+     {
+      "word": 14,
+      "audio_s": 4.612,
+      "start": 4.676,
+      "done": 4.864,
+      "text": "What is the weather going to be like in San Francisco this weekend?"
+     },
+     {
+      "word": 15,
+      "audio_s": 4.7,
+      "start": 4.864,
+      "done": 5.057,
+      "text": "What is the weather going to be like in San Francisco this weekend?"
+     },
+     {
+      "word": 16,
+      "audio_s": 5.05,
+      "start": 5.058,
+      "done": 5.257,
+      "text": "What is the weather going to be like in San Francisco this weekend?"
+     },
+     {
+      "word": 17,
+      "audio_s": 5.162,
+      "start": 5.257,
+      "done": 5.468,
+      "text": "What is the weather going to be like in San Francisco this weekend?"
+     },
+     {
+      "word": 18,
+      "audio_s": 5.538,
+      "start": 5.538,
+      "done": 5.787,
+      "text": "What is the weather going to be like in San Francisco this weekend? I want to plan a long"
+     },
+     {
+      "word": 19,
+      "audio_s": 6.225,
+      "start": 6.226,
+      "done": 6.477,
+      "text": "What is the weather going to be like in San Francisco this weekend? I wanna plan a long hike."
+     }
+    ],
+    "final": "What is the weather going to be like in San Francisco this weekend? I want to plan a long hike.",
+    "wer": 0.0,
+    "words": 20,
+    "steps_run": 20,
+    "words_skipped": 0,
+    "step_ms_mean": 146.0,
+    "step_ms_p95": 249.1,
+    "first_text_s": 0.044,
+    "word_latency_mean_s": 0.268,
+    "word_latency_p90_s": 1.096,
+    "rewrite_ratio": 0.167,
+    "final_latency_s": 0.268,
+    "end_to_final_s": 0.943
+   },
+   {
+    "segment": "unclear-fast-babble",
+    "steps": [
+     {
+      "word": 0,
+      "audio_s": 0.288,
+      "start": 0.289,
+      "done": 0.335,
+      "text": ""
+     },
+     {
+      "word": 1,
+      "audio_s": 0.4,
+      "start": 0.401,
+      "done": 0.46,
+      "text": "Could you"
+     },
+     {
+      "word": 2,
+      "audio_s": 0.6,
+      "start": 0.601,
+      "done": 0.648,
+      "text": "Could be"
+     },
+     {
+      "word": 3,
+      "audio_s": 0.863,
+      "start": 0.864,
+      "done": 0.92,
+      "text": "Could you be much of a little?"
+     },
+     {
+      "word": 4,
+      "audio_s": 0.938,
+      "start": 0.939,
+      "done": 0.997,
+      "text": "Could you be much of a"
+     },
+     {
+      "word": 5,
+      "audio_s": 1.188,
+      "start": 1.188,
+      "done": 1.26,
+      "text": "Could you be much of all the course?"
+     },
+     {
+      "word": 6,
+      "audio_s": 1.725,
+      "start": 1.725,
+      "done": 1.819,
+      "text": "Could you be in much of all the quarterly numbers?"
+     },
+     {
+      "word": 7,
+      "audio_s": 2.075,
+      "start": 2.075,
+      "done": 2.239,
+      "text": "Could you be in much of all the quarterly numbers roughly?"
+     },
+     {
+      "word": 8,
+      "audio_s": 2.238,
+      "start": 2.239,
+      "done": 2.341,
+      "text": "Could you easily want the quarter numbers? Roughly four."
+     },
+     {
+      "word": 9,
+      "audio_s": 2.425,
+      "start": 2.426,
+      "done": 2.551,
+      "text": "Could you easily want the quarterly numbers? Roughly four point."
+     },
+     {
+      "word": 10,
+      "audio_s": 2.613,
+      "start": 2.613,
+      "done": 2.752,
+      "text": "Could you easier on the quarterly numbers? Roughly four point seven."
+     },
+     {
+      "word": 11,
+      "audio_s": 3.0,
+      "start": 3.0,
+      "done": 3.14,
+      "text": "Could you easily warn the quarterly numbers? Roughly four point seven million."
+     },
+     {
+      "word": 12,
+      "audio_s": 3.263,
+      "start": 3.264,
+      "done": 3.444,
+      "text": "Could you easier on the quarterly numbers? Roughly four point seven million before."
+     },
+     {
+      "word": 13,
+      "audio_s": 3.338,
+      "start": 3.444,
+      "done": 3.6,
+      "text": "Could you easier on the quarterly numbers? Roughly four point seven million before the year."
+     },
+     {
+      "word": 14,
+      "audio_s": 3.8,
+      "start": 3.801,
+      "done": 3.98,
+      "text": "Could you each much have on the quarterly numbers? Roughly four point seven million before the Ku Leti."
+     },
+     {
+      "word": 15,
+      "audio_s": 3.988,
+      "start": 3.989,
+      "done": 4.156,
+      "text": "Could you each much of all the quarterly numbers? Roughly four point seven million before the Google six."
+     },
+     {
+      "word": 16,
+      "audio_s": 4.1,
+      "start": 4.156,
+      "done": 4.326,
+      "text": "Could you each much of all the quarterly numbers? Roughly four point seven million before the Goodletis sink up."
+     },
+     {
+      "word": 17,
+      "audio_s": 4.875,
+      "start": 4.875,
+      "done": 5.095,
+      "text": "Could you easily warn the quarterly numbers? Roughly four point seven million before the Good Let's sink on Thursday."
+     }
+    ],
+    "final": "Could you be much of all the quarterly numbers? Roughly four point seven million before the Good Let's sink on Thursday.",
+    "wer": 0.5333333333333333,
+    "words": 18,
+    "steps_run": 18,
+    "words_skipped": 0,
+    "step_ms_mean": 120.8,
+    "step_ms_p95": 186.0,
+    "first_text_s": 0.172,
+    "word_latency_mean_s": 0.242,
+    "word_latency_p90_s": 0.527,
+    "rewrite_ratio": 0.827,
+    "final_latency_s": 0.236,
+    "end_to_final_s": 0.886
+   },
+   {
+    "segment": "unclear-muffled",
+    "steps": [
+     {
+      "word": 0,
+      "audio_s": 0.438,
+      "start": 0.439,
+      "done": 0.486,
+      "text": ""
+     },
+     {
+      "word": 1,
+      "audio_s": 0.613,
+      "start": 0.614,
+      "done": 0.66,
+      "text": ""
+     },
+     {
+      "word": 2,
+      "audio_s": 0.7,
+      "start": 0.7,
+      "done": 0.755,
+      "text": "Turn off."
+     },
+     {
+      "word": 3,
+      "audio_s": 0.975,
+      "start": 0.975,
+      "done": 1.046,
+      "text": "Turn off the leader."
+     },
+     {
+      "word": 4,
+      "audio_s": 1.2,
+      "start": 1.2,
+      "done": 1.275,
+      "text": "Turn off the living one."
+     },
+     {
+      "word": 5,
+      "audio_s": 1.75,
+      "start": 1.75,
+      "done": 1.859,
+      "text": "Turn off the living room light."
+     },
+     {
+      "word": 6,
+      "audio_s": 2.063,
+      "start": 2.063,
+      "done": 2.165,
+      "text": "Turn off the living room light, block."
+     },
+     {
+      "word": 7,
+      "audio_s": 2.15,
+      "start": 2.165,
+      "done": 2.265,
+      "text": "Turn off the lighting room light, block the door."
+     },
+     {
+      "word": 8,
+      "audio_s": 2.4,
+      "start": 2.401,
+      "done": 2.533,
+      "text": "Turn off the living room light. Lock the front."
+     },
+     {
+      "word": 9,
+      "audio_s": 2.712,
+      "start": 2.712,
+      "done": 2.849,
+      "text": "Turn off the living room like lock the front door."
+     },
+     {
+      "word": 10,
+      "audio_s": 2.825,
+      "start": 2.849,
+      "done": 2.973,
+      "text": "Turn off the living room like lock the front door and"
+     },
+     {
+      "word": 11,
+      "audio_s": 3.05,
+      "start": 3.05,
+      "done": 3.192,
+      "text": "Turn off the living room like lock the front door and put it down."
+     },
+     {
+      "word": 12,
+      "audio_s": 3.263,
+      "start": 3.263,
+      "done": 3.441,
+      "text": "Turn off the living room light, lock the front door and place them."
+     },
+     {
+      "word": 13,
+      "audio_s": 3.688,
+      "start": 3.689,
+      "done": 3.865,
+      "text": "Turn off the living room like lock the front door and place them quite"
+     },
+     {
+      "word": 14,
+      "audio_s": 4.088,
+      "start": 4.088,
+      "done": 4.26,
+      "text": "Turn off the living room like lock the front door and place my quiet dead."
+     },
+     {
+      "word": 16,
+      "audio_s": 4.25,
+      "start": 4.26,
+      "done": 4.444,
+      "text": "Turn off the living room like lock the front door and place an empliet gaz in the room."
+     },
+     {
+      "word": 17,
+      "audio_s": 5.125,
+      "start": 5.126,
+      "done": 5.371,
+      "text": "Turn off the living room like lock the front door and place some quiet gad in the day."
+     }
+    ],
+    "final": "turn off the living room like lock the front door and place some quiet gad in the bedroom.",
+    "wer": 0.16666666666666666,
+    "words": 18,
+    "steps_run": 17,
+    "words_skipped": 1,
+    "step_ms_mean": 123.2,
+    "step_ms_p95": 196.2,
+    "first_text_s": 0.317,
+    "word_latency_mean_s": 0.444,
+    "word_latency_p90_s": 1.057,
+    "rewrite_ratio": 0.71,
+    "final_latency_s": 0.248,
+    "end_to_final_s": 1.323
+   }
+  ]
+ },
+ "phonon-2/cuda": {
+  "model": "phonon-2",
+  "device": "cuda",
+  "runtime": "phonon-cuda:1.0.8 container, HTTP",
+  "load_s": 54.72287670057267,
+  "warmup_s": 0.08621460013091564,
+  "offline": [
+   {
+    "segment": "clear-1",
+    "audio_s": 6.35,
+    "time_s": 0.056120400317013264,
+    "rtfx": 113.14958489479905,
+    "text": "Hey Jarvis, set a timer for ten minutes, and remind me to call the dentist to morrow morning.",
+    "wer": 0.11764705882352941
+   },
+   {
+    "segment": "clear-2",
+    "audio_s": 6.9,
+    "time_s": 0.060036699287593365,
+    "rtfx": 114.92970269646204,
+    "text": "What is the weather going to be like in San Francisco this weekend? I want to plan a long hike.",
+    "wer": 0.0
+   },
+   {
+    "segment": "unclear-fast-babble",
+    "audio_s": 5.525,
+    "time_s": 0.05667740013450384,
+    "rtfx": 97.48153561893028,
+    "text": "Could you easier on the quarterly numbers? Roughly four point seven million before the Good Let's sink on Thursday.",
+    "wer": 0.4
+   },
+   {
+    "segment": "unclear-muffled",
+    "audio_s": 6.2,
+    "time_s": 0.0513738002628088,
+    "rtfx": 120.6840834877537,
+    "text": "turn off the living room like lock the front door and place an quiet gad in the bedroom.",
+    "wer": 0.2222222222222222
+   }
+  ],
+  "streaming": [
+   {
+    "segment": "clear-1",
+    "steps": [
+     {
+      "word": 0,
+      "audio_s": 0.512,
+      "start": 0.513,
+      "done": 0.55,
+      "text": "Hate"
+     },
+     {
+      "word": 1,
+      "audio_s": 1.175,
+      "start": 1.176,
+      "done": 1.266,
+      "text": "Hey Jarvis,"
+     },
+     {
+      "word": 2,
+      "audio_s": 1.438,
+      "start": 1.438,
+      "done": 1.479,
+      "text": "Hey Jarvis, said"
+     },
+     {
+      "word": 3,
+      "audio_s": 1.5,
+      "start": 1.501,
+      "done": 1.541,
+      "text": "Hey Jarvis, said a man."
+     },
+     {
+      "word": 4,
+      "audio_s": 1.9,
+      "start": 1.901,
+      "done": 1.992,
+      "text": "Hey, Jarvis, said a timer."
+     },
+     {
+      "word": 5,
+      "audio_s": 2.062,
+      "start": 2.062,
+      "done": 2.106,
+      "text": "Hey, Jarvis, said a timer for Jack."
+     },
+     {
+      "word": 6,
+      "audio_s": 2.312,
+      "start": 2.313,
+      "done": 2.357,
+      "text": "Hey Jarvis, set a timer for ten minutes."
+     },
+     {
+      "word": 7,
+      "audio_s": 2.962,
+      "start": 2.962,
+      "done": 3.01,
+      "text": "Hey Jarvis set a timer for ten minutes,"
+     },
+     {
+      "word": 8,
+      "audio_s": 3.1,
+      "start": 3.1,
+      "done": 3.145,
+      "text": "Hey Jarvis, set a timer for ten minutes and read."
+     },
+     {
+      "word": 9,
+      "audio_s": 3.487,
+      "start": 3.487,
+      "done": 3.537,
+      "text": "Hey Jarvis, set a timer for ten minutes and remind me."
+     },
+     {
+      "word": 10,
+      "audio_s": 3.6,
+      "start": 3.6,
+      "done": 3.658,
+      "text": "Hey Jarvis, set a timer for ten minutes and remind me of the"
+     },
+     {
+      "word": 11,
+      "audio_s": 3.725,
+      "start": 3.725,
+      "done": 3.801,
+      "text": "Hey Jarvis, set a timer for ten minutes, and remind me to go."
+     },
+     {
+      "word": 12,
+      "audio_s": 3.938,
+      "start": 3.938,
+      "done": 3.993,
+      "text": "Hey Jarvis, set a timer for ten minutes and remind me to call you."
+     },
+     {
+      "word": 13,
+      "audio_s": 4.025,
+      "start": 4.025,
+      "done": 4.076,
+      "text": "Hey Jarvis, set a timer for ten minutes, and remind me to call the"
+     },
+     {
+      "word": 14,
+      "audio_s": 4.6,
+      "start": 4.601,
+      "done": 4.651,
+      "text": "Hey Jarvis, set a timer for ten minutes, and remind me to call the dentist"
+     },
+     {
+      "word": 15,
+      "audio_s": 5.0,
+      "start": 5.001,
+      "done": 5.076,
+      "text": "Hey Jarvis, set a timer for ten minutes, and remind me to call the dentist tomorrow morning."
+     },
+     {
+      "word": 16,
+      "audio_s": 5.7,
+      "start": 5.7,
+      "done": 5.809,
+      "text": "Hey Jarvis, set a timer for ten minutes, and remind me to call the dentist to morrow morning."
+     }
+    ],
+    "final": "Hey Jarvis, set a timer for ten minutes, and remind me to call the dentist to morrow morning.",
+    "wer": 0.11764705882352941,
+    "words": 17,
+    "steps_run": 17,
+    "words_skipped": 0,
+    "step_ms_mean": 59.1,
+    "step_ms_p95": 94.6,
+    "first_text_s": 0.038,
+    "word_latency_mean_s": 0.04,
+    "word_latency_p90_s": 0.357,
+    "rewrite_ratio": 0.438,
+    "final_latency_s": 0.129,
+    "end_to_final_s": 0.78
+   },
+   {
+    "segment": "clear-2",
+    "steps": [
+     {
+      "word": 0,
+      "audio_s": 0.55,
+      "start": 0.551,
+      "done": 0.652,
+      "text": "What"
+     },
+     {
+      "word": 1,
+      "audio_s": 0.7,
+      "start": 0.7,
+      "done": 0.79,
+      "text": "What is the thing?"
+     },
+     {
+      "word": 2,
+      "audio_s": 0.838,
+      "start": 0.838,
+      "done": 0.879,
+      "text": "What is the word?"
+     },
+     {
+      "word": 3,
+      "audio_s": 1.175,
+      "start": 1.175,
+      "done": 1.217,
+      "text": "What is the weather going?"
+     },
+     {
+      "word": 4,
+      "audio_s": 1.363,
+      "start": 1.363,
+      "done": 1.41,
+      "text": "What is the weather going on?"
+     },
+     {
+      "word": 5,
+      "audio_s": 1.438,
+      "start": 1.439,
+      "done": 1.484,
+      "text": "What is the weather going to be?"
+     },
+     {
+      "word": 6,
+      "audio_s": 1.575,
+      "start": 1.575,
+      "done": 1.634,
+      "text": "What is the weather going to be like?"
+     },
+     {
+      "word": 7,
+      "audio_s": 1.85,
+      "start": 1.851,
+      "done": 1.893,
+      "text": "What is the weather going to be like?"
+     },
+     {
+      "word": 8,
+      "audio_s": 2.013,
+      "start": 2.013,
+      "done": 2.062,
+      "text": "What is the weather going to be like in"
+     },
+     {
+      "word": 9,
+      "audio_s": 2.325,
+      "start": 2.325,
+      "done": 2.368,
+      "text": "What is the weather going to be like in San"
+     },
+     {
+      "word": 10,
+      "audio_s": 3.025,
+      "start": 3.026,
+      "done": 3.096,
+      "text": "What is the weather going to be like in San Francisco?"
+     },
+     {
+      "word": 11,
+      "audio_s": 3.263,
+      "start": 3.264,
+      "done": 3.349,
+      "text": "What is the weather going to be like in San Francisco this week?"
+     },
+     {
+      "word": 12,
+      "audio_s": 4.15,
+      "start": 4.15,
+      "done": 4.282,
+      "text": "What is the weather going to be like in San Francisco this weekend?"
+     },
+     {
+      "word": 13,
+      "audio_s": 4.45,
+      "start": 4.45,
+      "done": 4.603,
+      "text": "What is the weather going to be like in San Francisco this weekend?"
+     },
+     {
+      "word": 14,
+      "audio_s": 4.612,
+      "start": 4.612,
+      "done": 4.791,
+      "text": "What is the weather going to be like in San Francisco this weekend?"
+     },
+     {
+      "word": 15,
+      "audio_s": 4.7,
+      "start": 4.792,
+      "done": 4.928,
+      "text": "What is the weather going to be like in San Francisco this weekend?"
+     },
+     {
+      "word": 16,
+      "audio_s": 5.05,
+      "start": 5.05,
+      "done": 5.101,
+      "text": "What is the weather going to be like in San Francisco this weekend?"
+     },
+     {
+      "word": 17,
+      "audio_s": 5.162,
+      "start": 5.162,
+      "done": 5.215,
+      "text": "What is the weather going to be like in San Francisco this weekend?"
+     },
+     {
+      "word": 18,
+      "audio_s": 5.538,
+      "start": 5.539,
+      "done": 5.588,
+      "text": "What is the weather going to be like in San Francisco this weekend? I want to plan a long"
+     },
+     {
+      "word": 19,
+      "audio_s": 6.225,
+      "start": 6.225,
+      "done": 6.299,
+      "text": "What is the weather going to be like in San Francisco this weekend? I want to plan a long hike."
+     }
+    ],
+    "final": "What is the weather going to be like in San Francisco this weekend? I want to plan a long hike.",
+    "wer": 0.0,
+    "words": 20,
+    "steps_run": 20,
+    "words_skipped": 0,
+    "step_ms_mean": 77.1,
+    "step_ms_p95": 154.3,
+    "first_text_s": 0.102,
+    "word_latency_mean_s": 0.213,
+    "word_latency_p90_s": 0.897,
+    "rewrite_ratio": 0.167,
+    "final_latency_s": 0.088,
+    "end_to_final_s": 0.764
+   },
+   {
+    "segment": "unclear-fast-babble",
+    "steps": [
+     {
+      "word": 0,
+      "audio_s": 0.288,
+      "start": 0.289,
+      "done": 0.34,
+      "text": ""
+     },
+     {
+      "word": 1,
+      "audio_s": 0.4,
+      "start": 0.4,
+      "done": 0.45,
+      "text": "Could you"
+     },
+     {
+      "word": 2,
+      "audio_s": 0.6,
+      "start": 0.6,
+      "done": 0.657,
+      "text": "Could be"
+     },
+     {
+      "word": 3,
+      "audio_s": 0.863,
+      "start": 0.863,
+      "done": 0.921,
+      "text": "Could you be much of a little?"
+     },
+     {
+      "word": 4,
+      "audio_s": 0.938,
+      "start": 0.938,
+      "done": 0.995,
+      "text": "Could you be more shibone?"
+     },
+     {
+      "word": 5,
+      "audio_s": 1.188,
+      "start": 1.189,
+      "done": 1.252,
+      "text": "Could you be much of a on the course?"
+     },
+     {
+      "word": 6,
+      "audio_s": 1.725,
+      "start": 1.726,
+      "done": 1.804,
+      "text": "Could you be much of all the quarterly numbers?"
+     },
+     {
+      "word": 7,
+      "audio_s": 2.075,
+      "start": 2.076,
+      "done": 2.154,
+      "text": "Could you be much of all the quarterly numbers roughly?"
+     },
+     {
+      "word": 8,
+      "audio_s": 2.238,
+      "start": 2.238,
+      "done": 2.317,
+      "text": "Could you easily on the quarterly numbers? Roughly four."
+     },
+     {
+      "word": 9,
+      "audio_s": 2.425,
+      "start": 2.426,
+      "done": 2.529,
+      "text": "Could you easily warn the quarterly numbers? Roughly four point."
+     },
+     {
+      "word": 10,
+      "audio_s": 2.613,
+      "start": 2.614,
+      "done": 2.719,
+      "text": "Could you easily warn the quarterly numbers? Roughly four point seven."
+     },
+     {
+      "word": 11,
+      "audio_s": 3.0,
+      "start": 3.0,
+      "done": 3.114,
+      "text": "Could you easily warn the quarterly numbers? Roughly four point seven million."
+     },
+     {
+      "word": 12,
+      "audio_s": 3.263,
+      "start": 3.263,
+      "done": 3.435,
+      "text": "Could you easier on the quarterly numbers? Roughly four point seven million before."
+     },
+     {
+      "word": 13,
+      "audio_s": 3.338,
+      "start": 3.435,
+      "done": 3.593,
+      "text": "Could you easier on the quarterly numbers? Roughly four point seven million before the year."
+     },
+     {
+      "word": 14,
+      "audio_s": 3.8,
+      "start": 3.8,
+      "done": 3.866,
+      "text": "Could you easy quarterly numbers? Roughly four point seven million before the Ku Leti."
+     },
+     {
+      "word": 15,
+      "audio_s": 3.988,
+      "start": 3.988,
+      "done": 4.042,
+      "text": "Could you easy quarterly numbers? Roughly four point seven million before the Google six."
+     },
+     {
+      "word": 16,
+      "audio_s": 4.1,
+      "start": 4.1,
+      "done": 4.153,
+      "text": "Could you easy quarterly numbers? Roughly four point seven million before the Good Let's"
+     },
+     {
+      "word": 17,
+      "audio_s": 4.875,
+      "start": 4.876,
+      "done": 4.93,
+      "text": "Could you easier on the quarterly numbers? Roughly four point seven million before the Good Let's sink on Thursday."
+     }
+    ],
+    "final": "Could you easier on the quarterly numbers? Roughly four point seven million before the Good Let's sink on Thursday.",
+    "wer": 0.4,
+    "words": 18,
+    "steps_run": 18,
+    "words_skipped": 0,
+    "step_ms_mean": 80.6,
+    "step_ms_p95": 160.1,
+    "first_text_s": 0.162,
+    "word_latency_mean_s": 0.196,
+    "word_latency_p90_s": 0.501,
+    "rewrite_ratio": 0.779,
+    "final_latency_s": 0.121,
+    "end_to_final_s": 0.771
+   },
+   {
+    "segment": "unclear-muffled",
+    "steps": [
+     {
+      "word": 0,
+      "audio_s": 0.438,
+      "start": 0.438,
+      "done": 0.497,
+      "text": "There"
+     },
+     {
+      "word": 1,
+      "audio_s": 0.613,
+      "start": 0.614,
+      "done": 0.672,
+      "text": "Sure."
+     },
+     {
+      "word": 2,
+      "audio_s": 0.7,
+      "start": 0.7,
+      "done": 0.758,
+      "text": "Turn off."
+     },
+     {
+      "word": 3,
+      "audio_s": 0.975,
+      "start": 0.976,
+      "done": 1.037,
+      "text": "Turn off the leader."
+     },
+     {
+      "word": 4,
+      "audio_s": 1.2,
+      "start": 1.2,
+      "done": 1.263,
+      "text": "Turn off the living one."
+     },
+     {
+      "word": 5,
+      "audio_s": 1.75,
+      "start": 1.75,
+      "done": 1.889,
+      "text": "Turn off the living room light."
+     },
+     {
+      "word": 6,
+      "audio_s": 2.063,
+      "start": 2.063,
+      "done": 2.216,
+      "text": "Turn off the lighting room light, block."
+     },
+     {
+      "word": 7,
+      "audio_s": 2.15,
+      "start": 2.216,
+      "done": 2.339,
+      "text": "Turn off the lighting room light, block the light."
+     },
+     {
+      "word": 8,
+      "audio_s": 2.4,
+      "start": 2.4,
+      "done": 2.45,
+      "text": "Turn off the lighting room like lock the front."
+     },
+     {
+      "word": 9,
+      "audio_s": 2.712,
+      "start": 2.712,
+      "done": 2.764,
+      "text": "Turn off the living room like lock the front door."
+     },
+     {
+      "word": 10,
+      "audio_s": 2.825,
+      "start": 2.825,
+      "done": 2.877,
+      "text": "Turn off the living room like lock the front door and"
+     },
+     {
+      "word": 11,
+      "audio_s": 3.05,
+      "start": 3.05,
+      "done": 3.097,
+      "text": "Turn off the living room like lock the front door and put it down."
+     },
+     {
+      "word": 12,
+      "audio_s": 3.263,
+      "start": 3.264,
+      "done": 3.322,
+      "text": "Turn off the living room light, lock the front door and place them."
+     },
+     {
+      "word": 13,
+      "audio_s": 3.688,
+      "start": 3.688,
+      "done": 3.741,
+      "text": "Turn off the living room like lock the front door and place them slide."
+     },
+     {
+      "word": 14,
+      "audio_s": 4.088,
+      "start": 4.089,
+      "done": 4.222,
+      "text": "Turn off the living room like lock the front door and place an employee dead."
+     },
+     {
+      "word": 15,
+      "audio_s": 4.162,
+      "start": 4.222,
+      "done": 4.342,
+      "text": "Turn off the living room like lock the front door and place an employee at dead."
+     },
+     {
+      "word": 16,
+      "audio_s": 4.25,
+      "start": 4.342,
+      "done": 4.405,
+      "text": "Turn off the living room like lock the front door and place some quiet gadgets."
+     },
+     {
+      "word": 17,
+      "audio_s": 5.125,
+      "start": 5.125,
+      "done": 5.206,
+      "text": "turn off the living room like lock the front door and place some quiet gad in the day."
+     }
+    ],
+    "final": "turn off the living room like lock the front door and place an quiet gad in the bedroom.",
+    "wer": 0.2222222222222222,
+    "words": 18,
+    "steps_run": 18,
+    "words_skipped": 0,
+    "step_ms_mean": 79.1,
+    "step_ms_p95": 141.1,
+    "first_text_s": 0.059,
+    "word_latency_mean_s": 0.503,
+    "word_latency_p90_s": 1.103,
+    "rewrite_ratio": 0.7,
+    "final_latency_s": 0.099,
+    "end_to_final_s": 1.174
+   }
+  ]
+ }
+}
